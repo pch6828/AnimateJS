@@ -21,7 +21,6 @@ class App{
         document.addEventListener('pointerdown', this.onDown.bind(this), false);
         document.addEventListener('pointermove', this.onMove.bind(this), false);
         document.addEventListener('pointerup', this.onUp.bind(this), false);
-        document.addEventListener('click', this.onClick.bind(this), false);
 
         window.requestAnimationFrame(this.animate.bind(this));
     }
@@ -42,10 +41,6 @@ class App{
         window.requestAnimationFrame(this.animate.bind(this));
 
         this.ctx.clearRect(0, 0, this.stageWidth, this.stageHeight);
-        
-        this.ctx.font = '100px consolas';
-        this.ctx.textAlign='center';
-
         this.moveX *= 0.92
         this.menu.animate(this.ctx, this.moveX);
     }
@@ -65,12 +60,6 @@ class App{
 
     onUp(e){
         this.isDown = false;
-    }
-
-    onClick(e){
-        const x = e.clientX;
-        const y = e.clientY;
-        this.menu.click(x, y);
     }
 }
 

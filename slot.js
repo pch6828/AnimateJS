@@ -9,6 +9,7 @@ export class Slot{
         this.div.className = 'slot';
         this.div.style.transform = "translate3d("+this.x+"px,"+this.y+"px, 0px) no-repeat";
         this.div.appendChild(document.createTextNode(alpha));
+        this.div.addEventListener("click", this.onClick.bind(this), false);
         document.body.insertBefore(this.div, document.getElementById('main_canvas'));
     }
 
@@ -17,12 +18,7 @@ export class Slot{
         //ctx.fillText(this.alpha, this.x, this.y, this.size);
     }
 
-    collide(x, y){
-        if(x>=this.x-this.size/4&&x<=this.x+this.size/4&&y>=this.y-this.size/2&&y<=this.y){
-            //console.log(this.alpha);
-            return true;
-        }else{
-            return false;
-        }
+    onClick(e){
+        console.log(this.alpha);
     }
 }

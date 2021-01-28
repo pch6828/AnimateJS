@@ -43,12 +43,4 @@ export class Menu{
         }
         this.centerx = x;
     }
-
-    click(x, y){
-        for(let i = 0; i < this.slot.length; i++){
-            if(this.slot[i].collide(x, y)){
-                //
-            }
-        }
-    }
 }
