@@ -2,8 +2,6 @@ import {Slot} from './slot.js?ver=1';
 
 export class Menu{
     constructor(x, y, slotsize){
-        this.x = x;
-        this.y = y;
         this.nowx = x;
         this.centerx = x;
         this.slotsize = slotsize;
@@ -35,6 +33,15 @@ export class Menu{
             }
             this.slot[i].animate(ctx);
         }
+    }
+
+    resize(x, y){
+        this.nowx+=x-this.centerx;
+        for(let i = 0; i < this.slot.length; i++){
+            this.slot[i].x += x-this.centerx;
+            this.slot[i].y = y;
+        }
+        this.centerx = x;
     }
 
     click(x, y){

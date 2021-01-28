@@ -8,7 +8,7 @@ class App{
         this.ctx = this.canvas.getContext('2d');
 
         this.pixelRatio =window.devicePixelRatio > 1 ? 2 : 1;
-
+        this.menu = null;
         window.addEventListener('resize', this.resize.bind(this), false);
         this.resize();
 
@@ -33,6 +33,9 @@ class App{
         this.canvas.width = this.stageWidth*this.pixelRatio;
         this.canvas.height = this.stageHeight*this.pixelRatio;
         this.ctx.scale(this.pixelRatio, this.pixelRatio);
+        if(this.menu){
+            this.menu.resize(this.stageWidth/2, this.stageHeight*3/5);
+        }
     }
 
     animate(){
