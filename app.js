@@ -3,6 +3,7 @@ import {Menu} from './menu.js?ver=1';
 class App{
     constructor(){
         this.canvas = document.createElement('canvas');
+        this.canvas.id = 'main_canvas';
         document.body.appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
 
@@ -14,6 +15,8 @@ class App{
         this.isDown = false;
         this.moveX = 0;
         this.offsetX = 0;
+
+        this.menu = new Menu(this.stageWidth/2, this.stageHeight*3/5, this.stageHeight/3);
 
         document.addEventListener('pointerdown', this.onDown.bind(this), false);
         document.addEventListener('pointermove', this.onMove.bind(this), false);
@@ -30,8 +33,6 @@ class App{
         this.canvas.width = this.stageWidth*this.pixelRatio;
         this.canvas.height = this.stageHeight*this.pixelRatio;
         this.ctx.scale(this.pixelRatio, this.pixelRatio);
-
-        this.menu = new Menu(this.stageWidth/2, this.stageHeight*2/3, this.stageHeight/3);
     }
 
     animate(){

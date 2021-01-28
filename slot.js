@@ -5,10 +5,16 @@ export class Slot{
         this.size = size;
         this.alpha = alpha;
         this.description = description;
+        this.div = document.createElement('div');
+        this.div.className = 'slot';
+        this.div.style.transform = "translate3d("+this.x+"px,"+this.y+"px, 0px) no-repeat";
+        this.div.appendChild(document.createTextNode(alpha));
+        document.body.insertBefore(this.div, document.getElementById('main_canvas'));
     }
 
     animate(ctx){
-        ctx.fillText(this.alpha, this.x, this.y, this.size);
+        this.div.style.transform = "translate3d("+this.x+"px,"+this.y+"px, 0px)";
+        //ctx.fillText(this.alpha, this.x, this.y, this.size);
     }
 
     collide(x, y){
