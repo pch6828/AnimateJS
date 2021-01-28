@@ -1,5 +1,35 @@
 import {Slot} from './slot.js?ver=1';
 
+const colors = [
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+    '#3c444c',
+]
+
 export class Menu{
     constructor(x, y, slotsize){
         this.nowx = x;
@@ -9,7 +39,7 @@ export class Menu{
         const upper = 65;
         const lower = 97;
         for(let i = 0; i < 26; i++){
-            this.slot[i] = new Slot(x+i*slotsize, y, slotsize, String.fromCharCode(upper+i, lower+i), null);
+            this.slot[i] = new Slot(x+i*slotsize, y, slotsize, String.fromCharCode(upper+i, lower+i), null, colors[i]);
         }
     }
 
@@ -17,7 +47,6 @@ export class Menu{
         const movement = moveX*0.7;
         this.nowx+=movement;  
         let overflow = false;
-        let font_size = 100;
         
         if(this.centerx>this.nowx+25*this.slotsize){
             this.nowx = this.centerx-25*this.slotsize;
@@ -31,7 +60,7 @@ export class Menu{
             if(!overflow){
                 this.slot[i].x += movement;
             }
-            this.slot[i].animate(ctx);
+            this.slot[i].animate(ctx, this.centerx);
         }
     }
 
