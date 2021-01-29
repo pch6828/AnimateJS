@@ -70,3 +70,8 @@ canvas{
     font-weight: 600;
     z-index: 1;
 }
+
+.menu{
+    display: flex;
+    position: absolute;
+}

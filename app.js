@@ -2,11 +2,6 @@ import {Menu} from './menu.js?ver=1';
 
 class App{
     constructor(){
-        this.canvas = document.createElement('canvas');
-        this.canvas.id = 'main_canvas';
-        document.body.appendChild(this.canvas);
-        this.ctx = this.canvas.getContext('2d');
-        this.pixelRatio =window.devicePixelRatio > 1 ? 2 : 1;
         this.menu = null;
         window.addEventListener('resize', this.resize.bind(this), false);
         this.resize();
@@ -29,9 +24,6 @@ class App{
         this.stageWidth = document.body.clientWidth;
         this.stageHeight = document.body.clientHeight;
 
-        this.canvas.width = this.stageWidth*this.pixelRatio;
-        this.canvas.height = this.stageHeight*this.pixelRatio;
-        this.ctx.scale(this.pixelRatio, this.pixelRatio);
         if(this.menu){
             this.menu.resize(this.stageWidth/2, this.stageHeight*3/5);
         }
@@ -40,7 +32,6 @@ class App{
     animate(){
         window.requestAnimationFrame(this.animate.bind(this));
 
-        this.ctx.clearRect(0, 0, this.stageWidth, this.stageHeight);
         this.moveX *= 0.92
         this.menu.animate(this.ctx, this.moveX);
     }

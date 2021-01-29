@@ -28,7 +28,8 @@ export class Slot{
         this.btn_div.addEventListener('pointerleave', this.onLeave.bind(this), false);
         this.div.appendChild(this.btn_div);
 
-        document.body.insertBefore(this.div, document.getElementById('main_canvas'));
+        const menu = document.getElementById('jsMenu');
+        menu.appendChild(this.div);
     }
 
     animate(ctx, centerx){
