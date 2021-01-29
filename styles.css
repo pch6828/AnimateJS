@@ -23,8 +23,7 @@ canvas{
     height: 100%;
 }
 
-.slot{
-    display: block;
+.slot{ 
     position: absolute;
     align-items: center;
 }
@@ -40,10 +39,27 @@ canvas{
 }
 
 .slot__description{
-    display: block;
-    text-align: center;
+    display: table;
+    width: 500px;
+    height: 50px;
+    transform: rotate(-90deg) translate3d(220px, -190px, 0px);
+}
+
+.p{
+    display:table-cell;
+    text-align: left;
+    vertical-align: middle;
     font-size: 20px;
-    font-weight: 80;
+    font-weight: 100;
     color: #333333;
-    transform: rotateZ(-90deg) translate3d(30px, 25px, 0px);
+}
+
+.header{
+    width: 30%;
+    position: absolute;
+    left: 35%;
+    top: 15%;
+    text-align: center;
+    font-size: 40px;
+    font-weight: 600;
 }

@@ -6,7 +6,6 @@ class App{
         this.canvas.id = 'main_canvas';
         document.body.appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
-
         this.pixelRatio =window.devicePixelRatio > 1 ? 2 : 1;
         this.menu = null;
         window.addEventListener('resize', this.resize.bind(this), false);
