@@ -102,4 +102,13 @@ export class Menu{
         }
         this.centerx = x;
     }
+
+    is_content_on(){
+        for(let i = 0; i < this.slot.length; i++){
+            if(this.slot[i].content_on){
+                return true;
+            }
+        }
+        return false;
+    }
 }

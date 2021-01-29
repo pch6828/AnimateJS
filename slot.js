@@ -1,9 +1,11 @@
+import {Content} from './content.js?ver=1';
+
 export class Slot{
     constructor(x, y, size, alpha, description, color){
         this.x = x;
         this.y = y;
         this.size = size;
-        this.description = description;
+        this.content_on = false;
         this.div = document.createElement('div');
         this.div.className = 'slot';
         this.div.style.transform = "translate3d("+this.x+"px,"+this.y+"px, 0px)";
@@ -34,7 +36,9 @@ export class Slot{
     }
 
     onClick(e){
-        console.log(this.alpha);
+        let content = new Content('#333333');
+        window.content_on = true;
+        content.animate();
     }
 
     onEnter(e){

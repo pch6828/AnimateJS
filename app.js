@@ -22,6 +22,7 @@ class App{
         document.addEventListener('pointerup', this.onUp.bind(this), false);
 
         window.requestAnimationFrame(this.animate.bind(this));
+        window.content_on = false;
     }
     
     resize(){
@@ -45,20 +46,24 @@ class App{
     }
 
     onDown(e){
-        this.isDown = true;
-        this.moveX = 0;
-        this.offsetX = e.clientX;
+        if(!window.content_on){
+            this.isDown = true;
+            this.moveX = 0;
+            this.offsetX = e.clientX;
+        }
     }
 
     onMove(e){
-        if(this.isDown){
+        if(this.isDown && !window.content_on){
             this.moveX = e.clientX - this.offsetX;
             this.offsetX = e.clientX;
         }
     }
 
     onUp(e){
-        this.isDown = false;
+        if(!window.content_on){
+            this.isDown = false;
+        }
     }
 }
 
