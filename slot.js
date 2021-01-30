@@ -4,7 +4,7 @@ const content = document.getElementById('jsContent');
 export class Slot{
     constructor(x, y, size, alpha, description, color){
         this.x = x;
-        this.y = y;
+        //this.y = y;
         this.size = size;
         this.empty = (description?false:true);
         this.div = document.createElement('div');
@@ -33,13 +33,15 @@ export class Slot{
     }
 
     animate(){
-        this.div.style.transform = "translate3d("+this.x+"px,"+this.y+"px, 0px)";
+        this.div.style.transform = "translate3d("+this.x+"px,"+0+"px, 0px)";
     }
 
     opencontent(e){
-        menu.style.display = 'none';
-        content.style.display = 'block';
-        window.content_on = true;
+        if(!this.empty){
+            menu.style.display = 'none';
+            content.style.display = 'block';
+            window.content_on = true;
+        }
     }
 
     onEnter(e){

@@ -27,12 +27,14 @@ canvas{
 
 .slot{
     width:120px;
+    height: 80%;
     position: absolute;
-    align-items: center;
+    display: flex;
     z-index: 1;
 }
 
 .slot__btn{
+    bottom: 0px;
     width: 120px;
     height: 100px;
     display: block;
@@ -45,9 +47,10 @@ canvas{
 
 .slot__description{
     display: table;
+    position: absolute;
     width: 500px;
     height: 50px;
-    transform: rotate(-90deg) translate3d(220px, -190px, 0px);
+    transform: rotate(-90deg) translate3d(-220px, -190px, 0px);
     z-index: inherit;
 }
 
@@ -64,6 +67,7 @@ canvas{
 .header{
     width: 30%;
     position: absolute;
+    display: flex;
     left: 35%;
     top: 15%;
     text-align: center;

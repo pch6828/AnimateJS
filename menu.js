@@ -98,7 +98,7 @@ export class Menu{
         this.nowx = this.nowx/this.centerx*x;
         for(let i = 0; i < this.slot.length; i++){
             this.slot[i].x = this.nowx+i*this.slotsize;
-            this.slot[i].y = y;
+            //this.slot[i].y = y;
         }
         this.centerx = x;
     }
