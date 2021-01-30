@@ -73,7 +73,7 @@ export class Menu{
         }
     }
 
-    animate(ctx, moveX){
+    animate(moveX){
         const movement = moveX*0.7;
         this.nowx+=movement;  
         let overflow = false;
@@ -90,7 +90,7 @@ export class Menu{
             if(!overflow){
                 this.slot[i].x += movement;
             }
-            this.slot[i].animate(ctx, this.centerx);
+            this.slot[i].animate();
         }
     }
 
@@ -101,14 +101,5 @@ export class Menu{
             this.slot[i].y = y;
         }
         this.centerx = x;
-    }
-
-    is_content_on(){
-        for(let i = 0; i < this.slot.length; i++){
-            if(this.slot[i].content_on){
-                return true;
-            }
-        }
-        return false;
     }
 }

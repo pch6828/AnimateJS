@@ -25,7 +25,8 @@ canvas{
     z-index: 0;
 }
 
-.slot{ 
+.slot{
+    width:120px;
     position: absolute;
     align-items: center;
     z-index: 1;
@@ -72,6 +73,26 @@ canvas{
 }
 
 .menu{
-    display: flex;
+    width: 100%;
+    height: 100%;
+    display: block;
     position: absolute;
+}
+
+.content{
+    width: 100%;
+    height: 100%;
+    display: none;
+    position: absolute;
+}
+
+.close_btn{
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    border-radius: 15px;
+    background-color: white;
+    z-index: 3;
+    right: 15px;
+    top: 50%;
 }

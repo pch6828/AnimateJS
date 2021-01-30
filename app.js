@@ -1,4 +1,5 @@
 import {Menu} from './menu.js?ver=1';
+import {Content} from './content.js?ver=1';
 
 class App{
     constructor(){
@@ -11,7 +12,7 @@ class App{
         this.offsetX = 0;
 
         this.menu = new Menu(this.stageWidth/2, this.stageHeight*3/5, this.stageHeight/3);
-
+        this.content = new Content('#333333');
         document.addEventListener('pointerdown', this.onDown.bind(this), false);
         document.addEventListener('pointermove', this.onMove.bind(this), false);
         document.addEventListener('pointerup', this.onUp.bind(this), false);
@@ -33,7 +34,8 @@ class App{
         window.requestAnimationFrame(this.animate.bind(this));
 
         this.moveX *= 0.92
-        this.menu.animate(this.ctx, this.moveX);
+        this.menu.animate(this.moveX);
+        this.content.animate(); 
     }
 
     onDown(e){
