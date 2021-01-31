@@ -49,8 +49,8 @@ class App{
     onMove(e){
         if(this.isDown && !window.content_on){
             this.moveX = e.clientX - this.offsetX;
-            this.offsetX = e.clientX;
         }
+        this.offsetX = e.clientX;
     }
 
     onUp(e){
