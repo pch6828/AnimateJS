@@ -17,6 +17,9 @@ class App{
         document.addEventListener('pointermove', this.onMove.bind(this), false);
         document.addEventListener('pointerup', this.onUp.bind(this), false);
 
+        document.addEventListener('lostpointercapture', this.onLost.bind(this), false);
+        document.addEventListener('gotpointercapture', this.onGot.bind(this), false);
+
         window.requestAnimationFrame(this.animate.bind(this));
         window.content_on = false;
     }
@@ -49,13 +52,27 @@ class App{
     onMove(e){
         if(this.isDown && !window.content_on){
             this.moveX = e.clientX - this.offsetX;
+            this.offsetX = e.clientX;
         }
-        this.offsetX = e.clientX;
     }
 
     onUp(e){
         if(!window.content_on){
             this.isDown = false;
+        }
+    }
+
+    onLost(e){
+        console.log('lost');
+        if(e.pointerType==='pen'){
+            this.isDown = false;
+        }
+    }
+
+    onGot(e){
+        console.log('got');
+        if(e.pointerType==='pen'){
+            this.isDown = true;
         }
     }
 }
