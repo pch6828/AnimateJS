@@ -13,9 +13,9 @@ class App{
 
         this.menu = new Menu(this.stageWidth/2, 300);
         this.content = new Content('#333333');
-        document.addEventListener('moucedown', this.onDown.bind(this), false);
-        document.addEventListener('moucemove', this.onMove.bind(this), false);
-        document.addEventListener('mouceup', this.onUp.bind(this), false);
+        document.addEventListener('pointerdown', this.onDown.bind(this), false);
+        document.addEventListener('pointermove', this.onMove.bind(this), false);
+        document.addEventListener('pointerup', this.onUp.bind(this), false);
 
         window.requestAnimationFrame(this.animate.bind(this));
         window.content_on = false;

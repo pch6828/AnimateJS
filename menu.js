@@ -85,7 +85,6 @@ export class Menu{
             this.nowx = this.centerx;
             movement = this.nowx - prevx;
         }
-        console.log(this.centerx, this.nowx);
         for(let i = 0; i < this.slot.length; i++){
             this.slot[i].x += movement;
             this.slot[i].animate();
