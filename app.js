@@ -11,7 +11,7 @@ class App{
         this.moveX = 0;
         this.offsetX = 0;
 
-        this.menu = new Menu(this.stageWidth/2, this.stageHeight*3/5, this.stageHeight/3);
+        this.menu = new Menu(this.stageWidth/2, 300);
         this.content = new Content('#333333');
         document.addEventListener('pointerdown', this.onDown.bind(this), false);
         document.addEventListener('pointermove', this.onMove.bind(this), false);

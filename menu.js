@@ -61,7 +61,7 @@ const description = [
 ]
 
 export class Menu{
-    constructor(x, y, slotsize){
+    constructor(x, slotsize){
         this.nowx = x;
         this.centerx = x;
         this.slotsize = slotsize;
@@ -69,36 +69,33 @@ export class Menu{
         const upper = 65;
         const lower = 97;
         for(let i = 0; i < 26; i++){
-            this.slot[i] = new Slot(x+i*slotsize, y, slotsize, String.fromCharCode(upper+i, lower+i), description[i], (description[i]?colors[i]:NULL_COLOR));
+            this.slot[i] = new Slot(x+i*slotsize, slotsize, String.fromCharCode(upper+i, lower+i), description[i], (description[i]?colors[i]:NULL_COLOR));
         }
     }
 
     animate(moveX){
-        const movement = moveX*0.7;
+        let movement = moveX*0.9;
+        let prevx = this.nowx;
         this.nowx+=movement;  
-        let overflow = false;
-        
+
         if(this.centerx>this.nowx+25*this.slotsize){
             this.nowx = this.centerx-25*this.slotsize;
-            overflow = true;
+            movement = this.nowx - prevx;
         }else if(this.centerx<this.nowx){
             this.nowx = this.centerx;
-            overflow = true;
+            movement = this.nowx - prevx;
         }
-
+        console.log(this.centerx, this.nowx);
         for(let i = 0; i < this.slot.length; i++){
-            if(!overflow){
-                this.slot[i].x += movement;
-            }
+            this.slot[i].x += movement;
             this.slot[i].animate();
         }
     }
 
-    resize(x, y){
+    resize(x){
         this.nowx = this.nowx/this.centerx*x;
         for(let i = 0; i < this.slot.length; i++){
             this.slot[i].x = this.nowx+i*this.slotsize;
-            //this.slot[i].y = y;
         }
         this.centerx = x;
     }

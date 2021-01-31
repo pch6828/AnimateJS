@@ -2,9 +2,8 @@ const menu = document.getElementById('jsMenu');
 const content = document.getElementById('jsContent');
 
 export class Slot{
-    constructor(x, y, size, alpha, description, color){
+    constructor(x, size, alpha, description, color){
         this.x = x;
-        //this.y = y;
         this.size = size;
         this.empty = (description?false:true);
         this.div = document.createElement('div');
@@ -33,7 +32,7 @@ export class Slot{
     }
 
     animate(){
-        this.div.style.transform = "translate3d("+this.x+"px,"+0+"px, 0px)";
+        this.div.style.transform = "translate3d("+this.x+"px, 0px, 0px)";
     }
 
     opencontent(e){
