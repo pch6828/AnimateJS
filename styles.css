@@ -29,15 +29,16 @@ canvas{
     width:120px;
     height: 80%;
     position: absolute;
-    display: flex;
+    display: table;
     z-index: 1;
+    align-items: center;
 }
 
 .slot__btn{
     bottom: 0px;
     width: 120px;
     height: 100px;
-    display: block;
+    display: flex;
     position: absolute;
     text-align: center;
     font-size: 100px;
@@ -50,8 +51,9 @@ canvas{
     position: absolute;
     width: 500px;
     height: 50px;
-    transform: rotate(-90deg) translate3d(-220px, -190px, 0px);
+    bottom: 330px;
     z-index: inherit;
+    transform: rotate(-90deg) translate3d(0px, -195px, 0px);;
 }
 
 .p{

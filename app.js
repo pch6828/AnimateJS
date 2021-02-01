@@ -63,14 +63,12 @@ class App{
     }
 
     onLost(e){
-        console.log('lost');
         if(e.pointerType==='pen'){
             this.isDown = false;
         }
     }
 
     onGot(e){
-        console.log('got');
         if(e.pointerType==='pen'){
             this.isDown = true;
         }
