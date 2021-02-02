@@ -22,14 +22,14 @@ body{
     height: 100%;
     background-color: gainsboro;
     overflow: hidden;
-    font-family: 'consolas', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, 
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'consolas', 'Nanum Gothic';
 }
 
 canvas{
-    width: 100%;
+    width: 60%;
     height: 100%;
     position: absolute;
+    right: 0;
     z-index: 0;
 }
 
@@ -105,8 +105,19 @@ canvas{
     height: 30px;
     position: absolute;
     border-radius: 15px;
-    background-color: white;
+    background-color: black;
     z-index: 3;
-    right: 15px;
-    top: 50%;
+    left: 15px;
+    top: 48%;
+}
+
+.content_description{
+    width: 40%;
+    height: 100%;
+    background-color: white;
+    display: table;
+    position: absolute;
+    vertical-align: middle;
+    left: 0;
+    z-index: 2;
 }

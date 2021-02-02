@@ -1,11 +1,18 @@
 const menu = document.getElementById('jsMenu');
 const content = document.getElementById('jsContent');
+const content_text = document.getElementById('jsText');
 
 export class Slot{
-    constructor(x, size, alpha, description, color){
+    constructor(x, size, alpha, description, color, subject, text){
         this.x = x;
         this.size = size;
         this.empty = (description?false:true);
+
+        this.alpha = alpha;
+        this.description = description;
+        this.text = text;
+
+        this.subject = subject;
         this.div = document.createElement('div');
         this.div.className = 'slot';
         this.div.style.transform = "translate3d("+this.x+"px,"+this.y+"px, 0px)";
@@ -39,7 +46,28 @@ export class Slot{
         if(!this.empty){
             menu.style.display = 'none';
             content.style.display = 'block';
-            window.content_on = true;
+            window.content = new (this.subject)();
+            content_text.innerHTML = "";
+            let title = document.createElement('h2');
+            title.style.fontSize = "80px";
+            title.style.marginRight = "10px"
+            title.innerText = this.alpha;
+            let subtitle = document.createElement('h4');
+            subtitle.style.fontSize = "40px";
+            subtitle.style.marginRight = "10px"
+            subtitle.innerText = this.description;
+            let text = document.createElement('p');
+            text.style.fontSize = "20px";
+            text.style.marginRight = "10px";
+            for(let i = 0; i < this.text.length; i++) { 
+                text.appendChild(document.createTextNode(this.text[i]));
+                text.appendChild(document.createElement('br'));
+            } 
+            content_text.appendChild(title);
+            content_text.appendChild(document.createElement('br'));
+            content_text.appendChild(subtitle);
+            content_text.appendChild(document.createElement('br'));
+            content_text.appendChild(text);
         }
     }
 

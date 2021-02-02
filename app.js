@@ -10,9 +10,10 @@ class App{
         this.isDown = false;
         this.moveX = 0;
         this.offsetX = 0;
-
+        
         this.menu = new Menu(this.stageWidth/2, 300);
         this.content = new Content('#333333');
+       
         document.addEventListener('pointerdown', this.onDown.bind(this), false);
         document.addEventListener('pointermove', this.onMove.bind(this), false);
         document.addEventListener('pointerup', this.onUp.bind(this), false);
@@ -21,7 +22,7 @@ class App{
         document.addEventListener('gotpointercapture', this.onGot.bind(this), false);
 
         window.requestAnimationFrame(this.animate.bind(this));
-        window.content_on = false;
+        window.content = null;
     }
     
     resize(){
@@ -38,7 +39,9 @@ class App{
 
         this.moveX *= 0.92
         this.menu.animate(this.moveX);
-        this.content.animate(); 
+        if(window.content){
+            this.content.animate();
+        } 
     }
 
     onDown(e){
