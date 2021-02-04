@@ -121,3 +121,14 @@ canvas{
     left: 0;
     z-index: 2;
 }
+
+.content_text{
+    display:table-cell;
+    text-align: right;
+    vertical-align: middle;
+    font-size: 20px;
+    font-weight: 100;
+    color: #333333;
+    z-index: inherit;
+    padding-right: 15px;
+}

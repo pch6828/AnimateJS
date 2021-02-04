@@ -1,8 +1,8 @@
-const menu = document.getElementById('jsMenu');
-const content = document.getElementById('jsContent');
+const canvas = document.getElementById('content_canvas');
 
-export class Cylinder{
+export class Typo_Cylinder{
     constructor(){
+        canvas.style.backgroundColor = '#333333';
         this.centerx = document.body.clientWidth/2*0.6;
         this.centery = document.body.clientHeight/2;
         
@@ -17,7 +17,7 @@ export class Cylinder{
         this.centery = document.body.clientHeight/2;
     }
 
-    animate(ctx, moveX, moveY){
+    animate(ctx, moveX, moveY, isDown){
         let textwidth = 0;
         let Dwidth = 0;
         let movement = moveY/document.body.clientHeight;

@@ -6,7 +6,7 @@ export class Slot{
     constructor(x, size, alpha, description, color, subject, text){
         this.x = x;
         this.size = size;
-        this.empty = (description?false:true);
+        this.empty = (subject?false:true);
 
         this.alpha = alpha;
         this.description = description;
@@ -47,18 +47,15 @@ export class Slot{
             menu.style.display = 'none';
             content.style.display = 'block';
             window.content = new (this.subject)();
+            
             content_text.innerHTML = "";
             let title = document.createElement('h2');
-            title.style.fontSize = "80px";
-            title.style.marginRight = "10px"
+            title.style.fontSize = "150px";
             title.innerText = this.alpha;
             let subtitle = document.createElement('h4');
             subtitle.style.fontSize = "40px";
-            subtitle.style.marginRight = "10px"
             subtitle.innerText = this.description;
             let text = document.createElement('p');
-            text.style.fontSize = "20px";
-            text.style.marginRight = "10px";
             for(let i = 0; i < this.text.length; i++) { 
                 text.appendChild(document.createTextNode(this.text[i]));
                 text.appendChild(document.createElement('br'));

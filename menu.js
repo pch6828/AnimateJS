@@ -1,41 +1,21 @@
 import {Slot} from './slot.js?ver=1';
-import {Cylinder} from './content/D_typo_cylinder.js';
+import {Typo_Cylinder} from './content/D_typo_cylinder.js?ver=1';
+import {Pour_And_Wave} from './content/C_pour_and_wave.js?ver=1';
 
 const NULL_COLOR = '#3c444c';
 
 const colors = [
-    '#E10600',//Aa 
-    '#DC3513',//Bb 
-    '#EB3300',//Cc 
-    '#FF6900',//Dd 
-    '#FF7500',//Ee 
-    '#FF8200',//Ff 
-    '#F4AF23',//Gg 
-    '#F6B700',//Hh 
-    '#FFD100',//Ii 
-    '#5BC500',//Jj 
-    '#30B700',//Kk 
-    '#3E9A2C',//Ll 
-    '#249E6B',//Mm
-    '#00B388',//Nn
-    '#00CFB4',//Oo
-    '#2AD2C9',//Pp
-    '#00A9CE',//Qq
-    '#0092CB',//Rr
-    '#0086D6',//Ss
-    '#0762C8',//Tt
-    '#0047BB',//Uu 
-    '#33058D',//Vv
-    '#4A25AA',//Ww
-    '#4C12A1',//Xx
-    '#87189D',//Yy
-    '#9B26B6',//Zz
+    '#E10600', '#DC3513', '#EB3300', '#FF6900', '#FF7500', 
+    '#FF8200', '#F4AF23', '#F6B700', '#FFD100', '#5BC500', 
+    '#30B700', '#3E9A2C', '#249E6B', '#00B388', '#00CFB4',
+    '#2AD2C9', '#00A9CE', '#0092CB', '#0086D6', '#0762C8',
+    '#0047BB', '#33058D', '#4A25AA', '#4C12A1', '#87189D', '#9B26B6'
 ];
 
 const description = [
-    null,//Aa
+    'Algorithm',//Aa
     null,//Bb
-    null,//Cc
+    'Coffee lover',//Cc
     'Design? Develop?',//Dd
     null,//Ee
     null,//Ff
@@ -64,8 +44,8 @@ const description = [
 const subject = [
     null,//Aa
     null,//Bb
-    null,//Cc
-    Cylinder,//Dd
+    Pour_And_Wave,//Cc
+    Typo_Cylinder,//Dd
     null,//Ee
     null,//Ff
     null,//Gg
@@ -93,7 +73,15 @@ const subject = [
 const text = [
     null,//Aa
     null,//Bb
-    null,//Cc
+    ['커피를 참 좋아합니다.',
+    '믹스커피부터 드립커피까지 다양하게 좋아해요.',
+    '다만 프랜차이즈 커피는 아.아나 달달한 것만 마십니다.',
+    '',
+    '많이 마실 때는 하루에 3잔도 넘게 마실 때도 있었어요.',
+    '불면증을 한번 겪고 나서는 잠깐 끊었지만요.',
+    '',
+    '요새는 하루에 한 잔 정도만 마시고 있어요.',
+    '역시 코딩할 때는 커피죠.'],//Cc
     ['원래는 디자인과로 진학하려 했습니다.',
     '컴공에 오기로 결정한 건 고3이 되어서였어요.',
     '',
@@ -140,7 +128,7 @@ export class Menu{
                                     slotsize, 
                                     String.fromCharCode(upper+i, lower+i), 
                                     description[i], 
-                                    (description[i]?colors[i]:NULL_COLOR),  
+                                    (subject[i]?colors[i]:NULL_COLOR),  
                                     subject[i],
                                     text[i]);
         }

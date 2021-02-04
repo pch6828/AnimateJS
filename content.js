@@ -2,9 +2,9 @@ const menu = document.getElementById('jsMenu');
 const content = document.getElementById('jsContent');
 
 export class Content{
-    constructor(color){
+    constructor(){
         this.canvas = document.getElementById('content_canvas');
-        this.canvas.style.backgroundColor = color;
+        this.canvas.style.backgroundColor = 'black';
         this.ctx = this.canvas.getContext('2d');
         this.pixelRatio =window.devicePixelRatio > 1 ? 2 : 1;
         
@@ -56,14 +56,12 @@ export class Content{
         this.moveX *= 0.95;
         this.moveY *= 0.95;
         if(window.content){
-            window.content.animate(this.ctx, this.moveX, this.moveY);
+            window.content.animate(this.ctx, this.moveX, this.moveY, this.isDown);
         }
     }
 
     onDown(e){
-        if(!window.content_on){
-            this.isDown = true;
-        }
+        this.isDown = true;
         this.moveX = 0;
         this.offsetX = e.clientX;
         this.moveY = 0;
