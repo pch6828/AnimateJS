@@ -8,15 +8,13 @@ export class Content{
         this.ctx = this.canvas.getContext('2d');
         this.pixelRatio =window.devicePixelRatio > 1 ? 2 : 1;
         
-        window.addEventListener('resize', this.resize.bind(this), false);
         this.canvas.addEventListener('contextmenu', this.noevent.bind(this), false);
         this.canvas.addEventListener('pointerdown', this.onDown.bind(this), false);
         this.canvas.addEventListener('pointermove', this.onMove.bind(this), false);
         this.canvas.addEventListener('pointerup', this.onUp.bind(this), false);
+        this.canvas.addEventListener('pointerleave', this.onLeave.bind(this), false);
         this.canvas.addEventListener('lostpointercapture', this.onLost.bind(this), false);
         this.canvas.addEventListener('gotpointercapture', this.onGot.bind(this), false);
-
-        this.resize();
 
         this.close_btn = document.getElementById('jsCloseContent');
         this.close_btn.addEventListener('click', this.closecontent.bind(this), false);
@@ -29,15 +27,15 @@ export class Content{
         this.subject = null;
     }
 
-    resize(){
-        this.stageWidth = document.body.clientWidth;
-        this.stageHeight = document.body.clientHeight;
+    resize(stageWidth, stageHeight){
+        this.stageWidth = stageWidth;
+        this.stageHeight = stageHeight;
 
         this.canvas.width = this.stageWidth*this.pixelRatio*0.6;
         this.canvas.height = this.stageHeight*this.pixelRatio;
         this.ctx.scale(this.pixelRatio, this.pixelRatio);
         if(window.content){
-            window.content.resize();
+            window.content.resize(this.canvas.width, this.canvas.height);
         }
     }
 
@@ -78,6 +76,10 @@ export class Content{
     }
 
     onUp(e){
+        this.isDown = false;
+    }
+
+    onLeave(e){
         this.isDown = false;
     }
 

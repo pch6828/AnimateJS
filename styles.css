@@ -130,5 +130,35 @@ canvas{
     font-weight: 100;
     color: #333333;
     z-index: inherit;
-    padding-right: 15px;
+    padding-right: 20px;
+    font-family: 'Nanum Gothic';
+}
+
+.loading{
+    display: table;
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    color: red;
+    font-weight: 700;
+    font-size: 20px;
+    font-family: 'Nanum Gothic';
+}
+
+.loading_info{
+    display: block; 
+    width: 100%;
+    position: absolute;
+}
+
+.loading_text{
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 30px;
+    font-weight: 100;
+    color: #333333;
+    z-index: inherit;
 }

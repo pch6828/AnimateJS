@@ -23,12 +23,12 @@ const description = [
     null,//Hh
     null,//Ii
     null,//Jj
-    null,//Kk
+    'Kidult',//Kk
     null,//Ll
-    null,//Mm
+    'Mentor',//Mm
     null,//Nn
     null,//Oo
-    null,//Pp
+    'Problem setter',//Pp
     null,//Qq
     null,//Rr
     null,//Ss

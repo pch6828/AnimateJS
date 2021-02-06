@@ -12,9 +12,9 @@ export class Typo_Cylinder{
         this.size2 = this.strsize+20;
     }
 
-    resize(){
-        this.centerx = document.body.clientWidth/2*0.6;
-        this.centery = document.body.clientHeight/2;
+    resize(stageWidth, stageHeight){
+        this.centerx = stageWidth/2;
+        this.centery = stageHeight/2;
     }
 
     animate(ctx, moveX, moveY, isDown){

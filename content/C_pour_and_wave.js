@@ -186,12 +186,12 @@ export class Pour_And_Wave{
         this.noDown_cnt = 0;
     }
 
-    resize(){
-        this.centerx = document.body.clientWidth/2*0.6;
-        this.centery = document.body.clientHeight/2;
-        this.width = document.body.clientWidth*0.6;
-        this.height = document.body.clientHeight;
-        this.coffee.resize(document.body.clientWidth*0.6, document.body.clientHeight);
+    resize(stageWidth, stageHeight){
+        this.width = stageWidth;
+        this.centerx = stageWidth/2;
+        this.centery = stageHeight/2;
+        this.height = stageHeight;
+        this.coffee.resize(stageWidth, stageHeight);
         this.drop = [];
         this.now_drop = null;
     }
@@ -213,7 +213,7 @@ export class Pour_And_Wave{
         }
 
         if(this.noDown_cnt>=100){
-            this.coffee.update(-1);
+            this.coffee.update(-0.5);
         }
 
         if(this.now_drop){

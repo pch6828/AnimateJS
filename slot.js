@@ -51,9 +51,11 @@ export class Slot{
             content_text.innerHTML = "";
             let title = document.createElement('h2');
             title.style.fontSize = "150px";
+            title.style.fontFamily = "consolas";
             title.innerText = this.alpha;
             let subtitle = document.createElement('h4');
             subtitle.style.fontSize = "40px";
+            subtitle.style.fontFamily = "consolas";
             subtitle.innerText = this.description;
             let text = document.createElement('p');
             for(let i = 0; i < this.text.length; i++) { 

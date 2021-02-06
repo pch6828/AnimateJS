@@ -1,5 +1,6 @@
 import {Menu} from './menu.js?ver=1';
 import {Content} from './content.js?ver=1';
+import {Loading} from './loading.js?ver=1';
 
 class App{
     constructor(){
@@ -10,10 +11,13 @@ class App{
         this.isDown = false;
         this.moveX = 0;
         this.offsetX = 0;
-        
+        this.isLoading = true;
+
         this.menu = new Menu(this.stageWidth/2, 300);
-        this.content = new Content('#333333');
-       
+        this.content = new Content();
+        this.loading = new Loading();
+        this.resize();
+
         document.addEventListener('pointerdown', this.onDown.bind(this), false);
         document.addEventListener('pointermove', this.onMove.bind(this), false);
         document.addEventListener('pointerup', this.onUp.bind(this), false);
@@ -32,13 +36,19 @@ class App{
         if(this.menu){
             this.menu.resize(this.stageWidth/2, this.stageHeight*3/5);
         }
+        if(this.content){
+            this.content.resize(this.stageWidth, this.stageHeight);
+        }
     }
 
     animate(){
         window.requestAnimationFrame(this.animate.bind(this));
 
-        this.moveX *= 0.92
+        this.moveX *= 0.92;
         this.menu.animate(this.moveX);
+        if(this.isLoading){
+            this.isLoading = this.loading.animate();
+        }
         if(window.content){
             this.content.animate();
         } 
