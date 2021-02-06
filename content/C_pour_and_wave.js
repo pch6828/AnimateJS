@@ -188,9 +188,9 @@ export class Pour_And_Wave{
 
     resize(stageWidth, stageHeight){
         this.width = stageWidth;
+        this.height = stageHeight;
         this.centerx = stageWidth/2;
         this.centery = stageHeight/2;
-        this.height = stageHeight;
         this.coffee.resize(stageWidth, stageHeight);
         this.drop = [];
         this.now_drop = null;

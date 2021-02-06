@@ -35,7 +35,7 @@ export class Content{
         this.canvas.height = this.stageHeight*this.pixelRatio;
         this.ctx.scale(this.pixelRatio, this.pixelRatio);
         if(window.content){
-            window.content.resize(this.canvas.width, this.canvas.height);
+            window.content.resize(this.stageWidth*0.6, this.stageHeight);
         }
     }
 
