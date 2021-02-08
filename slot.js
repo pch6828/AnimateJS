@@ -47,7 +47,7 @@ export class Slot{
             window.content = new (this.subject)();
             content_text.innerHTML = "";
             let title = document.createElement('h2');
-            title.style.fontSize = "150px";
+            title.style.fontSize = "min(150px, 400%)";
             title.style.fontFamily = "consolas";
             title.innerText = this.alpha;
             let subtitle = document.createElement('h4');

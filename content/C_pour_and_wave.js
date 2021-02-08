@@ -175,12 +175,8 @@ class Pour{
 export class Pour_And_Wave{
     constructor(){
         canvas.style.backgroundColor = '#00CFB4';
-        this.centerx = document.body.clientWidth/2*0.6;
-        this.centery = document.body.clientHeight/2;
-        this.width = document.body.clientWidth*0.6;
-        this.height = document.body.clientHeight;
         this.coffeesize = 200;
-        this.coffee = new Waves(document.body.clientWidth*0.6, document.body.clientHeight, this.coffeesize);
+        this.coffee = new Waves(this.width, this.height, this.coffeesize);
         this.drop = [];
         this.now_drop = null;
         this.noDown_cnt = 0;

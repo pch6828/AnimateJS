@@ -39,11 +39,20 @@ export class Content{
         this.stageWidth = stageWidth;
         this.stageHeight = stageHeight;
 
-        this.canvas.width = this.stageWidth*this.pixelRatio*0.6;
-        this.canvas.height = this.stageHeight*this.pixelRatio;
+        if(matchMedia("(max-width:1000px)").matches){
+            this.canvas.width = this.stageWidth*this.pixelRatio;
+            this.canvas.height = this.stageHeight*this.pixelRatio*0.6;
+        }else{
+            this.canvas.width = this.stageWidth*this.pixelRatio*0.6;
+            this.canvas.height = this.stageHeight*this.pixelRatio;
+        }
         this.ctx.scale(this.pixelRatio, this.pixelRatio);
         if(window.content){
-            window.content.resize(this.stageWidth*0.6, this.stageHeight);
+            if(matchMedia("(max-width:1000px)").matches){
+                window.content.resize(this.stageWidth, this.stageHeight*0.6);
+            }else{
+                window.content.resize(this.stageWidth*0.6, this.stageHeight);
+            }
         }
     }
 
@@ -63,9 +72,6 @@ export class Content{
         if(window.content){
             if(this.isClosed){
                 if(this.isLoading<=LOADING_DESC){
-                    let canvas_dx = (content.offsetWidth-description.offsetWidth)/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
-                    let desc_dx = content.offsetWidth/LOADING_DESC*this.isLoading;
-
                     if(this.isLoading==0){
                         menu.style.display = 'block';
                     }
@@ -76,23 +82,35 @@ export class Content{
                         this.isLoading = 0;
                         return;
                     }
-                    description.style.transform = 'translate3d('+(desc_dx)+'px,0px,0px)';
+                    let canvas_dx = (content.offsetWidth-description.offsetWidth)/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
+                    let desc_dx = content.offsetWidth/LOADING_DESC*this.isLoading;
+                    if(matchMedia("(max-width:1000px)").matches){
+                        canvas_dx = content.offsetWidth/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
+                    }
                     canvas.style.transform = 'translate3d('+(canvas_dx)+'px,0px,0px)';
+                    description.style.transform = 'translate3d('+(desc_dx)+'px,0px,0px)';
                     this.isLoading++;
                 }
             }else{
                 if(this.isLoading<=LOADING_DESC){
-                    let canvas_dx = (content.offsetWidth-description.offsetWidth)/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
-                    let desc_dx = content.offsetWidth/LOADING_DESC*this.isLoading;
-
                     if(this.isLoading==0){
+                        if(matchMedia("(max-width:1000px)").matches){
+                            window.content.resize(this.stageWidth, this.stageHeight*0.6);
+                        }else{
+                            window.content.resize(this.stageWidth*0.6, this.stageHeight);
+                        }   
                         content.style.display = 'block';
                     }
                     if(this.isLoading==LOADING_DESC){
                         menu.style.display = 'none';
                     }
-                    description.style.transform = 'translate3d('+(content.offsetWidth-desc_dx)+'px,0px,0px)';
-                    canvas.style.transform = 'translate3d('+(content.offsetWidth-description.offsetWidth-canvas_dx)+'px,0px,0px)';
+                    let canvas_dx = content.offsetWidth-description.offsetWidth-(content.offsetWidth-description.offsetWidth)/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
+                    let desc_dx = content.offsetWidth-content.offsetWidth/LOADING_DESC*this.isLoading;
+                    if(matchMedia("(max-width:1000px)").matches){
+                        canvas_dx = content.offsetWidth-content.offsetWidth/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
+                    }
+                    canvas.style.transform = 'translate3d('+(canvas_dx)+'px,0px,0px)';
+                    description.style.transform = 'translate3d('+(desc_dx)+'px,0px,0px)';
                     this.isLoading++;
                 }
             }
@@ -110,10 +128,10 @@ export class Content{
 
     onMove(e){
         if(this.isDown){
-            this.moveX = e.clientX - this.offsetX;
-            this.offsetX = e.clientX;
-            this.moveY = e.clientY - this.offsetY;
-            this.offsetY = e.clientY;
+            this.moveX = e.offsetX - this.offsetX;
+            this.offsetX = e.offsetX;
+            this.moveY = e.offsetY - this.offsetY;
+            this.offsetY = e.offsetY;
         }
     }
 

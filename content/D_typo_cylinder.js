@@ -3,8 +3,6 @@ const canvas = document.getElementById('content_canvas');
 export class Typo_Cylinder{
     constructor(){
         canvas.style.backgroundColor = '#333333';
-        this.centerx = document.body.clientWidth/2*0.6;
-        this.centery = document.body.clientHeight/2;
         
         this.Dsize = 270;
         this.strsize = 100;
@@ -13,6 +11,8 @@ export class Typo_Cylinder{
     }
 
     resize(stageWidth, stageHeight){
+        this.width = stageWidth;
+        this.height = stageHeight;
         this.centerx = stageWidth/2;
         this.centery = stageHeight/2;
     }
@@ -20,7 +20,7 @@ export class Typo_Cylinder{
     animate(ctx, moveX, moveY, isDown){
         let textwidth = 0;
         let Dwidth = 0;
-        let movement = moveY/document.body.clientHeight;
+        let movement = moveY/this.height;
         this.size1 += movement*500;
         this.size2 -= movement*500;
         if(this.size1>this.strsize+20){
