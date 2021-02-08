@@ -98,6 +98,7 @@ canvas{
     height: 100%;
     display: none;
     position: absolute;
+    z-index: 3;
 }
 
 .close_btn{
@@ -106,7 +107,7 @@ canvas{
     position: absolute;
     border-radius: 15px;
     background-color: black;
-    z-index: 3;
+    z-index: 4;
     left: 15px;
     top: 48%;
 }
@@ -119,7 +120,7 @@ canvas{
     position: absolute;
     vertical-align: middle;
     left: 0;
-    z-index: 2;
+    z-index: 3;
 }
 
 .content_text{

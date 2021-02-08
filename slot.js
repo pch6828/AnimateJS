@@ -44,10 +44,7 @@ export class Slot{
 
     opencontent(e){
         if(!this.empty){
-            menu.style.display = 'none';
-            content.style.display = 'block';
             window.content = new (this.subject)();
-            
             content_text.innerHTML = "";
             let title = document.createElement('h2');
             title.style.fontSize = "150px";

@@ -1,5 +1,10 @@
 const menu = document.getElementById('jsMenu');
 const content = document.getElementById('jsContent');
+const description = document.getElementById('jsContentDescription');
+const canvas = document.getElementById('content_canvas');
+
+const LOADING_DESC = 40;
+const LOADING_CANVAS = 30;
 
 export class Content{
     constructor(){
@@ -19,6 +24,9 @@ export class Content{
         this.close_btn = document.getElementById('jsCloseContent');
         this.close_btn.addEventListener('click', this.closecontent.bind(this), false);
         
+        this.isLoading = 0;
+        this.isClosed = false;
+
         this.isDown = false;
         this.moveX = 0;
         this.offsetX = 0;
@@ -44,9 +52,8 @@ export class Content{
     }
 
     closecontent(e){
-        menu.style.display = 'block';
-        content.style.display = 'none';
-        window.content = null;
+        this.isClosed = true;
+        this.isLoading = 0;
     }
 
     animate(){
@@ -54,6 +61,41 @@ export class Content{
         this.moveX *= 0.95;
         this.moveY *= 0.95;
         if(window.content){
+            if(this.isClosed){
+                if(this.isLoading<=LOADING_DESC){
+                    let canvas_dx = (content.offsetWidth-description.offsetWidth)/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
+                    let desc_dx = content.offsetWidth/LOADING_DESC*this.isLoading;
+
+                    if(this.isLoading==0){
+                        menu.style.display = 'block';
+                    }
+                    if(this.isLoading==LOADING_DESC){
+                        content.style.display = 'none';
+                        this.isClosed = false;
+                        window.content = null;
+                        this.isLoading = 0;
+                        return;
+                    }
+                    description.style.transform = 'translate3d('+(desc_dx)+'px,0px,0px)';
+                    canvas.style.transform = 'translate3d('+(canvas_dx)+'px,0px,0px)';
+                    this.isLoading++;
+                }
+            }else{
+                if(this.isLoading<=LOADING_DESC){
+                    let canvas_dx = (content.offsetWidth-description.offsetWidth)/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
+                    let desc_dx = content.offsetWidth/LOADING_DESC*this.isLoading;
+
+                    if(this.isLoading==0){
+                        content.style.display = 'block';
+                    }
+                    if(this.isLoading==LOADING_DESC){
+                        menu.style.display = 'none';
+                    }
+                    description.style.transform = 'translate3d('+(content.offsetWidth-desc_dx)+'px,0px,0px)';
+                    canvas.style.transform = 'translate3d('+(content.offsetWidth-description.offsetWidth-canvas_dx)+'px,0px,0px)';
+                    this.isLoading++;
+                }
+            }
             window.content.animate(this.ctx, this.moveX, this.moveY, this.isDown);
         }
     }
