@@ -128,7 +128,7 @@ canvas{
     text-align: right;
     vertical-align: middle;
     width: 100%;
-    font-size: min(20px, 100%);
+    font-size: min(20px, 110%);
     font-weight: 100;
     color: #333333;
     z-index: inherit;
@@ -206,6 +206,19 @@ canvas{
         vertical-align: middle;
         top: 100%;
         z-index: 3;
+    }
+
+    .content_text{
+        display:table-cell;
+        text-align: right;
+        vertical-align: middle;
+        width: 100%;
+        font-size: min(20px, 100%);
+        font-weight: 100;
+        color: #333333;
+        z-index: inherit;
+        padding: 20px;
+        font-family: 'Nanum Gothic';
     }
 }
 
