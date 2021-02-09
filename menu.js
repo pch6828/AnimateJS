@@ -1,6 +1,7 @@
 import {Slot} from './slot.js?ver=1';
-import {Typo_Cylinder} from './content/D_typo_cylinder.js?ver=1';
+import {Bubble_Sort}   from './content/A_bubble_sort.js?ver=1'; 
 import {Pour_And_Wave} from './content/C_pour_and_wave.js?ver=1';
+import {Typo_Cylinder} from './content/D_typo_cylinder.js?ver=1';
 
 const NULL_COLOR = '#3c444c';
 
@@ -42,7 +43,7 @@ const description = [
 ];
 
 const subject = [
-    null,//Aa
+    Bubble_Sort,//Aa
     null,//Bb
     Pour_And_Wave,//Cc
     Typo_Cylinder,//Dd
@@ -71,7 +72,15 @@ const subject = [
 ];
 
 const text = [
-    null,//Aa
+    ['대학에서는 알고리즘 공부를 좀 했어요.',
+    '나름 동아리 학술부장도 해보고,',
+    '대회 출제라는 것도 해보고,',
+    '동아리 연합 세미나에서 수업도 해봤어요.',
+    '',
+    '인생 첫 코딩 공부였는데 나름 적성에 맞았던 것 같아요.',
+    '덕분에 전공 수업도 나름 잘 따라갈 수 있었죠.',
+    '지금은 알고리즘 공부를 따로 하지는 않지만,',
+    '가끔씩 재미로 문제 풀이는 하고 있어요.'],//Aa
     null,//Bb
     ['커피를 참 좋아합니다.',
     '믹스커피부터 드립커피까지 다양하게 좋아해요.',
