@@ -1,7 +1,9 @@
 import {Slot} from './slot.js?ver=1';
-import {Bubble_Sort}   from './content/A_bubble_sort.js?ver=1'; 
-import {Pour_And_Wave} from './content/C_pour_and_wave.js?ver=1';
-import {Typo_Cylinder} from './content/D_typo_cylinder.js?ver=1';
+
+import {Bubble_Sort}        from './content/A_bubble_sort.js?ver=1'; 
+import {Pour_And_Wave}      from './content/C_pour_and_wave.js?ver=1';
+import {Typo_Cylinder}      from './content/D_typo_cylinder.js?ver=1';
+import {Swinging_Balloon}   from './content/P_swinging_balloon.js?ver=1';
 
 const NULL_COLOR = '#3c444c';
 
@@ -58,7 +60,7 @@ const subject = [
     null,//Mm
     null,//Nn
     null,//Oo
-    null,//Pp
+    Swinging_Balloon,//Pp
     null,//Qq
     null,//Rr
     null,//Ss
@@ -111,7 +113,15 @@ const text = [
     null,//Mm
     null,//Nn
     null,//Oo
-    null,//Pp
+    ['A에서도 언급했지만, 몇몇 대회에 출제를 했어요.',
+    '흔히 말하는 프로그래밍 대회? 알고리즘 대회? 였죠.',
+    '동아리나 세미나 단위에서 하는 대회, 과에서 하는 대회 등등',
+    '나름 다양한 규모의 대회에 출제를 해봤어요.',
+    '',
+    '개인적으론 문제 푸는 것보다 내는 게 더 재미있긴 해요.',
+    '특히 참가자들이 내가 낸 문제를 어려워하면 나름의 보람을 느끼죠.',
+    '대회에서 문제를 맞추면 풍선을 달아주기도 했는데,',
+    '그때 진짜 많이 걸었던 기억이 있네요.'],//Pp
     null,//Qq
     null,//Rr
     null,//Ss
