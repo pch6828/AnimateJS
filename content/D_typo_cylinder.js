@@ -15,6 +15,11 @@ export class Typo_Cylinder{
         this.height = stageHeight;
         this.centerx = stageWidth/2;
         this.centery = stageHeight/2;
+
+        this.Dsize = this.height/3;
+        this.strsize = this.Dsize/3;
+        this.size1 = 20;
+        this.size2 = this.strsize+20;
     }
 
     animate(ctx, moveX, moveY, isDown){

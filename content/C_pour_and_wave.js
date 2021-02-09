@@ -1,13 +1,17 @@
 const canvas = document.getElementById('content_canvas');
 
 class Point{
-    constructor(x, y, start){
+    constructor(x, y, start, change_range){
         this.x = x;
         this.y = y;
         this.initial_y = y;
         this.cur = start;
         this.speed = 0.1;
-        this.max_change = Math.random()*30;
+        this.max_change = Math.random()*change_range;
+    }
+
+    resize(change_range){
+        this.max_change = Math.random()*change_range;
     }
 
     update(){
@@ -36,13 +40,14 @@ class Wave{
         this.points = [];
 
         for(let i = 0; i < this.point_cnt; i++){
-            this.points[i] = new Point(this.gap*i, this.initialy, this.index+i);
+            this.points[i] = new Point(this.gap*i, this.initialy, this.index+i, this.height/30);
         }
     }
 
-    resize(width, height){
+    resize(width, height, cup_bottom){
         this.width = width;
         this.height = height;
+        this.cup_bottom = cup_bottom;
 
         this.initialy = height/2+this.cup_bottom;
 
@@ -113,9 +118,9 @@ class Waves{
         }
     }
 
-    resize(width, height){
+    resize(width, height, cup_bottom){
         for(let i = 0; i < this.wave_cnt; i++){
-            this.waves[i].resize(width, height);
+            this.waves[i].resize(width, height, cup_bottom);
         }
     }
 
@@ -133,11 +138,13 @@ class Waves{
 }
 
 class Pour{
-    constructor(centerx, bottom){
+    constructor(centerx, bottom, width){
         this.x = centerx;
         this.y = 0;
         this.length = 0;
         this.bottom = bottom;
+        this.lineWidth = width;
+        
     }
 
     touch_bottom(){
@@ -150,7 +157,7 @@ class Pour{
 
     draw(ctx){
         ctx.strokeStyle='#9E652E';
-        ctx.lineWidth = 20;
+        ctx.lineWidth = this.lineWidth;
         
         ctx.beginPath();
         ctx.moveTo(this.x, this.y-this.length);
@@ -187,7 +194,8 @@ export class Pour_And_Wave{
         this.height = stageHeight;
         this.centerx = stageWidth/2;
         this.centery = stageHeight/2;
-        this.coffee.resize(stageWidth, stageHeight);
+        this.coffeesize = this.height/4;
+        this.coffee.resize(stageWidth, stageHeight, this.coffeesize);
         this.drop = [];
         this.now_drop = null;
     }
@@ -196,7 +204,7 @@ export class Pour_And_Wave{
         ctx.save();
         if(isDown){
             if(!this.now_drop){
-                this.now_drop = new Pour(this.centerx, this.centery+this.coffeesize);
+                this.now_drop = new Pour(this.centerx, this.centery+this.coffeesize, this.coffeesize/10);
             }
             this.now_drop.add();
             this.noDown_cnt = 0;

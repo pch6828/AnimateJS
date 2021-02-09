@@ -21,7 +21,7 @@ body{
     width: 100%;
     height: 100%;
     background-color: gainsboro;
-    overflow: hidden;
+    overflow-x: hidden;
     font-family: 'consolas', 'Nanum Gothic';
 }
 
@@ -49,7 +49,7 @@ canvas{
     display: block;
     position: absolute;
     text-align: center;
-    font-size: 100px;
+    font-size: min(100px, 600%);
     font-weight: 800;
     z-index: inherit;
 }
@@ -75,13 +75,12 @@ canvas{
 }
 
 .header{
-    width: 30%;
+    width: 100%;
     position: absolute;
     display: block;
-    left: 35%;
     top: 15%;
     text-align: center;
-    font-size: 40px;
+    font-size: 200%;
     font-weight: 600;
     z-index: 1;
 }
@@ -128,12 +127,34 @@ canvas{
     text-align: right;
     vertical-align: middle;
     width: 100%;
-    font-size: min(20px, 5vw);
+    font-size: min(20px, 110%);
     font-weight: 100;
     color: #333333;
     z-index: inherit;
-    padding-right: 20px;
+    padding: 20px;
     font-family: 'Nanum Gothic';
+}
+
+.content_title{
+    text-align: inherit;
+    vertical-align: middle;
+    width: 100%;
+    font-size: min(150px, 600%);
+    font-weight: 900;
+    color: #333333;
+    z-index: inherit;
+    font-family: 'consolas';
+}
+
+.content_subtitle{
+    text-align: inherit;
+    vertical-align: middle;
+    width: 100%;
+    font-size: min(40px, 250%);
+    color: #333333;
+    font-weight: 700;
+    z-index: inherit;
+    font-family: 'consolas';
 }
 
 .loading{
@@ -184,5 +205,11 @@ canvas{
         vertical-align: middle;
         top: 60%;
         z-index: 3;
+    }
+}
+
+@media(max-height:600px){
+    .slot__description{
+        display:none;
     }
 }
