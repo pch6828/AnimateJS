@@ -105,8 +105,9 @@ canvas{
     height: 30px;
     position: absolute;
     border-radius: 15px;
+    display: none;
     background-color: black;
-    z-index: 4;
+    z-index: 100;
     left: 15px;
     top: 48%;
 }

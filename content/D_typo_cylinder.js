@@ -18,7 +18,7 @@ export class Typo_Cylinder{
         this.centerx = stageWidth/2;
         this.centery = stageHeight/2;
 
-        this.Dsize = this.height/3;
+        this.Dsize = Math.min(this.height/3, this.width/3);
         this.strsize = this.Dsize/3;
         
         this.start = this.strsize/4;

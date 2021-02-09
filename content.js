@@ -2,6 +2,7 @@ const menu = document.getElementById('jsMenu');
 const content = document.getElementById('jsContent');
 const description = document.getElementById('jsContentDescription');
 const canvas = document.getElementById('content_canvas');
+const close_btn = document.getElementById('jsCloseContent');
 
 const LOADING_DESC = 40;
 const LOADING_CANVAS = 30;
@@ -74,6 +75,7 @@ export class Content{
                 if(this.isLoading<=LOADING_DESC){
                     if(this.isLoading==0){
                         menu.style.display = 'block';
+                        close_btn.style.display = 'none';
                     }
                     if(this.isLoading==LOADING_DESC){
                         content.style.display = 'none';
@@ -103,6 +105,7 @@ export class Content{
                     }
                     if(this.isLoading==LOADING_DESC){
                         menu.style.display = 'none';
+                        close_btn.style.display = 'block';
                     }
                     let canvas_dx = content.offsetWidth-description.offsetWidth-(content.offsetWidth-description.offsetWidth)/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
                     let desc_dx = content.offsetWidth-content.offsetWidth/LOADING_DESC*this.isLoading;
