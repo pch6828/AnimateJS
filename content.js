@@ -41,7 +41,7 @@ export class Content{
 
         if(matchMedia("(max-width:1000px)").matches){
             this.canvas.width = this.stageWidth*this.pixelRatio;
-            this.canvas.height = this.stageHeight*this.pixelRatio*0.6;
+            this.canvas.height = this.stageHeight*this.pixelRatio;
         }else{
             this.canvas.width = this.stageWidth*this.pixelRatio*0.6;
             this.canvas.height = this.stageHeight*this.pixelRatio;
@@ -49,7 +49,7 @@ export class Content{
         this.ctx.scale(this.pixelRatio, this.pixelRatio);
         if(window.content){
             if(matchMedia("(max-width:1000px)").matches){
-                window.content.resize(this.stageWidth, this.stageHeight*0.6);
+                window.content.resize(this.stageWidth, this.stageHeight);
             }else{
                 window.content.resize(this.stageWidth*0.6, this.stageHeight);
             }
@@ -95,7 +95,7 @@ export class Content{
                 if(this.isLoading<=LOADING_DESC){
                     if(this.isLoading==0){
                         if(matchMedia("(max-width:1000px)").matches){
-                            window.content.resize(this.stageWidth, this.stageHeight*0.6);
+                            window.content.resize(this.stageWidth, this.stageHeight);
                         }else{
                             window.content.resize(this.stageWidth*0.6, this.stageHeight);
                         }   

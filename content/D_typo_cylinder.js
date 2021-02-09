@@ -6,8 +6,10 @@ export class Typo_Cylinder{
         
         this.Dsize = 270;
         this.strsize = 100;
-        this.size1 = 20;
-        this.size2 = this.strsize+20;
+
+        this.start = this.strsize/4;
+        this.size1 = this.start;
+        this.size2 = this.strsize+this.start;
     }
 
     resize(stageWidth, stageHeight){
@@ -18,8 +20,10 @@ export class Typo_Cylinder{
 
         this.Dsize = this.height/3;
         this.strsize = this.Dsize/3;
-        this.size1 = 20;
-        this.size2 = this.strsize+20;
+        
+        this.start = this.strsize/4;
+        this.size1 = this.start;
+        this.size2 = this.strsize+this.start;
     }
 
     animate(ctx, moveX, moveY, isDown){
@@ -28,12 +32,12 @@ export class Typo_Cylinder{
         let movement = moveY/this.height;
         this.size1 += movement*500;
         this.size2 -= movement*500;
-        if(this.size1>this.strsize+20){
-            this.size1 = this.strsize+20;
-            this.size2 = 20;
-        }else if(this.size1<20){
-            this.size1 = 20;
-            this.size2 = this.strsize+20;
+        if(this.size1>this.strsize+this.start){
+            this.size1 = this.strsize+this.start;
+            this.size2 = this.start;
+        }else if(this.size1<this.start){
+            this.size1 = this.start;
+            this.size2 = this.strsize+this.start;
         }
         ctx.font=this.Dsize+'px consolas';
         Dwidth = ctx.measureText('D').width;
@@ -41,7 +45,7 @@ export class Typo_Cylinder{
         ctx.font=this.strsize+'px consolas';
         textwidth+=ctx.measureText('eveloper').width;
         ctx.globalCompositeOperation='source-over'
-        ctx.fillStyle = "rgba("+(this.size2-20)/(this.strsize)*150+","+(this.size1-20)/(this.strsize-20)*150+",0,1)";        
+        ctx.fillStyle = "rgba("+(this.size2-this.start)/(this.strsize)*150+","+(this.size1-this.start)/(this.strsize-this.start)*150+",0,1)";        
         ctx.font=this.Dsize+'px consolas';
         ctx.fillText('D', this.centerx-textwidth/2, this.centery+this.strsize);
         
