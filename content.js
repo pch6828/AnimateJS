@@ -31,8 +31,8 @@ export class Content{
         this.updown_btn = updown_btn;
         this.updown_btn.addEventListener('click', this.updowndesc.bind(this), false);
         
-        this.isLoading = 0;
-        this.isClosed = false;
+        window.isLoading = 0;
+        window.isClosed = false;
         this.isDescLoading = UPDOWN_DESC;
         this.ableUpdown = false;
         this.updownMode = false;
@@ -77,8 +77,8 @@ export class Content{
 
     closecontent(){
         document.title = 'AnimateJS';
-        this.isClosed = true;
-        this.isLoading = 0;
+        window.isClosed = true;
+        window.isLoading = 0;
         this.isDescLoading = UPDOWN_DESC;
         this.updownMode = false;
     }
@@ -92,32 +92,32 @@ export class Content{
         this.moveX *= 0.95;
         this.moveY *= 0.95;
         if(window.content){
-            if(this.isClosed){
-                if(this.isLoading<=LOADING_DESC){
-                    if(this.isLoading==0){
+            if(window.isClosed){
+                if(window.isLoading<=LOADING_DESC){
+                    if(window.isLoading==0){
                         menu.style.display = 'block';
                         close_btn.style.display = 'none';
                     }
-                    if(this.isLoading==LOADING_DESC){
+                    if(window.isLoading==LOADING_DESC){
                         content.style.display = 'none';
-                        this.isClosed = false;
+                        window.isClosed = false;
                         window.content = null;
-                        this.isLoading = 0;
+                        window.isLoading = 0;
                         return;
                     }
-                    let canvas_dx = (content.offsetWidth-description.offsetWidth)/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
-                    let desc_dx = content.offsetWidth/LOADING_DESC*this.isLoading;
+                    let canvas_dx = (content.offsetWidth-description.offsetWidth)/LOADING_CANVAS*Math.min(window.isLoading, LOADING_CANVAS);
+                    let desc_dx = content.offsetWidth/LOADING_DESC*window.isLoading;
                     if(matchMedia("(max-width:1000px)").matches){
-                        canvas_dx = content.offsetWidth/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
+                        canvas_dx = content.offsetWidth/LOADING_CANVAS*Math.min(window.isLoading, LOADING_CANVAS);
                         desc_dx = canvas_dx;
                     }
                     canvas.style.transform = 'translate3d('+(canvas_dx)+'px,0px,0px)';
                     description.style.transform = 'translate3d('+(desc_dx)+'px,0px,0px)';
-                    this.isLoading++;
+                    window.isLoading++;
                 }
             }else{
-                if(this.isLoading<=LOADING_DESC){
-                    if(this.isLoading==0){
+                if(window.isLoading<=LOADING_DESC){
+                    if(window.isLoading==0){
                         if(matchMedia("(max-width:1000px)").matches){
                             window.content.resize(this.stageWidth, this.stageHeight);
                         }else{
@@ -125,19 +125,19 @@ export class Content{
                         }   
                         content.style.display = 'block';
                     }
-                    if(this.isLoading==LOADING_DESC){
+                    if(window.isLoading==LOADING_DESC){
                         menu.style.display = 'none';
                         close_btn.style.display = 'block';
                     }
-                    let canvas_dx = content.offsetWidth-description.offsetWidth-(content.offsetWidth-description.offsetWidth)/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
-                    let desc_dx = content.offsetWidth-content.offsetWidth/LOADING_DESC*this.isLoading;
+                    let canvas_dx = content.offsetWidth-description.offsetWidth-(content.offsetWidth-description.offsetWidth)/LOADING_CANVAS*Math.min(window.isLoading, LOADING_CANVAS);
+                    let desc_dx = content.offsetWidth-content.offsetWidth/LOADING_DESC*window.isLoading;
                     if(matchMedia("(max-width:1000px)").matches){
-                        canvas_dx = content.offsetWidth-content.offsetWidth/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
+                        canvas_dx = content.offsetWidth-content.offsetWidth/LOADING_CANVAS*Math.min(window.isLoading, LOADING_CANVAS);
                         desc_dx = canvas_dx;
                     }
                     canvas.style.transform = 'translate3d('+(canvas_dx)+'px,0px,0px)';
                     description.style.transform = 'translate3d('+(desc_dx)+'px,0px,0px)';
-                    this.isLoading++;
+                    window.isLoading++;
                 }
             }
             if(this.ableUpdown){

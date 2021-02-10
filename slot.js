@@ -2,6 +2,7 @@ const menu = document.getElementById('jsMenu');
 const content = document.getElementById('jsContent');
 const content_text = document.getElementById('jsText');
 
+const LOADING_DESC = 40;
 const HOME_URL = window.location.href;
 
 export class Slot{
@@ -45,6 +46,8 @@ export class Slot{
 
     opencontent(){
         if(!this.empty){
+            window.isClosed = false;
+            window.isLoading = 0;
             document.title = 'AnimateJS | '+this.alpha;
             window.content = new (this.subject)();
             content_text.innerHTML = "";
