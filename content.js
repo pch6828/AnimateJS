@@ -15,7 +15,7 @@ export class Content{
         this.canvas.style.backgroundColor = 'black';
         this.ctx = this.canvas.getContext('2d');
         this.pixelRatio =window.devicePixelRatio > 1 ? 2 : 1;
-        
+        this.home_url = window.location.href;
         this.canvas.addEventListener('contextmenu', this.noevent.bind(this), false);
         this.canvas.addEventListener('pointerdown', this.onDown.bind(this), false);
         this.canvas.addEventListener('pointermove', this.onMove.bind(this), false);
@@ -77,6 +77,11 @@ export class Content{
     closecontent(e){
         this.isClosed = true;
         this.isLoading = 0;
+        this.isDescLoading = UPDOWN_DESC;
+        this.updownMode = false;
+        // window.history.pushState({
+        //     id: 'homepage'
+        // }, 'AnimateJS', this.home_url);
     }
 
     updowndesc(e){

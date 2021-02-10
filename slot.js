@@ -3,11 +3,11 @@ const content = document.getElementById('jsContent');
 const content_text = document.getElementById('jsText');
 
 export class Slot{
-    constructor(x, size, alpha, description, color, subject, text){
+    constructor(x, size, alpha, description, color, subject, text, home_url){
         this.x = x;
         this.size = size;
         this.empty = (subject?false:true);
-
+        this.home_url = home_url;
         this.alpha = alpha;
         this.description = description;
         this.text = text;
@@ -44,6 +44,10 @@ export class Slot{
 
     opencontent(e){
         if(!this.empty){
+            // window.history.pushState({
+            //     id: 'slotpage',
+            //     idx: this.alpha.charCodeAt(0)-65
+            // }, 'AnimateJS | '+this.alpha, this.home_url+'#!/'+this.alpha);
             window.content = new (this.subject)();
             content_text.innerHTML = "";
             let title = document.createElement('h2');

@@ -135,7 +135,7 @@ const text = [
 ];
 
 export class Menu{
-    constructor(x, slotsize){
+    constructor(x, slotsize, home_url){
         this.nowx = x;
         this.centerx = x;
         this.slotsize = slotsize;
@@ -149,7 +149,8 @@ export class Menu{
                                     description[i], 
                                     (subject[i]?colors[i]:NULL_COLOR),  
                                     subject[i],
-                                    text[i]);
+                                    text[i],
+                                    home_url);
         }
     }
 

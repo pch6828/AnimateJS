@@ -2,6 +2,8 @@ import {Menu} from './menu.js?ver=1';
 import {Content} from './content.js?ver=1';
 import {Loading} from './loading.js?ver=1';
 
+const HOME_URL = window.location.href;
+
 class App{
     constructor(){
         this.menu = null;
@@ -12,9 +14,9 @@ class App{
         this.moveX = 0;
         this.offsetX = 0;
         this.isLoading = true;
-
-        this.menu = new Menu(this.stageWidth/2, 300);
+        
         this.content = new Content();
+        this.menu = new Menu(this.stageWidth/2, 300, HOME_URL);
         this.loading = new Loading();
         this.resize();
 
@@ -24,6 +26,8 @@ class App{
 
         document.addEventListener('lostpointercapture', this.onLost.bind(this), false);
         document.addEventListener('gotpointercapture', this.onGot.bind(this), false);
+
+        //window.addEventListener('popstate', this.onPopState.bind(this), false);
 
         window.requestAnimationFrame(this.animate.bind(this));
         window.content = null;
@@ -84,6 +88,14 @@ class App{
     onGot(e){
         if(e.pointerType==='pen'){
             this.isDown = true;
+        }
+    }
+
+    onPopState(e){
+        if(history.state && history.state.id === 'slotpage'){
+            this.menu.slot[history.state.idx].opencontent();
+        }else if (history.state) {
+            this.content.closecontent();
         }
     }
 }
