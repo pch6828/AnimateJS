@@ -52,6 +52,8 @@ export class Content{
             this.canvas.width = this.stageWidth*this.pixelRatio;
             this.canvas.height = this.stageHeight*this.pixelRatio;
             this.ableUpdown = true;
+            this.isDescLoading = UPDOWN_DESC;
+            this.updownMode = false;
         }else{
             this.canvas.width = this.stageWidth*this.pixelRatio*0.6;
             this.canvas.height = this.stageHeight*this.pixelRatio;
