@@ -2,12 +2,13 @@ const menu = document.getElementById('jsMenu');
 const content = document.getElementById('jsContent');
 const content_text = document.getElementById('jsText');
 
+const HOME_URL = window.location.href;
+
 export class Slot{
-    constructor(x, size, alpha, description, color, subject, text, home_url){
+    constructor(x, size, alpha, description, color, subject, text){
         this.x = x;
         this.size = size;
         this.empty = (subject?false:true);
-        this.home_url = home_url;
         this.alpha = alpha;
         this.description = description;
         this.text = text;
@@ -30,7 +31,7 @@ export class Slot{
         this.btn_div.style.color = color;  
         this.btn_div.appendChild(document.createTextNode(alpha));
 
-        this.btn_div.addEventListener('click', this.opencontent.bind(this), false);
+        this.btn_div.addEventListener('click', this.onClick.bind(this), false);
         this.btn_div.addEventListener('pointerenter', this.onEnter.bind(this), false);
         this.btn_div.addEventListener('pointerleave', this.onLeave.bind(this), false);
         this.div.appendChild(this.btn_div);
@@ -42,12 +43,9 @@ export class Slot{
         this.div.style.transform = "translate3d("+this.x+"px, 0px, 0px)";
     }
 
-    opencontent(e){
+    opencontent(){
         if(!this.empty){
-            // window.history.pushState({
-            //     id: 'slotpage',
-            //     idx: this.alpha.charCodeAt(0)-65
-            // }, 'AnimateJS | '+this.alpha, this.home_url+'#!/'+this.alpha);
+            document.title = 'AnimateJS | '+this.alpha;
             window.content = new (this.subject)();
             content_text.innerHTML = "";
             let title = document.createElement('h2');
@@ -66,6 +64,14 @@ export class Slot{
             content_text.appendChild(subtitle);
             content_text.appendChild(document.createElement('br'));
             content_text.appendChild(text);
+            return true;
+        }
+        return false;
+    }
+
+    onClick(e){
+        if(this.opencontent()){
+            window.history.pushState({id:this.alpha.charCodeAt(0)-65}, 'AnimateJS | '+this.alpha, HOME_URL);
         }
     }
 

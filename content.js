@@ -9,13 +9,14 @@ const LOADING_DESC = 40;
 const LOADING_CANVAS = 30;
 const UPDOWN_DESC = -95;
 
+const HOME_URL = window.location.href;
+
 export class Content{
     constructor(){
         this.canvas = document.getElementById('content_canvas');
         this.canvas.style.backgroundColor = 'black';
         this.ctx = this.canvas.getContext('2d');
         this.pixelRatio =window.devicePixelRatio > 1 ? 2 : 1;
-        this.home_url = window.location.href;
         this.canvas.addEventListener('contextmenu', this.noevent.bind(this), false);
         this.canvas.addEventListener('pointerdown', this.onDown.bind(this), false);
         this.canvas.addEventListener('pointermove', this.onMove.bind(this), false);
@@ -25,7 +26,7 @@ export class Content{
         this.canvas.addEventListener('gotpointercapture', this.onGot.bind(this), false);
 
         this.close_btn = close_btn;
-        this.close_btn.addEventListener('click', this.closecontent.bind(this), false);
+        this.close_btn.addEventListener('click', this.onClick.bind(this), false);
 
         this.updown_btn = updown_btn;
         this.updown_btn.addEventListener('click', this.updowndesc.bind(this), false);
@@ -74,14 +75,12 @@ export class Content{
         e.preventDefault();
     }
 
-    closecontent(e){
+    closecontent(){
+        document.title = 'AnimateJS';
         this.isClosed = true;
         this.isLoading = 0;
         this.isDescLoading = UPDOWN_DESC;
         this.updownMode = false;
-        // window.history.pushState({
-        //     id: 'homepage'
-        // }, 'AnimateJS', this.home_url);
     }
 
     updowndesc(e){
@@ -153,6 +152,11 @@ export class Content{
 
             window.content.animate(this.ctx, this.moveX, this.moveY, this.isDown);
         }
+    }
+
+    onClick(e){
+        this.closecontent();
+        window.history.pushState({id:-1}, 'AnimateJS', HOME_URL);
     }
 
     onDown(e){

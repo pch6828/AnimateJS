@@ -16,7 +16,7 @@ class App{
         this.isLoading = true;
         
         this.content = new Content();
-        this.menu = new Menu(this.stageWidth/2, 300, HOME_URL);
+        this.menu = new Menu(this.stageWidth/2, 300);
         this.loading = new Loading();
         this.resize();
 
@@ -27,7 +27,7 @@ class App{
         document.addEventListener('lostpointercapture', this.onLost.bind(this), false);
         document.addEventListener('gotpointercapture', this.onGot.bind(this), false);
 
-        //window.addEventListener('popstate', this.onPopState.bind(this), false);
+        window.addEventListener('popstate', this.onPopState.bind(this), false);
 
         window.requestAnimationFrame(this.animate.bind(this));
         window.content = null;
@@ -92,10 +92,12 @@ class App{
     }
 
     onPopState(e){
-        if(history.state && history.state.id === 'slotpage'){
-            this.menu.slot[history.state.idx].opencontent();
-        }else if (history.state) {
-            this.content.closecontent();
+        if(history.state && history.state.id>=0 && history.state.id<26){
+            this.menu.slot[history.state.id].opencontent();
+        }else{
+            if(window.content){
+                this.content.closecontent();
+            }
         }
     }
 }
