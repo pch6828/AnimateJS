@@ -21,7 +21,7 @@ body{
     width: 100%;
     height: 100%;
     background-color: gainsboro;
-    overflow-x: hidden;
+    overflow: hidden;
     font-family: 'consolas', 'Nanum Gothic';
 }
 
@@ -107,7 +107,7 @@ canvas{
     border-radius: 15px;
     display: none;
     background-color: black;
-    z-index: 100;
+    z-index: 6;
     left: 15px;
     top: 48%;
 }
@@ -188,6 +188,10 @@ canvas{
     z-index: inherit;
 }
 
+.updown_btn{
+    display:none;
+}
+
 @media(max-width:1000px){
     canvas{
         width: 100%;
@@ -199,13 +203,13 @@ canvas{
 
     .content_description{
         width: 100%;
-        height: 40%;
+        height: 95%;
         background-color: white;
         display: table;
         position: absolute;
         vertical-align: middle;
-        top: 100%;
-        z-index: 3;
+        bottom: -95%;
+        z-index: 7;
     }
 
     .content_text{
@@ -213,17 +217,33 @@ canvas{
         text-align: right;
         vertical-align: middle;
         width: 100%;
-        font-size: min(20px, 100%);
+        font-size: min(15px, 100%);
         font-weight: 100;
         color: #333333;
         z-index: inherit;
-        padding: 20px;
+        padding-right: 20px;
         font-family: 'Nanum Gothic';
+    }
+
+    .updown_btn{
+        display: block;
+        position: absolute;
+        width: 100%;
+        height: 50px;
+        font-size: 20px;
+        text-align: center;
+        background-color: rgba(128,128,128,0.3);
+        z-index: inherit;
+        top:-25px;
     }
 }
 
 @media(max-height:600px){
     .slot__description{
         display:none;
+    }
+    
+    .content_title{
+        display: none;
     }
 }

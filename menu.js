@@ -156,7 +156,7 @@ export class Menu{
     animate(moveX){
         let movement = moveX*0.9;
         if(matchMedia("(max-width:1000px)").matches){
-            movement = moveX*2;
+            movement = moveX*5;
         }
         let prevx = this.nowx;
         this.nowx+=movement;  

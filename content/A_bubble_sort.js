@@ -22,7 +22,7 @@ export class Bubble_Sort{
         this.centerx = stageWidth/2;
         this.centery = stageHeight/2;
 
-        this.strsize = this.width/9;
+        this.strsize = Math.min(this.height, this.width)/9;
         this.unitheight = this.height/20;
     }
 

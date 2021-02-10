@@ -3,9 +3,11 @@ const content = document.getElementById('jsContent');
 const description = document.getElementById('jsContentDescription');
 const canvas = document.getElementById('content_canvas');
 const close_btn = document.getElementById('jsCloseContent');
+const updown_btn = document.getElementById('jsUpDownDescription');
 
 const LOADING_DESC = 40;
 const LOADING_CANVAS = 30;
+const UPDOWN_DESC = -95;
 
 export class Content{
     constructor(){
@@ -22,11 +24,17 @@ export class Content{
         this.canvas.addEventListener('lostpointercapture', this.onLost.bind(this), false);
         this.canvas.addEventListener('gotpointercapture', this.onGot.bind(this), false);
 
-        this.close_btn = document.getElementById('jsCloseContent');
+        this.close_btn = close_btn;
         this.close_btn.addEventListener('click', this.closecontent.bind(this), false);
+
+        this.updown_btn = updown_btn;
+        this.updown_btn.addEventListener('click', this.updowndesc.bind(this), false);
         
         this.isLoading = 0;
         this.isClosed = false;
+        this.isDescLoading = UPDOWN_DESC;
+        this.ableUpdown = false;
+        this.updownMode = false;
 
         this.isDown = false;
         this.moveX = 0;
@@ -43,9 +51,12 @@ export class Content{
         if(matchMedia("(max-width:1000px)").matches){
             this.canvas.width = this.stageWidth*this.pixelRatio;
             this.canvas.height = this.stageHeight*this.pixelRatio;
+            this.ableUpdown = true;
         }else{
             this.canvas.width = this.stageWidth*this.pixelRatio*0.6;
             this.canvas.height = this.stageHeight*this.pixelRatio;
+            this.ableUpdown = false;
+            description.style.bottom = '0';
         }
         this.ctx.scale(this.pixelRatio, this.pixelRatio);
         if(window.content){
@@ -64,6 +75,10 @@ export class Content{
     closecontent(e){
         this.isClosed = true;
         this.isLoading = 0;
+    }
+
+    updowndesc(e){
+        this.updownMode = !this.updownMode;
     }
 
     animate(){
@@ -88,6 +103,7 @@ export class Content{
                     let desc_dx = content.offsetWidth/LOADING_DESC*this.isLoading;
                     if(matchMedia("(max-width:1000px)").matches){
                         canvas_dx = content.offsetWidth/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
+                        desc_dx = canvas_dx;
                     }
                     canvas.style.transform = 'translate3d('+(canvas_dx)+'px,0px,0px)';
                     description.style.transform = 'translate3d('+(desc_dx)+'px,0px,0px)';
@@ -111,12 +127,23 @@ export class Content{
                     let desc_dx = content.offsetWidth-content.offsetWidth/LOADING_DESC*this.isLoading;
                     if(matchMedia("(max-width:1000px)").matches){
                         canvas_dx = content.offsetWidth-content.offsetWidth/LOADING_CANVAS*Math.min(this.isLoading, LOADING_CANVAS);
+                        desc_dx = canvas_dx;
                     }
                     canvas.style.transform = 'translate3d('+(canvas_dx)+'px,0px,0px)';
                     description.style.transform = 'translate3d('+(desc_dx)+'px,0px,0px)';
                     this.isLoading++;
                 }
             }
+            if(this.ableUpdown){
+                if(this.updownMode){
+                    this.isDescLoading = Math.min(0, this.isDescLoading+5);
+                    description.style.bottom = this.isDescLoading+'%';
+                }else{
+                    this.isDescLoading = Math.max(UPDOWN_DESC, this.isDescLoading-5);
+                    description.style.bottom = this.isDescLoading+'%';
+                }
+            }
+
             window.content.animate(this.ctx, this.moveX, this.moveY, this.isDown);
         }
     }
