@@ -27,6 +27,7 @@ export class Typo_Cylinder{
     }
 
     animate(ctx, moveX, moveY, isDown){
+        ctx.globalCompositeOperation='source-over';
         let textwidth = 0;
         let Dwidth = 0;
         let movement = moveY/this.height;

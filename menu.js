@@ -3,6 +3,7 @@ import {Slot} from './slot.js?ver=1';
 import {Bubble_Sort}        from './content/A_bubble_sort.js?ver=1'; 
 import {Pour_And_Wave}      from './content/C_pour_and_wave.js?ver=1';
 import {Typo_Cylinder}      from './content/D_typo_cylinder.js?ver=1';
+import {Light_Bulb}         from './content/M_light_bulb.js?ver=1';
 import {Swinging_Balloon}   from './content/P_swinging_balloon.js?ver=1';
 
 const NULL_COLOR = '#3c444c';
@@ -57,7 +58,7 @@ const subject = [
     null,//Jj
     null,//Kk
     null,//Ll
-    null,//Mm
+    Light_Bulb,//Mm
     null,//Nn
     null,//Oo
     Swinging_Balloon,//Pp
@@ -110,7 +111,15 @@ const text = [
     null,//Jj
     null,//Kk
     null,//Ll
-    null,//Mm
+    ['어쩌다 보니 멘토링도 꽤 했네요.',
+    '개인적으로 후배들 대상으로 전공 멘토링하기도 했고,',
+    '동아리에서 진행하는 멘토링도 했고,',
+    '봉사 활동으로 예비 고교생 대상으로 코딩 멘토링도 했어요.',
+    '',
+    '사실 제가 누군가를 가르칠만큼 대단한 사람은 아니에요.',
+    '그래서 멘토링도 "가르쳐주고 이끌어주다"는 느낌보다는,',
+    '멘티가 본인만의 솔루션을 만들 수 있도록 도와주려고 했어요.',
+    '제 솔루션만이 정답은 아니니까요.'],//Mm
     null,//Nn
     null,//Oo
     ['A에서도 언급했지만, 몇몇 대회에 출제를 했어요.',

@@ -50,6 +50,11 @@ class Balloon{
 
 export class Swinging_Balloon{
     constructor(){
+        WebFont.load({
+            google: {
+              families: ['Fascinate Inline']
+            }
+        });
         canvas.style.backgroundColor = '#008BCE';
         this.balloonType = ['P', 'R', 'O', 'G', 'R', 'A', 'M', 'M', 'I', 'N', 'G', 'C', 'O', 'N', 'T', 'E', 'S', 'T'];
         this.nowidx = 0;
@@ -71,6 +76,7 @@ export class Swinging_Balloon{
     }
 
     animate(ctx, moveX, moveY, isDown){
+        ctx.globalCompositeOperation='source-over';
         ctx.font = this.balloonsize+'px Fascinate Inline';
         ctx.strokeStyle='#ffffff';
         ctx.lineWidth = 3;

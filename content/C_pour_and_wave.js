@@ -181,6 +181,11 @@ class Pour{
 
 export class Pour_And_Wave{
     constructor(){
+        WebFont.load({
+            google: {
+              families: ['Big Shoulders Display']
+            }
+        });
         canvas.style.backgroundColor = '#00CFB4';
         this.coffeesize = 200;
         this.coffee = new Waves(this.width, this.height, this.coffeesize);
@@ -202,6 +207,7 @@ export class Pour_And_Wave{
 
     animate(ctx, moveX, moveY, isDown){
         ctx.save();
+        ctx.globalCompositeOperation='source-over';
         if(isDown){
             if(!this.now_drop){
                 this.now_drop = new Pour(this.centerx, this.centery+this.coffeesize, this.coffeesize/10);
@@ -235,8 +241,6 @@ export class Pour_And_Wave{
         }
         ctx.font = this.coffeesize+'px Big Shoulders Display';
         let textwidth = ctx.measureText('COFFEE').width;
-        
-        ctx.globalCompositeOperation='source-over';
         ctx.fillStyle='rgba(0,0,0,1)';
         ctx.beginPath();
         ctx.arc(this.centerx+textwidth/2, this.centery-this.coffeesize/3, this.coffeesize/3, Math.PI/2, -Math.PI/2, true);

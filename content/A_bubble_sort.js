@@ -3,6 +3,11 @@ const SWAP_SPEED = 50;
 
 export class Bubble_Sort{
     constructor(){
+        WebFont.load({
+            google: {
+              families: ['Major Mono Display']
+            }
+        });
         canvas.style.backgroundColor = '#FFAD00';
         this.arr = [];
         this.swapidx = 0;
@@ -27,6 +32,7 @@ export class Bubble_Sort{
     }
 
     animate(ctx, moveX, moveY, isDown){
+        ctx.globalCompositeOperation='source-over';
         if(isDown){
             this.shuffle();
             this.fixed = 0;
