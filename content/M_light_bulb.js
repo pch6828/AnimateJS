@@ -19,7 +19,8 @@ export class Light_Bulb{
         canvas.style.backgroundColor = '#101820';
         this.blink = 0;
         this.loading = 0;
-        this.onoff = 10;
+        this.prev = 0;
+        this.onoff = false;
         this.light_range = 1;
         this.light = 0;
         this.cur = 0;
@@ -39,14 +40,14 @@ export class Light_Bulb{
 
     animate(ctx, moveX, moveY, isDown){
         ctx.globalCompositeOperation='source-over';
-        if(isDown){
-            this.onoff = 10;
+        if(isDown && !this.prev){
+            this.onoff = !this.onoff;
             this.loading = Math.max(0, this.loading);
-        }else{
-            this.onoff = Math.max(this.onoff-1, 0);
         }
+        this.prev = isDown;
+
         ctx.font = '800 '+this.strsize+'px Turret Road';
-        if(this.onoff>0){
+        if(this.onoff){
             if(this.loading===FIRST_BLINK){
                 this.blink = 0;
             }else if(this.loading===SECOND_BLINK){
@@ -108,5 +109,9 @@ export class Light_Bulb{
         ctx.closePath();
         ctx.fillStyle = '#898D8D';
         ctx.fillRect(this.centerx-textwidth*Math.sin(15*Math.PI/180), this.centery+textwidth*Math.cos(15*Math.PI/180), 2*textwidth*Math.sin(15*Math.PI/180), textwidth/3);
+        ctx.fillStyle = '#707070';
+        ctx.fillRect(this.centerx-textwidth*Math.sin(15*Math.PI/180)*1.1, this.centery+textwidth*Math.cos(15*Math.PI/180)+1/7*textwidth/3, 2*textwidth*Math.sin(15*Math.PI/180)*1.1, 1/7*textwidth/3);
+        ctx.fillRect(this.centerx-textwidth*Math.sin(15*Math.PI/180)*1.1, this.centery+textwidth*Math.cos(15*Math.PI/180)+3/7*textwidth/3, 2*textwidth*Math.sin(15*Math.PI/180)*1.1, 1/7*textwidth/3);
+        ctx.fillRect(this.centerx-textwidth*Math.sin(15*Math.PI/180)*1.1, this.centery+textwidth*Math.cos(15*Math.PI/180)+5/7*textwidth/3, 2*textwidth*Math.sin(15*Math.PI/180)*1.1, 1/7*textwidth/3);
     }
 }
