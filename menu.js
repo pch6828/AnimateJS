@@ -17,39 +17,37 @@ const colors = [
 ];
 
 const description = [
-    'Algorithm',//Aa
+    'Algorithm',
     null,//Bb
-    'Coffee lover',//Cc
-    'Design? Develop?',//Dd
+    'Coffee lover',     'Design? Develop?',
     null,//Ee
     null,//Ff
-    null,//Gg
+    'chic Geek',//Gg
     null,//Hh
     null,//Ii
     null,//Jj
     'Kidult',//Kk
     null,//Ll
-    'Mentor',//Mm
+    'Mentor',
     null,//Nn
     null,//Oo
-    'Problem setter',//Pp
+    'Problem setter',
     null,//Qq
     null,//Rr
-    null,//Ss
+    'Stubborn',//Ss
     null,//Tt
     null,//Uu 
     null,//Vv
-    null,//Ww
+    'Wide, but shallow',//Ww
     null,//Xx
     null,//Yy
     null,//Zz
 ];
 
 const subject = [
-    Bubble_Sort,//Aa
+    Bubble_Sort,
     null,//Bb
-    Pour_And_Wave,//Cc
-    Typo_Cylinder,//Dd
+    Pour_And_Wave,      Typo_Cylinder,
     null,//Ee
     null,//Ff
     null,//Gg
@@ -58,10 +56,10 @@ const subject = [
     null,//Jj
     null,//Kk
     null,//Ll
-    Light_Bulb,//Mm
+    Light_Bulb,
     null,//Nn
     null,//Oo
-    Swinging_Balloon,//Pp
+    Swinging_Balloon,
     null,//Qq
     null,//Rr
     null,//Ss

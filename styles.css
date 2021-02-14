@@ -100,16 +100,29 @@ canvas{
     z-index: 3;
 }
 
-.close_btn{
-    width: 30px;
-    height: 30px;
+.btn_section{
     position: absolute;
-    border-radius: 15px;
-    display: none;
-    background-color: black;
+    display: flex;
+    width: 7vh;
+    height: 15vh;
+    border-bottom-right-radius: 3vh;
+    border-top-right-radius: 3vh;
+    top: 42.5vh;
+    left: -7vh;
+    background-color: rgba(128,128,128,0.3);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     z-index: 6;
-    left: 15px;
-    top: 48%;
+}
+
+.btn{
+    width: 5vh;
+    height: 5vh;
+    border-radius: 2.5vh;
+    display: flex;
+    margin: 1vh;
+    z-index: inherit;
 }
 
 .content_description{
