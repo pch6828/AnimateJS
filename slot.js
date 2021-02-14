@@ -1,18 +1,17 @@
 const menu = document.getElementById('jsMenu');
-const content = document.getElementById('jsContent');
 const content_text = document.getElementById('jsText');
-
-const LOADING_DESC = 40;
+const info_text = document.getElementById('jsInfo');
 const HOME_URL = window.location.href;
 
 export class Slot{
-    constructor(x, size, alpha, description, color, subject, text){
+    constructor(x, size, alpha, description, color, subject, text, info){
         this.x = x;
         this.size = size;
         this.empty = (subject?false:true);
         this.alpha = alpha;
         this.description = description;
         this.text = text;
+        this.info = info;
 
         this.subject = subject;
         this.div = document.createElement('div');
@@ -67,6 +66,7 @@ export class Slot{
             content_text.appendChild(subtitle);
             content_text.appendChild(document.createElement('br'));
             content_text.appendChild(text);
+            info_text.innerText = this.info;
             return true;
         }
         return false;

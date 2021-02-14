@@ -141,6 +141,35 @@ const text = [
     null,//Zz
 ];
 
+const info = [
+    '캔버스를 클릭해보세요!\n기둥들이 셔플됩니다!',
+    null,//Bb
+    '캔버스를 꾹 눌러보세요!\n커피가 떨어집니다!',      
+    '캔버스에서 위아래로 드래그를 해보세요!\n글자의 색이 점점 바뀝니다!',
+    null,//Ee
+    null,//Ff
+    null,//Gg
+    null,//Hh
+    null,//Ii
+    null,//Jj
+    null,//Kk
+    null,//Ll
+    '캔버스를 클릭해보세요!\n전구를 끄고 켤 수 있어요!',
+    null,//Nn
+    null,//Oo
+    '캔버스에서 상하좌우로 드래그를 해보세요!\n풍선이 바람에 날립니다!',
+    null,//Qq
+    null,//Rr
+    null,//Ss
+    null,//Tt
+    null,//Uu 
+    null,//Vv
+    null,//Ww
+    null,//Xx
+    null,//Yy
+    null,//Zz
+];
+
 export class Menu{
     constructor(x, slotsize){
         this.nowx = x;
@@ -156,7 +185,8 @@ export class Menu{
                                     description[i], 
                                     (subject[i]?colors[i]:NULL_COLOR),  
                                     subject[i],
-                                    text[i]);
+                                    text[i],
+                                    info[i]);
         }
     }
 

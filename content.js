@@ -4,6 +4,8 @@ const description = document.getElementById('jsContentDescription');
 const canvas = document.getElementById('content_canvas');
 const btn_section = document.getElementById('jsButtonSection');
 const updown_btn = document.getElementById('jsUpDownDescription');
+const interaction_info = document.getElementById('jsInteractionInfo');
+const info_text = document.getElementById('jsInfo');
 
 const LOADING_DESC = 40;
 const LOADING_CANVAS = 30;
@@ -28,6 +30,8 @@ export class Content{
 
         this.close_btn = document.getElementById('jsCloseContent');
         this.close_btn.addEventListener('click', this.onClick.bind(this), false);
+        this.info_btn = document.getElementById('jsToggleInfo');
+        this.info_btn.addEventListener('click', this.toggleInfo.bind(this), false);
 
         this.updown_btn = updown_btn;
         this.updown_btn.addEventListener('click', this.updowndesc.bind(this), false);
@@ -77,6 +81,14 @@ export class Content{
         e.preventDefault();
     }
 
+    toggleInfo(e){
+        if(interaction_info.style.display==='none'){
+            interaction_info.style.display = 'table';
+        }else{
+            interaction_info.style.display = 'none';
+        }
+    }
+
     closecontent(){
         document.title = 'AnimateJS';
         window.isClosed = true;
@@ -98,7 +110,7 @@ export class Content{
                 if(window.isLoading<=LOADING_DESC){
                     if(window.isLoading==0){
                         menu.style.display = 'block';
-                        //btn_section.style.display = 'none';
+                        interaction_info.style = 'none';
                     }
                     if(window.isLoading==LOADING_DESC){
                         content.style.display = 'none';
