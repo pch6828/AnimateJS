@@ -46,7 +46,6 @@ canvas{
 }
 
 .slot__btn{
-    overflow: inherit;
     bottom: 0px;
     width: 120px;
     height: 100px;
