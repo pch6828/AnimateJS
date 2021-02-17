@@ -18,14 +18,16 @@ html{
 }
 
 body{
+    position: relative;
     width: 100%;
     height: 100%;
-    background-color: gainsboro;
     overflow: hidden;
+    background-color: gainsboro;
     font-family: 'consolas', 'Nanum Gothic';
 }
 
 canvas{
+    overflow: inherit;
     width: 60%;
     height: 100%;
     position: absolute;
@@ -34,6 +36,7 @@ canvas{
 }
 
 .slot{
+    overflow: inherit;
     width:120px;
     height: 80%;
     position: absolute;
@@ -43,6 +46,7 @@ canvas{
 }
 
 .slot__btn{
+    overflow: inherit;
     bottom: 0px;
     width: 120px;
     height: 100px;
@@ -55,6 +59,7 @@ canvas{
 }
 
 .slot__description{
+    overflow: inherit;
     display: table;
     position: absolute;
     width: 500px;
@@ -75,6 +80,7 @@ canvas{
 }
 
 .header{
+    overflow: inherit;
     width: 100%;
     position: absolute;
     display: block;
@@ -86,6 +92,7 @@ canvas{
 }
 
 .menu{
+    overflow: inherit;
     width: 100%;
     height: 100%;
     display: block;
@@ -93,6 +100,7 @@ canvas{
 }
 
 .content{
+    overflow: inherit;
     width: 100%;
     height: 100%;
     display: none;
@@ -101,6 +109,7 @@ canvas{
 }
 
 .btn_section{
+    overflow: inherit;
     position: absolute;
     display: flex;
     width: 7vh;
@@ -126,6 +135,7 @@ canvas{
 }
 
 .content_description{
+    overflow: inherit;
     width: 40%;
     height: 100%;
     background-color: white;
@@ -172,6 +182,7 @@ canvas{
 }
 
 .loading{
+    overflow: inherit;
     display: table;
     text-align: center;
     position: absolute;
@@ -186,6 +197,7 @@ canvas{
 }
 
 .loading_info{
+    overflow: inherit;
     display: block; 
     width: 100%;
     position: absolute;
@@ -206,6 +218,7 @@ canvas{
 }
 
 .interaction_info{
+    overflow: inherit;
     display: none;
     position: absolute;
     width: 100%;
@@ -232,6 +245,7 @@ canvas{
 
 @media(max-width:1000px){
     canvas{
+        overflow: inherit;
         width: 100%;
         height: 100%;
         position: absolute;
@@ -240,6 +254,7 @@ canvas{
     }
 
     .content_description{
+        overflow: inherit;
         width: 100%;
         height: 95%;
         background-color: white;
@@ -264,6 +279,7 @@ canvas{
     }
 
     .updown_btn{
+        overflow: inherit;
         display: block;
         position: absolute;
         width: 100%;
