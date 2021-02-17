@@ -80,6 +80,7 @@ export class Swinging_Balloon{
         ctx.font = this.balloonsize+'px Fascinate Inline';
         ctx.strokeStyle='#ffffff';
         ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
         
         if(this.balloonLoad==0){
             this.balloons[this.balloons.length] = new Balloon(this.balloonType[this.nowidx], 

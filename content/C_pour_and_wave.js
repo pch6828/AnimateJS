@@ -208,6 +208,7 @@ export class Pour_And_Wave{
     animate(ctx, moveX, moveY, isDown){
         ctx.save();
         ctx.globalCompositeOperation='source-over';
+        ctx.lineCap = 'round';
         if(isDown){
             if(!this.now_drop){
                 this.now_drop = new Pour(this.centerx, this.centery+this.coffeesize, this.coffeesize/10);

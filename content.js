@@ -19,7 +19,7 @@ export class Content{
         this.canvas = document.getElementById('content_canvas');
         this.canvas.style.backgroundColor = 'black';
         this.ctx = this.canvas.getContext('2d');
-        this.pixelRatio =window.devicePixelRatio > 1 ? 2 : 1;
+        this.pixelRatio = window.devicePixelRatio > 1 ? 2 : 1;
         this.canvas.addEventListener('contextmenu', this.noevent.bind(this), false);
         this.canvas.addEventListener('pointerdown', this.onDown.bind(this), false);
         this.canvas.addEventListener('pointermove', this.onMove.bind(this), false);
@@ -169,7 +169,7 @@ export class Content{
                     description.style.bottom = this.isDescLoading+'%';
                 }
             }
-            window.content.animate(this.ctx, this.moveX, this.moveY, this.isDown);
+            window.content.animate(this.ctx, this.moveX, this.moveY, this.isDown, this.offsetX, this.offsetY);
         }
     }
 
@@ -181,18 +181,18 @@ export class Content{
     onDown(e){
         this.isDown = true;
         this.moveX = 0;
-        this.offsetX = e.clientX;
+        this.offsetX = e.offsetX;
         this.moveY = 0;
-        this.offsetY = e.clientY;
+        this.offsetY = e.offsetY;
     }
 
     onMove(e){
         if(this.isDown){
             this.moveX = e.offsetX - this.offsetX;
-            this.offsetX = e.offsetX;
             this.moveY = e.offsetY - this.offsetY;
-            this.offsetY = e.offsetY;
         }
+        this.offsetX = e.offsetX;
+        this.offsetY = e.offsetY;
     }
 
     onUp(e){

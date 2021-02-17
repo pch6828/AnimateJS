@@ -40,6 +40,7 @@ export class Light_Bulb{
 
     animate(ctx, moveX, moveY, isDown){
         ctx.globalCompositeOperation='source-over';
+        ctx.lineCap = 'round';
         if(isDown && !this.prev){
             this.onoff = !this.onoff;
             this.loading = Math.max(0, this.loading);
