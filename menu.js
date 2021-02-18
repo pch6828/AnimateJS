@@ -28,7 +28,7 @@ const description = [
     null,//Ii
     null,//Jj
     'Kidult',//Kk
-    null,//Ll
+    'Lazy workholic',//Ll
     'Mentor',
     null,//Nn
     null,//Oo
@@ -121,7 +121,7 @@ const info = [
     '캔버스에서 상하좌우로 드래그를 해보세요!\n풍선이 바람에 날립니다!',
     null,//Qq
     null,//Rr
-    '캔버스에서 상하좌우로 드래그를 해보세요!\n글자를 잡아 당길 수 있습니다!',//Ss
+    '캔버스에서 상하좌우로 드래그를 해보세요!\n글자를 잡아 당길 수 있습니다!',
     null,//Tt
     null,//Uu 
     null,//Vv
