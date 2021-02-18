@@ -97,7 +97,7 @@ canvas{
 }
 
 .content{
-     
+    overflow: hidden;
     width: 100%;
     height: 100%;
     display: none;
@@ -106,7 +106,6 @@ canvas{
 }
 
 .btn_section{
-     
     position: absolute;
     display: flex;
     width: 7vh;
