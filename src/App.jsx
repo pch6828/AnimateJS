@@ -6,8 +6,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route exact path='/AnimateJS' Component={Main} />
         <Route exact path='/' Component={Main} />
-        <Route exact path='/A_' Component={A_} />
+        <Route exact path='/AnimateJS/A_' Component={A_} />
       </Routes>
     </BrowserRouter>
   );
