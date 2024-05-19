@@ -20,6 +20,8 @@ function Main() {
         }
     }
     function rotateWheelEnd(e) {
+        const rounded_deg = Math.round(deg / (360 / 26)) * (360 / 26);
+        setDeg(rounded_deg);
         setPos(e.clientY);
     }
     return (
@@ -33,10 +35,11 @@ function Main() {
             {items.map((item, i) => (
                 <WheelButton
                     key={i}
-                    x={75 * Math.sin(2 * Math.PI / 26 * i)}
-                    y={75 * Math.cos(2 * Math.PI / 26 * i)}
+                    x={110 * Math.cos(2 * Math.PI / 26 * i)}
+                    y={110 * Math.sin(2 * Math.PI / 26 * i)}
                     deg={-deg}
                     alphabet={item.key}
+                    selected={(Math.round(-deg / (360 / 26)) + 26) % 26 === i}
                 />
             ))}
         </div>

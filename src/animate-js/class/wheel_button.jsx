@@ -1,12 +1,11 @@
 import '../style/main.css'
 
-function WheelButton({ x, y, deg, alphabet }) {
-    console.log(x, y);
+function WheelButton({ x, y, deg, alphabet, selected }) {
     return (
-        <div className="wheel-menu-button"
+        <div className={'wheel-menu-button ' + (selected ? 'selected' : '')}
             style={{ transform: 'translate(' + x + 'vh,' + y + 'vh) rotate(' + deg + 'deg)' }}
         >
-            {alphabet}
+            {alphabet + alphabet.toLowerCase()}
         </div>
     );
 }
