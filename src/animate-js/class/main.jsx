@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState } from 'react';
+import items from './wheel_button_item.jsx';
+import WheelButton from './wheel_button.jsx';
 
 import '../style/main.css'
 
@@ -28,9 +30,15 @@ function Main() {
             onDragEnd={rotateWheelEnd}
             style={{ transform: 'rotate(' + deg + 'deg)' }}
         >
-            <div className="wheel-menu-button">
-
-            </div>
+            {items.map((item, i) => (
+                <WheelButton
+                    key={i}
+                    x={75 * Math.sin(2 * Math.PI / 26 * i)}
+                    y={75 * Math.cos(2 * Math.PI / 26 * i)}
+                    deg={-deg}
+                    alphabet={item.key}
+                />
+            ))}
         </div>
     );
 }
