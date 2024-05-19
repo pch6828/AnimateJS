@@ -2,7 +2,7 @@ import { useState } from 'react';
 import items from './wheel_button_item.jsx';
 import WheelSlot from './wheel_button.jsx';
 
-import '../style/main.css'
+import '../../style/main.css'
 
 function Main() {
     const [deg, setDeg] = useState(0);
@@ -32,6 +32,13 @@ function Main() {
             onDragEnd={rotateWheelEnd}
             style={{ transform: 'rotate(' + deg + 'deg)' }}
         >
+            <div className="main-title"
+                style={{ transform: 'rotate(' + (-deg) + 'deg) translate(50vh, 0vh)' }}
+            >
+                26<br />
+                Animated<br />
+                TMI
+            </div>
             {items.map((item, i) => (
                 <WheelSlot
                     key={i}

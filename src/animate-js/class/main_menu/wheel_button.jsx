@@ -1,4 +1,4 @@
-import '../style/main.css'
+import '../../style/main.css'
 
 function WheelSlot({ x, y, deg, alphabet, selected }) {
     return (
