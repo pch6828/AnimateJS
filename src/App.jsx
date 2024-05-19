@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import logo from './logo.svg';
 import './App.css';
-import Main from './animate-js/main/main.jsx'
-import A_ from './animate-js/content/A_.jsx'
+import Main from './animate-js/class/main.jsx'
+import A_ from './animate-js/class/A_.jsx'
+
 function App() {
   return (
     <BrowserRouter>

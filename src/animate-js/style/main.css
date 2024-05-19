@@ -1,0 +1,21 @@
+.wheel-menu {
+    display: flex;
+    position: absolute;
+    width: 150vh;
+    height: 150vh;
+    left: -50vh;
+    top: -25vh;
+    background-color: rgb(142, 142, 142);
+    border-radius: 50%;
+}
+
+.wheel-menu-button {
+    display: flex;
+    position: absolute;
+    width: 10vh;
+    height: 10vh;
+    left: 140vh;
+    top: 70vh;
+    background-color: rgb(255, 109, 109);
+    border-radius: 50%;
+}
