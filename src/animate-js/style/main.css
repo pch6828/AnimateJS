@@ -2,29 +2,58 @@
     position: absolute;
     width: 200vh;
     height: 200vh;
-    left: -40%;
+    left: -50%;
     top: 50%;
     margin-top: -100vh;
     background-color: rgb(142, 142, 142);
     border-radius: 50%;
 }
 
-.wheel-menu-button {
+.wheel-slot {
     display: flex;
     position: absolute;
-    width: 10vh;
-    height: 10vh;
-    margin-left: -5vh;
-    margin-top: -5vh;
+    margin-left: -10vh;
+    margin-top: -10vh;
     left: 50%;
     top: 50%;
+    width: 20vh;
+    height: 20vh;
     text-align: center;
     align-items: center;
     justify-content: center;
     font-family: 'consolas', 'Nanum Gothic';
-    font-size: 10vh;
 }
 
-.selected {
+.wheel-slot-label {
+    display: flex;
+    position: absolute;
+    width: 20vh;
+    height: 20vh;
+    font-size: 10vh;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.wheel-slot-title {
+    display: flex;
+    position: absolute;
+    width: 50vh;
+    height: 10vh;
+    left: 10vh;
+    font-size: 3vh;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    color: darkgray;
+}
+
+.selected-label {
     font-size: 20vh;
+}
+
+.selected-title {
+    left: 30vh;
+    font-size: 8vh;
+    color: black;
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import items from './wheel_button_item.jsx';
-import WheelButton from './wheel_button.jsx';
+import WheelSlot from './wheel_button.jsx';
 
 import '../style/main.css'
 
@@ -33,7 +33,7 @@ function Main() {
             style={{ transform: 'rotate(' + deg + 'deg)' }}
         >
             {items.map((item, i) => (
-                <WheelButton
+                <WheelSlot
                     key={i}
                     x={110 * Math.cos(2 * Math.PI / 26 * i)}
                     y={110 * Math.sin(2 * Math.PI / 26 * i)}
