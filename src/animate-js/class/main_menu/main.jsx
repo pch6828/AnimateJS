@@ -33,7 +33,7 @@ function Main() {
             style={{ transform: 'rotate(' + deg + 'deg)' }}
         >
             <div className="main-title"
-                style={{ transform: 'rotate(' + (-deg) + 'deg) translate(50vh, 0vh)' }}
+                style={{ transform: 'rotate(' + (-deg) + 'deg) translate(35vh, 0vh)' }}
             >
                 26<br />
                 Animated<br />
@@ -46,6 +46,8 @@ function Main() {
                     y={110 * Math.sin(2 * Math.PI / 26 * i)}
                     deg={-deg}
                     alphabet={item.key}
+                    title={item.title}
+                    color={item.color}
                     selected={(Math.round(-deg / (360 / 26)) + 26) % 26 === i}
                 />
             ))}

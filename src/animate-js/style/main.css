@@ -2,11 +2,14 @@
     position: absolute;
     width: 200vh;
     height: 200vh;
-    left: -50%;
+    left: -45%;
     top: 50%;
     margin-top: -100vh;
     background-color: rgb(142, 142, 142);
     border-radius: 50%;
+    border: 1vh solid white;
+    outline: 15vh solid white;
+    outline-offset: -15vh;
 }
 
 .main-title {
@@ -54,13 +57,13 @@
 .wheel-slot-title {
     display: flex;
     position: absolute;
-    width: 50vh;
+    width: 100vh;
     height: 10vh;
-    left: 10vh;
+    left: 30vh;
     font-size: 3vh;
     text-align: center;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
     color: darkgray;
 }
 
@@ -69,7 +72,6 @@
 }
 
 .selected-title {
-    left: 30vh;
     font-size: 8vh;
     color: black;
 }
