@@ -33,7 +33,7 @@ function Main() {
             style={{ transform: 'rotate(' + deg + 'deg)' }}
         >
             <div className="main-title"
-                style={{ transform: 'rotate(' + (-deg) + 'deg) translate(35vh, 0vh)' }}
+                style={{ transform: 'rotate(' + (-deg) + 'deg) translate(15vw, 0vw)' }}
             >
                 26<br />
                 Animated<br />
@@ -42,8 +42,8 @@ function Main() {
             {items.map((item, i) => (
                 <WheelSlot
                     key={i}
-                    x={110 * Math.cos(2 * Math.PI / 26 * i)}
-                    y={110 * Math.sin(2 * Math.PI / 26 * i)}
+                    x={45 * Math.cos(2 * Math.PI / 26 * i)}
+                    y={45 * Math.sin(2 * Math.PI / 26 * i)}
                     deg={-deg}
                     alphabet={item.key}
                     title={item.title}

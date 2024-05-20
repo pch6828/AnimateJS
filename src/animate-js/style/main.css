@@ -1,27 +1,27 @@
 .wheel-menu {
     position: absolute;
-    width: 200vh;
-    height: 200vh;
-    left: -45%;
+    width: 80vw;
+    height: 80vw;
+    left: -40%;
     top: 50%;
-    margin-top: -100vh;
+    margin-top: -40vw;
     background-color: rgb(142, 142, 142);
     border-radius: 50%;
-    border: 1vh solid white;
-    outline: 15vh solid white;
-    outline-offset: -15vh;
+    border: 1vw solid white;
+    outline: 5vw solid white;
+    outline-offset: -5vw;
 }
 
 .main-title {
     display: flex;
     position: absolute;
-    font-size: 7vh;
-    width: 60vh;
-    height: 60vh;
+    font-size: 4vw;
+    width: 20vw;
+    height: 20vw;
     left: 50%;
     top: 50%;
-    margin-left: -30vh;
-    margin-top: -30vh;
+    margin-left: -10vw;
+    margin-top: -10vw;
     color: black;
     text-align: center;
     align-items: center;
@@ -31,12 +31,12 @@
 .wheel-slot {
     display: flex;
     position: absolute;
-    margin-left: -10vh;
-    margin-top: -10vh;
+    margin-left: -3vw;
+    margin-top: -3vw;
     left: 50%;
     top: 50%;
-    width: 20vh;
-    height: 20vh;
+    width: 6vw;
+    height: 6vw;
     text-align: center;
     align-items: center;
     justify-content: center;
@@ -46,9 +46,9 @@
 .wheel-slot-label {
     display: flex;
     position: absolute;
-    width: 20vh;
-    height: 20vh;
-    font-size: 10vh;
+    width: 6vw;
+    height: 6vw;
+    font-size: 5vw;
     text-align: center;
     align-items: center;
     justify-content: center;
@@ -57,10 +57,10 @@
 .wheel-slot-title {
     display: flex;
     position: absolute;
-    width: 100vh;
-    height: 10vh;
-    left: 30vh;
-    font-size: 3vh;
+    width: 40vw;
+    height: 3vw;
+    left: 13vw;
+    font-size: 2vw;
     text-align: center;
     align-items: center;
     justify-content: left;
@@ -68,11 +68,11 @@
 }
 
 .selected-label {
-    font-size: 20vh;
+    font-size: 10vw;
 }
 
 .selected-title {
-    font-size: 8vh;
+    font-size: 4vw;
     color: black;
 }
 

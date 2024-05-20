@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import Main from './animate-js/class/main_menu/main.jsx'
-import A_ from './animate-js/class/A_.jsx'
+import Content from './animate-js/class/content_page/content.jsx';
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
           <Routes>
             <Route exact path='/' Component={Main} />
             <Route exact path='/AnimateJS' Component={Main} />
-            <Route exact path='/AnimateJS/A_' Component={A_} />
+            <Route path='/AnimateJS/Content/:id' Component={Content} />
           </Routes>
         </CSSTransition>
       </TransitionGroup >
