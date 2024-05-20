@@ -1,0 +1,19 @@
+.content-page {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.content-description {
+    display: flex;
+    width: 30%;
+    height: 100%;
+    background-color: white;
+}
+
+.content-canvas {
+    display: flex;
+    width: 70%;
+    height: 100%;
+    background-color: bisque;
+}
