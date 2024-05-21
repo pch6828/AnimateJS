@@ -1,5 +1,3 @@
-var length = 50;
-
 class Point {
     constructor(x, y, start, change_range) {
         this.x = x;

@@ -1,7 +1,11 @@
+import AnimationA from "../animate/a_algorithm";
 import AnimationC from "../animate/c_coffee";
 
 const items = new Map([
-    ['A', null],
+    ['A', {
+        backgroundColor: '#FFAD00',
+        animate: AnimationA
+    }],
     ['B', null],
     ['C', {
         backgroundColor: '#00CFB4',
