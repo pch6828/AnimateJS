@@ -1,21 +1,27 @@
 import { useRef, useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 import '../../style/content.css';
 
-import AnimationC from '../animate/c_coffee';
+import items from './content_item';
 
 function Content() {
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
+    const { id } = useParams();
 
     const [ctx, setCtx] = useState();
     const [isDrawing, setIsDrawing] = useState(false);
+
+
+    const animation = items.get(id);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
         canvas.width = devicePixelRatio * window.innerWidth * 0.7;
         canvas.height = devicePixelRatio * window.innerHeight;
+        canvas.style.backgroundColor = animation ? animation.backgroundColor : 'bisque';
 
         context.strokeStyle = 'black';
         context.lineWidth = 2.5;
@@ -25,8 +31,10 @@ function Content() {
 
         function resizeCanvas() {
             const canvas = canvasRef.current;
-            canvas.width = devicePixelRatio * window.innerWidth * 0.7;
-            canvas.height = devicePixelRatio * window.innerHeight;
+            if (canvas) {
+                canvas.width = devicePixelRatio * window.innerWidth * 0.7;
+                canvas.height = devicePixelRatio * window.innerHeight;
+            }
         }
 
         window.addEventListener('resize', resizeCanvas)
@@ -36,7 +44,8 @@ function Content() {
 
             if (ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                AnimationC(ctx, canvas.width, canvas.height);
+                if (animation)
+                    animation.animate(ctx, canvas.width, canvas.height);
             }
         };
 
@@ -47,7 +56,7 @@ function Content() {
         return () => {
             window.cancelAnimationFrame(requestId);
         };
-    }, [ctx]);
+    }, [ctx, animation]);
 
     function startDrawing() {
         setIsDrawing(true);
