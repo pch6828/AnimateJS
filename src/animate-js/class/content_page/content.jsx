@@ -11,8 +11,7 @@ function Content() {
     const { id } = useParams();
 
     const [ctx, setCtx] = useState();
-    const [isDrawing, setIsDrawing] = useState(false);
-
+    const [isDown, setIsDown] = useState(false);
 
     const animation = items.get(id);
 
@@ -45,7 +44,7 @@ function Content() {
             if (ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 if (animation)
-                    animation.animate(ctx, canvas.width, canvas.height);
+                    animation.animate(ctx, canvas.width, canvas.height, { isDown: isDown });
             }
         };
 
@@ -56,27 +55,27 @@ function Content() {
         return () => {
             window.cancelAnimationFrame(requestId);
         };
-    }, [ctx, animation]);
+    }, [ctx, animation, isDown]);
 
-    function startDrawing() {
-        setIsDrawing(true);
+    function mouseDown() {
+        setIsDown(true);
     };
 
-    function endDrawing() {
-        setIsDrawing(false);
+    function mouseUp() {
+        setIsDown(false);
     };
 
     function drawing({ nativeEvent }) {
         const { offsetX, offsetY } = nativeEvent;
-        if (ctx) {
-            if (!isDrawing) {
-                ctx.beginPath();
-                ctx.moveTo(offsetX, offsetY);
-            } else {
-                ctx.lineTo(offsetX, offsetY);
-                ctx.stroke();
-            }
-        }
+        // if (ctx) {
+        //     if (!isDrawing) {
+        //         ctx.beginPath();
+        //         ctx.moveTo(offsetX, offsetY);
+        //     } else {
+        //         ctx.lineTo(offsetX, offsetY);
+        //         ctx.stroke();
+        //     }
+        // }
     };
 
     return (
@@ -86,9 +85,9 @@ function Content() {
             </div>
             <canvas className='content-canvas'
                 ref={canvasRef}
-                onMouseDown={startDrawing}
-                onMouseUp={endDrawing}
-                onMouseLeave={endDrawing}
+                onMouseDown={mouseDown}
+                onMouseUp={mouseUp}
+                onMouseLeave={mouseUp}
                 onMouseMove={drawing}
             >
             </canvas>
