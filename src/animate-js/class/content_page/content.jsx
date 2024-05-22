@@ -81,7 +81,22 @@ function Content() {
     return (
         <div className='content-page'>
             <div className='content-description'>
-                description
+                <div className='content-alphabet'>
+                    {id + id.toLowerCase()}
+                </div>
+                <div className='content-title'>
+                    {animation ? animation.title : ''}
+                </div>
+                <div className='content-text'>
+                    {animation ?
+                        animation.text.map((line, i) => (
+                            <div className='content-text-line'>
+                                {line}
+                            </div>
+                        ))
+                        : ''}
+                </div>
+
             </div>
             <canvas className='content-canvas'
                 ref={canvasRef}

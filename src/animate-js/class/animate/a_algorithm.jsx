@@ -39,8 +39,8 @@ function AnimationA(ctx, width, height, movement) {
     const unitHeight = height / 20;
 
     if (sortbars === null) {
-        console.log("?");
         sortbars = new BubbleSort();
+        sortbars.shuffle();
     }
 
     if (movement.isDown) {
