@@ -16,7 +16,7 @@ const items = [
     },
     {
         key: 'D',
-        title: 'Design? Develop?',
+        title: '', //'Design? Develop?'
         color: '#FF6900'
     },
     {
@@ -36,7 +36,7 @@ const items = [
     },
     {
         key: 'H',
-        title: '',
+        title: '', //'Homebody',
         color: '#F6B700'
     },
     {
@@ -51,7 +51,7 @@ const items = [
     },
     {
         key: 'K',
-        title: 'Kidult',
+        title: '', //'Kidult',
         color: '#30B700'
     },
     {
@@ -76,7 +76,7 @@ const items = [
     },
     {
         key: 'P',
-        title: 'Postgraduate',
+        title: '', //'Postgraduate',
         color: '#2AD2C9'
     },
     {
