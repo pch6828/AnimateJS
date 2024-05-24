@@ -12,6 +12,7 @@ function Content() {
 
     const [ctx, setCtx] = useState();
     const [isDown, setIsDown] = useState(false);
+    const [mousePoint, setMousePoint] = useState({ x: 0, y: 0 });
 
     const animation = items.get(id);
 
@@ -44,7 +45,7 @@ function Content() {
             if (ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 if (animation)
-                    animation.animate(ctx, canvas.width, canvas.height, { isDown: isDown });
+                    animation.animate(ctx, canvas.width, canvas.height, { isDown: isDown, mousePoint: mousePoint });
             }
         };
 
@@ -55,7 +56,7 @@ function Content() {
         return () => {
             window.cancelAnimationFrame(requestId);
         };
-    }, [ctx, animation, isDown]);
+    }, [ctx, animation, isDown, mousePoint]);
 
     function mouseDown() {
         setIsDown(true);
@@ -65,17 +66,9 @@ function Content() {
         setIsDown(false);
     };
 
-    function drawing({ nativeEvent }) {
+    function mouseMove({ nativeEvent }) {
         const { offsetX, offsetY } = nativeEvent;
-        // if (ctx) {
-        //     if (!isDrawing) {
-        //         ctx.beginPath();
-        //         ctx.moveTo(offsetX, offsetY);
-        //     } else {
-        //         ctx.lineTo(offsetX, offsetY);
-        //         ctx.stroke();
-        //     }
-        // }
+        setMousePoint({ offsetX, offsetY });
     };
 
     return (
@@ -103,7 +96,7 @@ function Content() {
                 onMouseDown={mouseDown}
                 onMouseUp={mouseUp}
                 onMouseLeave={mouseUp}
-                onMouseMove={drawing}
+                onMouseMove={mouseMove}
             >
             </canvas>
         </div>

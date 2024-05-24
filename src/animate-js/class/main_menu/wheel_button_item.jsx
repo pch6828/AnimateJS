@@ -36,7 +36,7 @@ const items = [
     },
     {
         key: 'H',
-        title: '', //'Homebody',
+        title: 'Homebody',
         color: '#F6B700'
     },
     {

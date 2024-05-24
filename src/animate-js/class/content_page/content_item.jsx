@@ -1,5 +1,6 @@
 import AnimationA from "../animate/a_algorithm";
 import AnimationC from "../animate/c_coffee";
+import AnimationH from "../animate/h_homebody";
 
 const items = new Map([
     ['A', {
@@ -29,14 +30,27 @@ const items = new Map([
             '불면증이 생기면서 3년 정도 끊었지만요.',
             ' ',
             '요새는 가끔 한잔씩 마시고 있습니다.',
-            '점심 식사 후에 커피를 마시는 게 참 좋더라구요.'],
-
+            '점심 식사 후에 커피를 마시는 게 참 좋더라구요.']
     }],
     ['D', null],
     ['E', null],
     ['F', null],
     ['G', null],
-    ['H', null],
+    ['H', {
+        backgroundColor: '#00CFB4',
+        animate: AnimationH,
+        title: 'Homebody',
+        text: ['집돌이입니다.',
+            '일주일동안 집에만 있던 적도 있어요.',
+            '집에서는 보통 멍때리거나 유튜브를 봅니다.',
+            ' ',
+            '취직을 한 지금도 주말에 놀러나가기보다는',
+            '집에 있을 때가 많습니다.',
+            ' ',
+            '물론 집 밖으로 나가는 걸 싫어하는 건 아닙니다.',
+            '약속이 잡히면 즐겁게 나갑니다.',
+            '단지 제가 먼저 약속을 잡는 일이 적을 뿐이죠.']
+    }],
     ['I', null],
     ['J', null],
     ['K', null],
