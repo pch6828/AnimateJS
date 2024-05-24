@@ -68,7 +68,7 @@ function Content() {
 
     function mouseMove({ nativeEvent }) {
         const { offsetX, offsetY } = nativeEvent;
-        setMousePoint({ offsetX, offsetY });
+        setMousePoint({ x: devicePixelRatio * offsetX, y: devicePixelRatio * offsetY });
     };
 
     return (
@@ -83,7 +83,8 @@ function Content() {
                 <div className='content-text'>
                     {animation ?
                         animation.text.map((line, i) => (
-                            <div className='content-text-line'>
+                            <div className='content-text-line'
+                                key={i}>
                                 {line}
                             </div>
                         ))

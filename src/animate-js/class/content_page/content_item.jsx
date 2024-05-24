@@ -37,7 +37,7 @@ const items = new Map([
     ['F', null],
     ['G', null],
     ['H', {
-        backgroundColor: '#00CFB4',
+        backgroundColor: '#191970',
         animate: AnimationH,
         title: 'Homebody',
         text: ['집돌이입니다.',
