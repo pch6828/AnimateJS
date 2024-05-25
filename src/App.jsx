@@ -14,8 +14,8 @@ function App() {
         >
           <Routes>
             <Route exact path='/' Component={Main} />
-            <Route exact path='/AnimateJS' Component={Main} />
-            <Route path='/AnimateJS/Content/:id' Component={Content} />
+            {/* <Route exact path='/AnimateJS' Component={Main} /> */}
+            <Route path='/Content/:id' Component={Content} />
           </Routes>
         </CSSTransition>
       </TransitionGroup >

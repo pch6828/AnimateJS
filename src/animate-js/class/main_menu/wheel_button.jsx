@@ -13,7 +13,7 @@ function WheelSlot({ x, y, deg, alphabet, title, color, selected }) {
             {
                 selected && title ? (
                     <Link className='wheel-slot-title selected-title'
-                        to={'/AnimateJS/Content/' + alphabet}
+                        to={'/Content/' + alphabet}
                         style={{ textDecoration: "none" }}
                     >
                         {title ? title : '(null)'}
