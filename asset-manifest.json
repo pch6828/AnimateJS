@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/AnimateJS/static/css/main.68cbbc9e.css",
-    "main.js": "/AnimateJS/static/js/main.f1722e3b.js",
+    "main.js": "/AnimateJS/static/js/main.b824f70f.js",
     "static/js/453.9a92a2e9.chunk.js": "/AnimateJS/static/js/453.9a92a2e9.chunk.js",
     "index.html": "/AnimateJS/index.html",
     "main.68cbbc9e.css.map": "/AnimateJS/static/css/main.68cbbc9e.css.map",
-    "main.f1722e3b.js.map": "/AnimateJS/static/js/main.f1722e3b.js.map",
+    "main.b824f70f.js.map": "/AnimateJS/static/js/main.b824f70f.js.map",
     "453.9a92a2e9.chunk.js.map": "/AnimateJS/static/js/453.9a92a2e9.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.68cbbc9e.css",
-    "static/js/main.f1722e3b.js"
+    "static/js/main.b824f70f.js"
   ]
 }
