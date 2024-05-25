@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route, HashRouter } from 'react-router-dom';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import Main from './animate-js/class/main_menu/main.jsx'
@@ -6,7 +6,7 @@ import Content from './animate-js/class/content_page/content.jsx';
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <TransitionGroup className="transitions-wrapper">
         <CSSTransition
           classNames={"right"}
@@ -19,7 +19,7 @@ function App() {
           </Routes>
         </CSSTransition>
       </TransitionGroup >
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
