@@ -76,7 +76,7 @@ const items = [
     },
     {
         key: 'P',
-        title: '', //'Postgraduate',
+        title: 'Postgraduate',
         color: '#2AD2C9'
     },
     {

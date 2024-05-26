@@ -1,6 +1,7 @@
 import AnimationA from "../animate/a_algorithm";
 import AnimationC from "../animate/c_coffee";
 import AnimationH from "../animate/h_homebody";
+import AnimationP from "../animate/p_postgraduate";
 
 const items = new Map([
     ['A', {
@@ -58,7 +59,12 @@ const items = new Map([
     ['M', null],
     ['N', null],
     ['O', null],
-    ['P', null],
+    ['P', {
+        backgroundColor: '#B6CADA',
+        animate: AnimationP,
+        title: 'Postgraduate',
+        text: ['']
+    }],
     ['Q', null],
     ['R', null],
     ['S', null],
