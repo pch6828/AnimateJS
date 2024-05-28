@@ -2,6 +2,8 @@ class GraduationCap {
     constructor(xRatio, yRatio) {
         this.xRatio = xRatio;
         this.yRatio = yRatio;
+        this.defaultXRatio = xRatio;
+        this.defaultYRatio = yRatio;
         this.widthRatio = 0.2;
         this.heightRatio = 0.1;
         this.selectedPos = null;
@@ -53,8 +55,8 @@ class GraduationCap {
 
         if (this.xRatio > 1.1 || this.xRatio < -0.1 || this.yRatio > 1.1 || this.yRatio < -0.1) {
             this.throw = false;
-            this.xRatio = 0.5;
-            this.yRatio = 0.6;
+            this.xRatio = this.defaultXRatio;
+            this.yRatio = this.defaultYRatio;
             this.throwVector = null;
             this.angle = 0;
         }
@@ -134,10 +136,10 @@ function AnimationP(ctx, width, height, movement) {
 
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = 'rgba(0,0,0,1)';
-    ctx.fillText('Postgraduate', centerx - textwidth / 2, centery + fontSize * 1.5);
+    ctx.fillText('Postgraduate', centerx - textwidth / 2, centery + fontSize * 1.2);
 
     if (graudationCap === null) {
-        graudationCap = new GraduationCap(0.5, 0.6);
+        graudationCap = new GraduationCap(0.5, 0.53);
     }
 
     graudationCap.move(movement, width, height);
