@@ -94,6 +94,30 @@ class GraduationCap {
         ctx.closePath();
         ctx.fill();
 
+        ctx.save();
+        ctx.fillStyle = 'rgba(254,223,0,1)';
+        ctx.strokeStyle = 'rgba(254,223,0,1)';
+        ctx.lineWidth = width * this.widthRatio / 100;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.translate(-width * this.widthRatio / 7 * 3, -width * this.heightRatio / 16 * 3);
+        ctx.rotate(this.angle * 2.5);
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, width * this.heightRatio / 4);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.lineWidth = width * this.widthRatio / 50;
+
+        ctx.beginPath();
+        ctx.moveTo(0, width * this.heightRatio / 4);
+        ctx.lineTo(0, width * this.heightRatio / 3);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
         ctx.restore();
     }
 };
@@ -118,6 +142,7 @@ function AnimationP(ctx, width, height, movement) {
 
     graudationCap.move(movement, width, height);
     graudationCap.draw(ctx, width, height);
+
     // 학사모를 잡아 던질 수 있으며
     // 한번 던진 학사모는 글씨 뒤로 떨어지도록
     // 떨어진 뒤에는 폭죽이 랜덤한 개수로 터지도록
