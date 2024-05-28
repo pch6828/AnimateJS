@@ -63,7 +63,15 @@ const items = new Map([
         backgroundColor: '#B6CADA',
         animate: AnimationP,
         title: 'Postgraduate',
-        text: ['']
+        text: ['대학원 졸업했습니다.',
+            'KAIST에서 석사과정을 밟았어요.',
+            '학부 때 DB에 흥미가 생겨서 진학하게 되었죠.',
+            '석사 하면서 많이 배웠고, 좋은 경험도 많이 했습니다.',
+            ' ',
+            '왜 박사 안 갔냐구요?',
+            '전 연구 쪽으로는 잘 안 맞더라구요.',
+            '그럼에도 연구실 생활은 행복했습니다.',
+            '오죽하면 졸업하고도 교수님 회사에 입사했을까요.']
     }],
     ['Q', null],
     ['R', null],
