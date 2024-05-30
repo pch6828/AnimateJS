@@ -26,7 +26,7 @@ const items = [
     },
     {
         key: 'F',
-        title: '',
+        title: '', //'Fortune'
         color: '#FF8200'
     },
     {
@@ -106,7 +106,7 @@ const items = [
     },
     {
         key: 'V',
-        title: '',
+        title: 'Versatile',
         color: '#33058D'
     },
     {

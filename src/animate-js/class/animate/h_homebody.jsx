@@ -99,4 +99,4 @@ function AnimationH(ctx, width, height, movement) {
     }
 }
 
-export default AnimationH
+export default AnimationH;

@@ -2,6 +2,7 @@ import AnimationA from "../animate/a_algorithm";
 import AnimationC from "../animate/c_coffee";
 import AnimationH from "../animate/h_homebody";
 import AnimationP from "../animate/p_postgraduate";
+import AnimationV from "../animate/v_versatile";
 
 const items = new Map([
     ['A', {
@@ -78,7 +79,23 @@ const items = new Map([
     ['S', null],
     ['T', null],
     ['U', null],
-    ['V', null],
+    ['V', {
+        backgroundColor: '#D7D2CB',
+        animate: AnimationV,
+        title: 'Versatile',
+        text: ['제 입으로 말하긴 민망하지만,',
+            '할 줄 아는 게 꽤 많습니다.',
+            '나름 미적 감각은 있어서 간단한 디자인은 할 수 있고,',
+            '손재주가 좋아서 만들기도 좀 합니다.',
+            ' ',
+            '전공 쪽으로 넘어가면,',
+            '코딩 테스트 출제로 외주도 받아봤구요.',
+            '프론트엔드 개발도 조금 합니다.',
+            '지금은 DB 엔진 개발을 하고 있죠.',
+            ' ',
+            '너무 얕게만 알고 있어서 이걸 다 어디다 쓰나 싶었는데,',
+            '지금 와서 보니까 다 언젠가는 쓰게 되더라구요.']
+    }],
     ['W', null],
     ['X', null],
     ['Y', null],

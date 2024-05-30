@@ -144,11 +144,6 @@ function AnimationP(ctx, width, height, movement) {
 
     graudationCap.move(movement, width, height);
     graudationCap.draw(ctx, width, height);
-
-    // 학사모를 잡아 던질 수 있으며
-    // 한번 던진 학사모는 글씨 뒤로 떨어지도록
-    // 떨어진 뒤에는 폭죽이 랜덤한 개수로 터지도록
-    // 터지고 나서 학사모가 다시 글씨 위로 리스폰
 }
 
-export default AnimationP
+export default AnimationP;
