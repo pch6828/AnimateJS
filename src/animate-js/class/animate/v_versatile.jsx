@@ -21,10 +21,48 @@ class Blade {
 
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(0, width / 6);
+        ctx.lineTo(0, width / 4);
         ctx.closePath();
-
         ctx.stroke();
+
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.save();
+        ctx.translate(ctx.lineWidth / 4, 0);
+        ctx.strokeStyle = 'rgba(116,139,151,1)';
+        ctx.lineWidth = ctx.lineWidth / 2;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, width / 4);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineCap = 'square';
+        ctx.lineJoin = 'miter';
+
+        ctx.translate(0, width / 6 * 1.8);
+        ctx.save();
+        ctx.rotate(Math.PI / 9);
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, -width / 7);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
+        ctx.save();
+        ctx.rotate(-Math.PI / 9);
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, -width / 7);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
 
         ctx.restore();
     }
@@ -36,10 +74,6 @@ function AnimationV(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const fontSize = height / 6;
-
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
 
     if (blades.length === 0) {
         blades[0] = new Blade(0.375, 0.5, Math.PI * 13 / 12);
@@ -56,6 +90,9 @@ function AnimationV(ctx, width, height, movement) {
         blades[i].draw(ctx, width, height);
     }
 
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.strokeStyle = 'rgba(128,0,32,1)';
     ctx.lineWidth = width / 10;
 
