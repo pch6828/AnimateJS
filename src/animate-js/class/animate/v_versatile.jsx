@@ -4,10 +4,12 @@ class Blade {
         this.yRatio = yRatio;
         this.deg = deg;
     }
-    move(movement) {
+    move(movement) { }
 
-    }
+    draw(ctx, width, height) { }
+};
 
+class Dagger extends Blade {
     draw(ctx, width, height) {
         ctx.save();
         ctx.translate(this.xRatio * width, this.yRatio * height);
@@ -68,6 +70,46 @@ class Blade {
     }
 };
 
+class Saw extends Blade {
+    draw(ctx, width, height) {
+        ctx.save();
+        ctx.translate(this.xRatio * width, this.yRatio * height);
+        ctx.rotate(this.deg);
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.lineCap = 'square';
+        ctx.lineJoin = 'miter';
+        ctx.lineWidth = width / 20;
+        ctx.strokeStyle = 'rgba(152,160,165,1)';
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, width / 5);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(152,160,165,1)';
+        ctx.beginPath();
+        ctx.moveTo(-ctx.lineWidth / 2, width / 5 - 1);
+        ctx.arcTo(-ctx.lineWidth / 2, width / 5 + ctx.lineWidth, ctx.lineWidth / 2, width / 5 + ctx.lineWidth, ctx.lineWidth);
+        ctx.lineTo(ctx.lineWidth / 2, width / 5 - 1);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.globalCompositeOperation = 'destination-out';
+
+        ctx.beginPath();
+        ctx.moveTo(ctx.lineWidth / 2 + 1, width / 5 + ctx.lineWidth * 0.8);
+        for (let i = 0; i < 8; i++) {
+            ctx.lineTo(ctx.lineWidth / 4, width / 5 + ctx.lineWidth * 0.8 - width / 100 * (i * 2 + 1));
+            ctx.lineTo(ctx.lineWidth / 2 + 1, width / 5 + ctx.lineWidth * 0.8 - width / 100 * (i * 2 + 2));
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+};
+
 const blades = [];
 
 function AnimationV(ctx, width, height, movement) {
@@ -76,8 +118,8 @@ function AnimationV(ctx, width, height, movement) {
     const fontSize = height / 6;
 
     if (blades.length === 0) {
-        blades[0] = new Blade(0.375, 0.5, Math.PI * 13 / 12);
-        blades[1] = new Blade(0.375, 0.5, Math.PI * 10 / 12);
+        blades[0] = new Dagger(0.375, 0.5, Math.PI * 13 / 12);
+        blades[1] = new Saw(0.375, 0.5, Math.PI * 10 / 12);
         blades[2] = new Blade(0.375, 0.5, Math.PI * 8 / 12);
         blades[3] = new Blade(0.625, 0.5, Math.PI * 10 / 12);
         blades[4] = new Blade(0.625, 0.5, Math.PI * 15 / 12);
