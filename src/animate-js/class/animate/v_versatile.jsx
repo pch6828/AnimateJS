@@ -388,6 +388,27 @@ function AnimationV(ctx, width, height, movement) {
 
     ctx.stroke();
 
+    ctx.fillStyle = 'rgba(116,139,151,1)';
+    ctx.beginPath();
+    ctx.arc(centerx - width / 8, centery, width / 60, 0, Math.PI * 2);
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(centerx + width / 8, centery, width / 60, 0, Math.PI * 2);
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.lineWidth = width / 100;
+    ctx.strokeStyle = 'rgba(116,139,151,1)';
+    ctx.beginPath();
+    ctx.arc(centerx + width / 8 + width / 30, centery + width / 15, width / 40, 0, Math.PI * 2);
+    ctx.closePath();
+
+    ctx.stroke();
+
     ctx.fillStyle = 'rgba(0,0,0,1)';
     ctx.font = 'italic ' + fontSize + 'px Georgia';
     const textwidth = ctx.measureText('Versatile').width;
