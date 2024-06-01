@@ -1,11 +1,90 @@
+const BladeStatus = {
+    default: 'default',
+    open: 'open',
+    close: 'close'
+};
+
 class Blade {
+    static selected = null;
+    static EPSILON = 0.000001;
+
     constructor(xRatio, yRatio, deg) {
         this.xRatio = xRatio;
         this.yRatio = yRatio;
         this.deg = deg;
+        this.defaultDeg = deg;
+        this.openDeg = (xRatio < 0.5 ? Math.PI / 2 : 3 * Math.PI / 2);
+        this.closeDeg = (xRatio < 0.5 ? 3 * Math.PI / 2 : Math.PI / 2);
+        this.numMoveFrame = 10;
+        this.prevIsDown = false;
+        this.status = BladeStatus.default;
     }
-    move(movement) { }
 
+    move(movement, width, height, ctx) {
+        const baseX = width * this.xRatio;
+        const baseY = height * this.yRatio;
+        const areaWidth = width / 60;
+
+        const areaBottomCenter = {
+            x: baseX + Math.cos(this.deg + Math.PI / 2) * (width / 15),
+            y: baseY + Math.sin(this.deg + Math.PI / 2) * (width / 15)
+        };
+        const areaTopCenter = {
+            x: baseX + Math.cos(this.deg + Math.PI / 2) * (width / 4.5),
+            y: baseY + Math.sin(this.deg + Math.PI / 2) * (width / 4.5)
+        };
+
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
+        ctx.lineWidth = 3;
+        const area = new Path2D();
+        area.moveTo(areaBottomCenter.x, areaBottomCenter.y);
+        area.lineTo(areaBottomCenter.x + Math.cos(this.deg) * areaWidth, areaBottomCenter.y + Math.sin(this.deg) * areaWidth);
+        area.lineTo(areaTopCenter.x + Math.cos(this.deg) * areaWidth, areaTopCenter.y + Math.sin(this.deg) * areaWidth);
+        area.lineTo(areaTopCenter.x, areaTopCenter.y);
+        area.lineTo(areaTopCenter.x - Math.cos(this.deg) * areaWidth, areaTopCenter.y - Math.sin(this.deg) * areaWidth);
+        area.lineTo(areaBottomCenter.x - Math.cos(this.deg) * areaWidth, areaBottomCenter.y - Math.sin(this.deg) * areaWidth);
+
+        if (!this.prevIsDown && movement.isDown &&
+            ctx.isPointInPath(area, movement.mousePoint.x, movement.mousePoint.y)) {
+            if (!Blade.selected && this.status === BladeStatus.default) {
+                Blade.selected = this;
+            } else if (Blade.selected === this && this.status === BladeStatus.open) {
+                Blade.selected = null;
+            }
+        }
+
+        if (Blade.selected) {
+            if (Blade.selected === this) {
+                if (this.status === BladeStatus.default) {
+                    this.deg += (this.openDeg - this.defaultDeg) / this.numMoveFrame;
+                }
+            } else {
+                if (this.status === BladeStatus.open) {
+                    this.deg += (this.closeDeg - this.openDeg) / this.numMoveFrame;
+                } else if (this.status === BladeStatus.default) {
+                    this.deg += (this.closeDeg - this.defaultDeg) / this.numMoveFrame;
+                }
+            }
+        } else {
+            if (this.status === BladeStatus.open) {
+                this.deg += (this.defaultDeg - this.openDeg) / this.numMoveFrame;
+            } else if (this.status === BladeStatus.close) {
+                this.deg += (this.defaultDeg - this.closeDeg) / this.numMoveFrame;
+            }
+        }
+
+        this.prevIsDown = movement.isDown;
+        if (Math.abs(this.deg - this.defaultDeg) < Blade.EPSILON) {
+            this.deg = this.defaultDeg;
+            this.status = BladeStatus.default
+        } else if (Math.abs(this.deg - this.closeDeg) < Blade.EPSILON) {
+            this.deg = this.closeDeg;
+            this.status = BladeStatus.close;
+        } else if (Math.abs(this.deg - this.openDeg) < Blade.EPSILON) {
+            this.deg = this.openDeg;
+            this.status = BladeStatus.open;
+        }
+    }
     draw(ctx, width, height) { }
 };
 
@@ -132,8 +211,8 @@ class Driver extends Blade {
         ctx.beginPath();
         ctx.moveTo(-ctx.lineWidth / 2, width / 5);
         ctx.lineTo(-ctx.lineWidth / 4 * 3, width / 5 + ctx.lineWidth / 4);
-        ctx.lineTo(-ctx.lineWidth / 8 * 3, width / 5 + ctx.lineWidth * 1.5);
-        ctx.lineTo(ctx.lineWidth / 8 * 3, width / 5 + ctx.lineWidth * 1.5);
+        ctx.lineTo(-ctx.lineWidth / 4 * 3, width / 5 + ctx.lineWidth * 1.5);
+        ctx.lineTo(ctx.lineWidth / 4 * 3, width / 5 + ctx.lineWidth * 1.5);
         ctx.lineTo(ctx.lineWidth / 4 * 3, width / 5 + ctx.lineWidth / 4);
         ctx.lineTo(ctx.lineWidth / 2, width / 5);
         ctx.closePath();
@@ -291,11 +370,9 @@ function AnimationV(ctx, width, height, movement) {
         blades[4] = new WineOpener(0.625, 0.5, Math.PI * 15 / 12);
     }
 
-    // 만능 주머니칼의 이미지, 하단에 versatile을 적어두자.
-    // 대충 4, 5가지 칼을 그려놓고, 선택할 때마다 손잡이에 다른 텍스트가 적히도록 하자.
-
     for (let i = 0; i < blades.length; i++) {
         blades[i].draw(ctx, width, height);
+        blades[i].move(movement, width, height, ctx);
     }
 
     ctx.globalCompositeOperation = 'source-over';
@@ -310,8 +387,6 @@ function AnimationV(ctx, width, height, movement) {
     ctx.closePath();
 
     ctx.stroke();
-
-
 
     ctx.fillStyle = 'rgba(0,0,0,1)';
     ctx.font = 'italic ' + fontSize + 'px Georgia';
