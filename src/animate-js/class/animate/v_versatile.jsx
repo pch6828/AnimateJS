@@ -110,6 +110,113 @@ class Saw extends Blade {
     }
 };
 
+class Driver extends Blade {
+    draw(ctx, width, height) {
+        ctx.save();
+        ctx.translate(this.xRatio * width, this.yRatio * height);
+        ctx.rotate(this.deg);
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.lineCap = 'square';
+        ctx.lineJoin = 'miter';
+        ctx.lineWidth = width / 50;
+        ctx.strokeStyle = 'rgba(152,160,165,1)';
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, width / 5);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(116,139,151,1)';
+        ctx.beginPath();
+        ctx.moveTo(-ctx.lineWidth / 2, width / 5);
+        ctx.lineTo(-ctx.lineWidth / 4 * 3, width / 5 + ctx.lineWidth / 4);
+        ctx.lineTo(-ctx.lineWidth / 8 * 3, width / 5 + ctx.lineWidth * 1.5);
+        ctx.lineTo(ctx.lineWidth / 8 * 3, width / 5 + ctx.lineWidth * 1.5);
+        ctx.lineTo(ctx.lineWidth / 4 * 3, width / 5 + ctx.lineWidth / 4);
+        ctx.lineTo(ctx.lineWidth / 2, width / 5);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+    }
+};
+
+class BottleOpener extends Blade {
+    draw(ctx, width, height) {
+        ctx.save();
+        ctx.translate(this.xRatio * width, this.yRatio * height);
+        ctx.rotate(this.deg);
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = width / 20;
+        ctx.strokeStyle = 'rgba(152,160,165,1)';
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, width / 6);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(-ctx.lineWidth / 4, 0);
+        ctx.lineWidth = ctx.lineWidth / 2;
+
+        ctx.beginPath();
+        ctx.lineCap = 'square';
+        ctx.lineJoin = 'miter';
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, width / 6 + ctx.lineWidth);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineCap = 'square';
+        ctx.lineJoin = 'miter';
+        ctx.translate(-ctx.lineWidth / 2, width / 6 * 0.9);
+        ctx.lineWidth = ctx.lineWidth / 2;
+
+        ctx.beginPath();
+        ctx.moveTo(-1, 0);
+        ctx.lineTo(ctx.lineWidth * 1.25, 0);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(ctx.lineWidth * (1.25 - 1 / 3), 0);
+        ctx.lineTo(ctx.lineWidth * (1.25 - 1 / 3), -ctx.lineWidth);
+        ctx.closePath();
+        ctx.lineWidth = ctx.lineWidth / 1.5;
+        ctx.stroke();
+
+        ctx.restore();
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.translate(-ctx.lineWidth / 2, 0);
+        ctx.lineWidth = ctx.lineWidth / 2;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, width / 6 * 0.5);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
+
+        ctx.restore();
+    }
+};
+
 const blades = [];
 
 function AnimationV(ctx, width, height, movement) {
@@ -120,8 +227,8 @@ function AnimationV(ctx, width, height, movement) {
     if (blades.length === 0) {
         blades[0] = new Dagger(0.375, 0.5, Math.PI * 13 / 12);
         blades[1] = new Saw(0.375, 0.5, Math.PI * 10 / 12);
-        blades[2] = new Blade(0.375, 0.5, Math.PI * 8 / 12);
-        blades[3] = new Blade(0.625, 0.5, Math.PI * 10 / 12);
+        blades[2] = new Driver(0.375, 0.5, Math.PI * 8 / 12);
+        blades[3] = new BottleOpener(0.625, 0.5, Math.PI * 10 / 12);
         blades[4] = new Blade(0.625, 0.5, Math.PI * 15 / 12);
     }
 
