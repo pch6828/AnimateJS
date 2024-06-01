@@ -217,6 +217,65 @@ class BottleOpener extends Blade {
     }
 };
 
+class WineOpener extends Blade {
+    draw(ctx, width, height) {
+        ctx.save();
+        ctx.translate(this.xRatio * width, this.yRatio * height);
+        ctx.rotate(this.deg);
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.lineCap = 'square';
+        ctx.lineJoin = 'miter';
+        ctx.lineWidth = width / 20;
+        ctx.strokeStyle = 'rgba(152,160,165,1)';
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, width / 12);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = ctx.lineWidth / 5;
+        ctx.save();
+        ctx.translate(0, width / 12);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, ctx.lineWidth);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.translate(0, ctx.lineWidth);
+
+        ctx.strokeStyle = 'rgba(116,139,151,1)';
+        for (let i = 0; i < 5; i++) {
+            ctx.beginPath();
+            ctx.moveTo(ctx.lineWidth * 5 / 3, ctx.lineWidth / 2 + ctx.lineWidth * (2 * i));
+            ctx.lineTo(-ctx.lineWidth * 5 / 3, ctx.lineWidth / 2 + ctx.lineWidth * (2 * i + 1));
+            ctx.closePath();
+            ctx.stroke();
+        }
+        ctx.strokeStyle = 'rgba(152,160,165,1)';
+        for (let i = 0; i < 5; i++) {
+            ctx.beginPath();
+            ctx.moveTo(-ctx.lineWidth * 5 / 3, ctx.lineWidth / 2 + ctx.lineWidth * (2 * i + 1));
+            ctx.lineTo(ctx.lineWidth * 5 / 3, ctx.lineWidth / 2 + ctx.lineWidth * (2 * i + 2));
+            ctx.closePath();
+            ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(ctx.lineWidth * 5 / 3, ctx.lineWidth / 2);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
+
+        ctx.restore();
+    }
+};
+
 const blades = [];
 
 function AnimationV(ctx, width, height, movement) {
@@ -229,7 +288,7 @@ function AnimationV(ctx, width, height, movement) {
         blades[1] = new Saw(0.375, 0.5, Math.PI * 10 / 12);
         blades[2] = new Driver(0.375, 0.5, Math.PI * 8 / 12);
         blades[3] = new BottleOpener(0.625, 0.5, Math.PI * 10 / 12);
-        blades[4] = new Blade(0.625, 0.5, Math.PI * 15 / 12);
+        blades[4] = new WineOpener(0.625, 0.5, Math.PI * 15 / 12);
     }
 
     // 만능 주머니칼의 이미지, 하단에 versatile을 적어두자.
