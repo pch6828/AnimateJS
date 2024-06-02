@@ -1,5 +1,6 @@
 import AnimationA from "../animate/a_algorithm";
 import AnimationC from "../animate/c_coffee";
+import AnimationD from "../animate/d_design_develop";
 import AnimationH from "../animate/h_homebody";
 import AnimationP from "../animate/p_postgraduate";
 import AnimationV from "../animate/v_versatile";
@@ -34,7 +35,21 @@ const items = new Map([
             '요새는 가끔 한잔씩 마시고 있습니다.',
             '점심 식사 후에 커피를 마시는 게 참 좋더라구요.']
     }],
-    ['D', null],
+    ['D', {
+        backgroundColor: '#32363F',
+        animate: AnimationD,
+        title: 'Design? Develop?',
+        text: ['원래는 디자인과로 진학하려 했습니다.',
+            '컴공에 오기로 결정한 건 고3이 되어서였어요.',
+            ' ',
+            '동아리에서 코딩하는 친구들이 재미있어보이더라구요.',
+            '게다가 디자인에 특출난 재능이 있지도 않았기에,',
+            '진로를 컴공으로 바꾸게 되었어요.',
+            '지금 생각하면 바꾸길 잘했다고 생각합니다.',
+            ' ',
+            '그래도 일상에서 나름의 미적 감각을 발휘할 때도 있어요.',
+            '예를 들자면... 지금 이 프로젝트 같은 거 말이죠.']
+    }],
     ['E', null],
     ['F', null],
     ['G', null],

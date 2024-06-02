@@ -16,12 +16,12 @@ const items = [
     },
     {
         key: 'D',
-        title: '', //'Design? Develop?'
+        title: 'Design? Develop?',
         color: '#FF6900'
     },
     {
         key: 'E',
-        title: '',
+        title: '', //'Encyclopedia'
         color: '#FF7500'
     },
     {
@@ -31,7 +31,7 @@ const items = [
     },
     {
         key: 'G',
-        title: '',
+        title: '', //'Geek'
         color: '#F4AF23'
     },
     {
@@ -41,7 +41,7 @@ const items = [
     },
     {
         key: 'I',
-        title: '',
+        title: '', //'Introvert',
         color: '#FFD100'
     },
     {
