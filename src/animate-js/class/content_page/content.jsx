@@ -13,6 +13,7 @@ function Content() {
     const [ctx, setCtx] = useState();
     const [isDown, setIsDown] = useState(false);
     const [mousePoint, setMousePoint] = useState({ x: 0, y: 0 });
+    const [mouseButton, setMouseButton] = useState(null);
 
     const animation = items.get(id);
 
@@ -45,7 +46,12 @@ function Content() {
             if (ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 if (animation)
-                    animation.animate(ctx, canvas.width, canvas.height, { isDown: isDown, mousePoint: mousePoint });
+                    animation.animate(ctx, canvas.width, canvas.height,
+                        {
+                            isDown: isDown,
+                            mousePoint: mousePoint,
+                            mouseButton: mouseButton
+                        });
             }
         };
 
@@ -56,15 +62,17 @@ function Content() {
         return () => {
             window.cancelAnimationFrame(requestId);
         };
-    }, [ctx, animation, isDown, mousePoint]);
+    }, [ctx, animation, isDown, mousePoint, mouseButton]);
 
     function mouseDown({ nativeEvent }) {
+        const { button } = nativeEvent;
         setIsDown(true);
-        console.log(nativeEvent);
+        setMouseButton(button === 0 ? 'left' : 'right');
     };
 
     function mouseUp() {
         setIsDown(false);
+        setMouseButton(null);
     };
 
     function mouseMove({ nativeEvent }) {
