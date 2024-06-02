@@ -58,8 +58,9 @@ function Content() {
         };
     }, [ctx, animation, isDown, mousePoint]);
 
-    function mouseDown() {
+    function mouseDown({ nativeEvent }) {
         setIsDown(true);
+        console.log(nativeEvent);
     };
 
     function mouseUp() {
@@ -98,6 +99,7 @@ function Content() {
                 onMouseUp={mouseUp}
                 onMouseLeave={mouseUp}
                 onMouseMove={mouseMove}
+                onContextMenu={(e) => { e.preventDefault(); }}
             >
             </canvas>
         </div>
