@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import '../../style/content.css';
 
@@ -83,6 +83,7 @@ function Content() {
     return (
         <div className='content-page'>
             <div className='content-description'>
+                <Link className='content-close' to={'/'} />
                 <div className='content-alphabet'>
                     {id + id.toLowerCase()}
                 </div>
@@ -110,7 +111,7 @@ function Content() {
                 onContextMenu={(e) => { e.preventDefault(); }}
             >
             </canvas>
-        </div>
+        </div >
     );
 }
 
