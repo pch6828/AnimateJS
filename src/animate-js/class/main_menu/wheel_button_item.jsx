@@ -26,7 +26,7 @@ const items = [
     },
     {
         key: 'F',
-        title: '', //'Fortune'
+        title: 'Fortune',
         color: '#FF8200'
     },
     {

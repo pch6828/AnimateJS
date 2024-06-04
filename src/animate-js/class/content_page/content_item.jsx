@@ -1,6 +1,7 @@
 import AnimationA from "../animate/a_algorithm";
 import AnimationC from "../animate/c_coffee";
 import AnimationD from "../animate/d_design_develop";
+import AnimationF from "../animate/f_fortune";
 import AnimationH from "../animate/h_homebody";
 import AnimationP from "../animate/p_postgraduate";
 import AnimationV from "../animate/v_versatile";
@@ -51,7 +52,23 @@ const items = new Map([
             '예를 들자면... 지금 이 프로젝트 같은 거 말이죠.']
     }],
     ['E', null],
-    ['F', null],
+    ['F', {
+        backgroundColor: '#B34646',
+        animate: AnimationF,
+        title: 'Fortune',
+        text: ['\'운\'이 좋게 잘 풀린 일이 많습니다.',
+            '수능 성적이 생각보다 잘 나와서 좋은 대학을 갔고,',
+            '(물론 수시는 모두 광탈했지만)',
+            '고3 때 갑자기 전공을 바꿨음에도 적성에 잘 맞았습니다.',
+            ' ',
+            '대학원 입시도 생각보다 쉽게 통과했고,',
+            '심지어 원하는 연구실에 바로 컨택이 되었어요.',
+            '졸업하고도 바로 교수님 회사에 취직했는데,',
+            '공교롭게도 바로 전문연 편입을 할 수 있었습니다.',
+            ' ',
+            '이 모든 게 단순히 운 때문은 아니지만,',
+            '그래도 제 예상보다 결과가 더 좋게 나온 건 사실이죠.']
+    }],
     ['G', null],
     ['H', {
         backgroundColor: '#191970',
