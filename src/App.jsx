@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Routes, Route, HashRouter } from 'react-router-dom';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
@@ -5,6 +6,12 @@ import Main from './animate-js/class/main_menu/main.jsx'
 import Content from './animate-js/class/content_page/content.jsx';
 
 function App() {
+  const [deg, setDeg] = useState(0);
+
+  function updateDeg(newDeg) {
+    setDeg(newDeg);
+  }
+
   return (
     <HashRouter>
       <TransitionGroup className="transitions-wrapper">
@@ -13,9 +20,8 @@ function App() {
           timeout={300}
         >
           <Routes>
-            <Route exact path='/' Component={Main} />
-            {/* <Route exact path='/AnimateJS' Component={Main} /> */}
-            <Route path='/Content/:id' Component={Content} />
+            <Route path='/' element={<Main deg={deg} setDeg={updateDeg} />} />
+            <Route path='/Content/:id' element={<Content />} />
           </Routes>
         </CSSTransition>
       </TransitionGroup >

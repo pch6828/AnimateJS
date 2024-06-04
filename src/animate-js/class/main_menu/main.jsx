@@ -4,8 +4,7 @@ import WheelSlot from './wheel_button.jsx';
 
 import '../../style/main.css'
 
-function Main() {
-    const [deg, setDeg] = useState(0);
+function Main({ deg, setDeg }) {
     const [pos, setPos] = useState(0);
 
     function rotateWheelStart(e) {

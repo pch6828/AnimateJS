@@ -111,7 +111,7 @@ const items = [
     },
     {
         key: 'W',
-        title: '',
+        title: '',//'Workaholic',
         color: '#4A25AA'
     },
     {
