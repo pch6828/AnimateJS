@@ -1,11 +1,41 @@
-class fortunePaper {
+class FortunePaper {
+    constructor(text, xRatio) {
+        this.message = text;
+        this.xRatio = xRatio;
+    }
 
+    move(movement) {
+        if (movement.isDown) {
+
+        } else {
+
+        }
+    }
+
+    draw(ctx, width, height) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.rotate(-Math.PI / 3);
+        ctx.fillStyle = "rgba(255,255,255,1)";
+        ctx.fillRect(width / 40, width / 40, -width / 4, -width / 20);
+        ctx.restore();
+    }
 };
+
+const message = [
+    'Look how far you\'ve come.',
+    'Be bold, be courageous, be your best.',
+];
+
+var fortunePaper = null;
 
 function AnimationF(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const cookieSize = width / 10;
+
+    if (!fortunePaper)
+        fortunePaper = new FortunePaper('', 0);
 
     ctx.globalCompositeOperation = 'source-over';
     ctx.lineCap = 'round';
@@ -18,8 +48,8 @@ function AnimationF(ctx, width, height, movement) {
 
     ctx.save();
     ctx.rotate(Math.PI / 3);
-    ctx.fillStyle = "rgba(255, 170, 77, 1)";
-    ctx.strokeStyle = "rgba(255, 170, 77, 1)";
+    ctx.fillStyle = "rgba(255,170,77,1)";
+    ctx.strokeStyle = "rgba(255,170,77,1)";
 
     ctx.beginPath();
     ctx.moveTo(0, -cookieSize);
@@ -32,9 +62,11 @@ function AnimationF(ctx, width, height, movement) {
 
     ctx.restore();
 
+    fortunePaper.draw(ctx, width, height);
+
     ctx.save();
-    ctx.fillStyle = "rgba(252, 156, 36, 1)";
-    ctx.strokeStyle = "rgba(252, 156, 36, 1)";
+    ctx.fillStyle = "rgba(252,156,36,1)";
+    ctx.strokeStyle = "rgba(252,156,36,1)";
 
     ctx.beginPath();
     ctx.moveTo(0, -cookieSize);
@@ -45,7 +77,7 @@ function AnimationF(ctx, width, height, movement) {
     ctx.stroke();
     ctx.fill();
 
-    ctx.strokeStyle = "rgba(136, 61, 36, 1)";
+    ctx.strokeStyle = "rgba(136,61,36,1)";
     ctx.lineWidth = ctx.lineWidth / 2;
     ctx.beginPath();
     ctx.moveTo(cookieSize / 2 * Math.sqrt(3), -cookieSize / 2);
