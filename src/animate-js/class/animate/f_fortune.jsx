@@ -19,6 +19,8 @@ class FortunePaper {
         ctx.font = fontSize + 'px Times New Roman';
         const textWidth = -(ctx.measureText(this.message).width + fontSize);
 
+        const isOut = -(paperWidth - textWidth) > width / 10;
+
         const areaBottomCenter = {
             x: baseX + Math.cos(angle) * (width / 40 + Math.min(0, paperWidth - textWidth)),
             y: baseY + Math.sin(angle) * (width / 40 + Math.min(0, paperWidth - textWidth))
@@ -64,6 +66,8 @@ class FortunePaper {
         }
 
         this.prevIsDown = movement.isDown;
+
+        return isOut;
     }
 
     draw(ctx, width, height) {
@@ -88,11 +92,35 @@ class FortunePaper {
 class FortuneCookie {
     constructor(text) {
         this.paper = new FortunePaper(text, 0.05, 0.03);
+        this.falling = false;
+        this.leftAngle = 0;
+        this.rightAngle = 0;
+        this.leftRotate = (Math.random() + 0.01) / 30 * Math.PI;
+        this.rightRotate = -(Math.random() + 0.01) / 30 * Math.PI;
+        this.leftPos = { x: 0, y: 0 };
+        this.rightPos = { x: 0, y: 0 };
+        this.leftDxRatio = -(Math.random() + 0.01) / 10;
+        this.rightDxRatio = (Math.random() + 0.01) / 10;
+        this.dyRatio = 0;
+        this.ddyRatio = (Math.random() + 0.01) / 50;
     }
 
     move(movement, width, height, ctx) {
-        this.paper.move(movement, width, height, ctx);
+        const paperOut = this.paper.move(movement, width, height, ctx);
 
+        if (paperOut) {
+            this.falling = paperOut;
+        }
+
+        if (this.falling) {
+            this.leftAngle += this.leftRotate;
+            this.rightAngle += this.rightRotate;
+            this.leftPos.x += this.leftDxRatio * width / 10;
+            this.rightPos.x += this.rightDxRatio * width / 10;
+            this.leftPos.y += this.dyRatio * height / 10;
+            this.rightPos.y += this.dyRatio * height / 10;
+            this.dyRatio += this.ddyRatio;
+        }
     }
 
     draw(ctx, width, height) {
@@ -110,7 +138,10 @@ class FortuneCookie {
         ctx.rotate(Math.PI / 6);
 
         ctx.save();
-        ctx.rotate(Math.PI / 3);
+        ctx.rotate(-Math.PI / 6);
+        ctx.translate(this.leftPos.x, this.leftPos.y);
+        ctx.rotate(Math.PI / 2);
+        ctx.rotate(this.leftAngle);
         ctx.fillStyle = "rgba(255,170,77,1)";
         ctx.strokeStyle = "rgba(255,170,77,1)";
 
@@ -128,6 +159,10 @@ class FortuneCookie {
         this.paper.draw(ctx, width, height);
 
         ctx.save();
+        ctx.rotate(-Math.PI / 6);
+        ctx.translate(this.rightPos.x, this.rightPos.y);
+        ctx.rotate(Math.PI / 6);
+        ctx.rotate(this.rightAngle);
         ctx.fillStyle = "rgba(252,156,36,1)";
         ctx.strokeStyle = "rgba(252,156,36,1)";
 
