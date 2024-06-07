@@ -17,7 +17,7 @@ class FortunePaper {
         const area = new Path2D();
         const fontSize = width * this.fontRatio;
         ctx.font = fontSize + 'px Times New Roman';
-        const textWidth = -ctx.measureText(this.message).width;
+        const textWidth = -(ctx.measureText(this.message).width + fontSize);
 
         const areaBottomCenter = {
             x: baseX + Math.cos(angle) * (width / 40 + Math.min(0, paperWidth - textWidth)),
@@ -46,10 +46,6 @@ class FortunePaper {
         );
         area.closePath();
 
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 1;
-        ctx.stroke(area);
-
         if (movement.isDown) {
             if (!this.prevIsDown &&
                 ctx.isPointInPath(area, movement.mousePoint.x, movement.mousePoint.y)) {
@@ -67,7 +63,6 @@ class FortunePaper {
             this.selectedPos = null;
         }
 
-
         this.prevIsDown = movement.isDown;
     }
 
@@ -76,29 +71,28 @@ class FortunePaper {
         const paperHeight = -width * this.paperHeightRatio;
         const fontSize = width * this.fontRatio;
         ctx.font = fontSize + 'px Times New Roman';
-        const textWidth = -ctx.measureText(this.message).width;
+        const textWidth = -(ctx.measureText(this.message).width + fontSize);
 
         ctx.save();
         ctx.globalCompositeOperation = 'source-over';
         ctx.rotate(-Math.PI / 3);
         ctx.fillStyle = "rgba(255,255,255,1)";
         ctx.fillRect(width / 40 + Math.min(0, paperWidth - textWidth), width / 40, Math.max(paperWidth, textWidth), paperHeight);
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.fillStyle = "rgba(0,0,0,1)"
+        ctx.fillText(this.message, width / 40 + Math.min(0, paperWidth - textWidth) + fontSize / 2 + Math.max(paperWidth, textWidth), width / 40 - fontSize * 2 / 3);
         ctx.restore();
     }
 };
 
 class FortuneCookie {
     constructor(text) {
-        this.paper = new FortunePaper(text, 0.05, 0.05);
+        this.paper = new FortunePaper(text, 0.05, 0.03);
     }
 
     move(movement, width, height, ctx) {
         this.paper.move(movement, width, height, ctx);
-        if (movement.isDown) {
 
-        } else {
-
-        }
     }
 
     draw(ctx, width, height) {
@@ -173,7 +167,7 @@ function AnimationF(ctx, width, height, movement) {
     const cookieSize = width / 10;
 
     if (!fortuneCookie)
-        fortuneCookie = new FortuneCookie('AAAA');
+        fortuneCookie = new FortuneCookie(message[1]);
 
     fortuneCookie.draw(ctx, width, height);
     fortuneCookie.move(movement, width, height, ctx);
