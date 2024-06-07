@@ -6,6 +6,15 @@ class FortunePaper {
         this.prevIsDown = false;
         this.selectedPos = null;
         this.fontRatio = fontRatio;
+        this.isOut = false;
+        this.falling = false;
+        this.angle = 0;
+        this.rotate = (Math.random() + 0.01) / 30 * Math.PI;
+        this.pos = { x: 0, y: 0 };
+        this.leftDxRatio = -(Math.random() + 0.01) / 10;
+        this.rightDxRatio = (Math.random() + 0.01) / 10;
+        this.dyRatio = 0;
+        this.ddyRatio = (Math.random() + 0.01) / 100;
     }
 
     move(movement, width, height, ctx) {
@@ -20,10 +29,13 @@ class FortunePaper {
         const textWidth = -(ctx.measureText(this.message).width + fontSize);
 
         const isOut = -(paperWidth - textWidth) > width / 10;
+        if (isOut) {
+            this.isOut = isOut;
+        }
 
         const areaBottomCenter = {
-            x: baseX + Math.cos(angle) * (width / 40 + Math.min(0, paperWidth - textWidth)),
-            y: baseY + Math.sin(angle) * (width / 40 + Math.min(0, paperWidth - textWidth))
+            x: baseX + Math.cos(angle) * (width / 40 + (this.isOut ? paperWidth - textWidth : Math.min(0, paperWidth - textWidth))),
+            y: baseY + Math.sin(angle) * (width / 40 + (this.isOut ? paperWidth - textWidth : Math.min(0, paperWidth - textWidth)))
         };
         const areaTopCenter = {
             x: baseX + Math.cos(angle) * (width / 40 + paperWidth),
@@ -63,6 +75,17 @@ class FortunePaper {
             }
         } else {
             this.selectedPos = null;
+            if (this.isOut) {
+                this.falling = true;
+            }
+        }
+
+        if (this.falling) {
+            this.angle += this.rotate;
+
+            this.pos.x += (this.leftDxRatio + this.rightDxRatio) * width / 10;
+            this.pos.y += this.dyRatio * height / 10;
+            this.dyRatio += this.ddyRatio;
         }
 
         this.prevIsDown = movement.isDown;
@@ -79,9 +102,17 @@ class FortunePaper {
 
         ctx.save();
         ctx.globalCompositeOperation = 'source-over';
+        ctx.rotate(-Math.PI / 6);
+        ctx.translate(this.pos.x, this.pos.y);
+        ctx.rotate(this.angle);
+        ctx.rotate(Math.PI / 6);
         ctx.rotate(-Math.PI / 3);
         ctx.fillStyle = "rgba(255,255,255,1)";
-        ctx.fillRect(width / 40 + Math.min(0, paperWidth - textWidth), width / 40, Math.max(paperWidth, textWidth), paperHeight);
+        if (this.isOut) {
+            ctx.fillRect(width / 40 + paperWidth - textWidth, width / 40, textWidth, paperHeight);
+        } else {
+            ctx.fillRect(width / 40 + Math.min(0, paperWidth - textWidth), width / 40, Math.max(paperWidth, textWidth), paperHeight);
+        }
         ctx.globalCompositeOperation = 'source-atop';
         ctx.fillStyle = "rgba(0,0,0,1)"
         ctx.fillText(this.message, width / 40 + Math.min(0, paperWidth - textWidth) + fontSize / 2 + Math.max(paperWidth, textWidth), width / 40 - fontSize * 2 / 3);
@@ -102,7 +133,7 @@ class FortuneCookie {
         this.leftDxRatio = -(Math.random() + 0.01) / 10;
         this.rightDxRatio = (Math.random() + 0.01) / 10;
         this.dyRatio = 0;
-        this.ddyRatio = (Math.random() + 0.01) / 50;
+        this.ddyRatio = (Math.random() + 0.01) / 100;
     }
 
     move(movement, width, height, ctx) {
