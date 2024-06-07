@@ -9,7 +9,7 @@ class FortunePaper {
         this.isOut = false;
         this.falling = false;
         this.angle = 0;
-        this.rotate = (Math.random() + 0.01) / 30 * Math.PI;
+        this.rotate = (Math.random() + 0.01) / 40 * Math.PI;
         this.pos = { x: 0, y: 0 };
         this.leftDxRatio = -(Math.random() + 0.01) / 10;
         this.rightDxRatio = (Math.random() + 0.01) / 10;
@@ -81,9 +81,6 @@ class FortunePaper {
         }
 
         if (this.falling) {
-            this.angle += this.rotate;
-
-            this.pos.x += (this.leftDxRatio + this.rightDxRatio) * width / 10;
             this.pos.y += this.dyRatio * height / 10;
             this.dyRatio += this.ddyRatio;
         }
