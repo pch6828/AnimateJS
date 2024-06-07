@@ -1,22 +1,27 @@
 class FortunePaper {
-    constructor(text, widthRatio) {
+    constructor(text, widthRatio, fontRatio) {
         this.message = text;
         this.paperWidthRatio = widthRatio;
+        this.paperHeightRatio = 1 / 20;
         this.prevIsDown = false;
         this.selectedPos = null;
+        this.fontRatio = fontRatio;
     }
 
     move(movement, width, height, ctx) {
         const baseX = width / 2;
         const baseY = height / 2;
         const paperWidth = -width * this.paperWidthRatio;
-        const paperHeight = -width / 20;
+        const paperHeight = -width * this.paperHeightRatio;
         const angle = Math.PI / 6 - Math.PI / 3;
         const area = new Path2D();
+        const fontSize = width * this.fontRatio;
+        ctx.font = fontSize + 'px Times New Roman';
+        const textWidth = -ctx.measureText(this.message).width;
 
         const areaBottomCenter = {
-            x: baseX + Math.cos(angle) * (width / 40),
-            y: baseY + Math.sin(angle) * (width / 40)
+            x: baseX + Math.cos(angle) * (width / 40 + Math.min(0, paperWidth - textWidth)),
+            y: baseY + Math.sin(angle) * (width / 40 + Math.min(0, paperWidth - textWidth))
         };
         const areaTopCenter = {
             x: baseX + Math.cos(angle) * (width / 40 + paperWidth),
@@ -68,20 +73,23 @@ class FortunePaper {
 
     draw(ctx, width, height) {
         const paperWidth = -width * this.paperWidthRatio;
+        const paperHeight = -width * this.paperHeightRatio;
+        const fontSize = width * this.fontRatio;
+        ctx.font = fontSize + 'px Times New Roman';
+        const textWidth = -ctx.measureText(this.message).width;
 
         ctx.save();
         ctx.globalCompositeOperation = 'source-over';
         ctx.rotate(-Math.PI / 3);
         ctx.fillStyle = "rgba(255,255,255,1)";
-        ctx.fillRect(width / 40, width / 40, paperWidth, -width / 20);
+        ctx.fillRect(width / 40 + Math.min(0, paperWidth - textWidth), width / 40, Math.max(paperWidth, textWidth), paperHeight);
         ctx.restore();
     }
 };
 
 class FortuneCookie {
     constructor(text) {
-        this.message = text;
-        this.paper = new FortunePaper(text, 0.05);
+        this.paper = new FortunePaper(text, 0.05, 0.05);
     }
 
     move(movement, width, height, ctx) {
@@ -165,7 +173,7 @@ function AnimationF(ctx, width, height, movement) {
     const cookieSize = width / 10;
 
     if (!fortuneCookie)
-        fortuneCookie = new FortuneCookie('');
+        fortuneCookie = new FortuneCookie('AAAA');
 
     fortuneCookie.draw(ctx, width, height);
     fortuneCookie.move(movement, width, height, ctx);
