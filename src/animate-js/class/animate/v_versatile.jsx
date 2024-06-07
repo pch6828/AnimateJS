@@ -34,8 +34,6 @@ class Blade {
             y: baseY + Math.sin(this.deg + Math.PI / 2) * (width / 4.5)
         };
 
-        ctx.strokeStyle = 'rgba(0,0,0,1)';
-        ctx.lineWidth = 3;
         const area = new Path2D();
         area.moveTo(areaBottomCenter.x, areaBottomCenter.y);
         area.lineTo(areaBottomCenter.x + Math.cos(this.deg) * areaWidth, areaBottomCenter.y + Math.sin(this.deg) * areaWidth);

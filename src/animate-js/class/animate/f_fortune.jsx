@@ -1,25 +1,79 @@
 class FortunePaper {
-    constructor(text, xRatio) {
+    constructor(text, widthRatio) {
         this.message = text;
-        this.xRatio = xRatio;
+        this.paperWidthRatio = widthRatio;
+        this.prevIsDown = false;
+        this.selectedPos = null;
     }
 
-    move(movement, width, height) {
-        const x = width / 2;
-        const y = height / 2;
+    move(movement, width, height, ctx) {
+        const baseX = width / 2;
+        const baseY = height / 2;
+        const paperWidth = -width * this.paperWidthRatio;
+        const paperHeight = -width / 20;
+        const angle = Math.PI / 6 - Math.PI / 3;
+        const area = new Path2D();
+
+        const areaBottomCenter = {
+            x: baseX + Math.cos(angle) * (width / 40),
+            y: baseY + Math.sin(angle) * (width / 40)
+        };
+        const areaTopCenter = {
+            x: baseX + Math.cos(angle) * (width / 40 + paperWidth),
+            y: baseY + Math.sin(angle) * (width / 40 + paperWidth)
+        };
+
+        area.moveTo(
+            areaBottomCenter.x + paperHeight / 2 * Math.cos(angle - Math.PI / 2),
+            areaBottomCenter.y + paperHeight / 2 * Math.sin(angle - Math.PI / 2)
+        );
+        area.lineTo(
+            areaTopCenter.x + paperHeight / 2 * Math.cos(angle - Math.PI / 2),
+            areaTopCenter.y + paperHeight / 2 * Math.sin(angle - Math.PI / 2)
+        );
+        area.lineTo(
+            areaTopCenter.x - paperHeight / 2 * Math.cos(angle - Math.PI / 2),
+            areaTopCenter.y - paperHeight / 2 * Math.sin(angle - Math.PI / 2)
+        );
+        area.lineTo(
+            areaBottomCenter.x - paperHeight / 2 * Math.cos(angle - Math.PI / 2),
+            areaBottomCenter.y - paperHeight / 2 * Math.sin(angle - Math.PI / 2)
+        );
+        area.closePath();
+
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.stroke(area);
+
         if (movement.isDown) {
+            if (!this.prevIsDown &&
+                ctx.isPointInPath(area, movement.mousePoint.x, movement.mousePoint.y)) {
+                this.selectedPos = { x: movement.mousePoint.x, y: movement.mousePoint.y };
+            }
+            if (this.selectedPos) {
+                const dx = movement.mousePoint.x - this.selectedPos.x;
+                const dy = movement.mousePoint.y - this.selectedPos.y;
 
+                this.paperWidthRatio -= (dx * Math.cos(angle) + dy * Math.sin(angle)) / width;
+                this.paperWidthRatio = Math.max(0.05, this.paperWidthRatio);
+                this.selectedPos = { x: movement.mousePoint.x, y: movement.mousePoint.y };
+            }
         } else {
-
+            this.selectedPos = null;
         }
+
+
+        this.prevIsDown = movement.isDown;
     }
 
     draw(ctx, width, height) {
+        const paperWidth = -width * this.paperWidthRatio;
+
         ctx.save();
         ctx.globalCompositeOperation = 'source-over';
         ctx.rotate(-Math.PI / 3);
         ctx.fillStyle = "rgba(255,255,255,1)";
-        ctx.fillRect(width / 40, width / 40, -width / 4, -width / 20);
+        ctx.fillRect(width / 40, width / 40, paperWidth, -width / 20);
         ctx.restore();
     }
 };
@@ -27,11 +81,11 @@ class FortunePaper {
 class FortuneCookie {
     constructor(text) {
         this.message = text;
-        this.paper = new FortunePaper(text, 0);
+        this.paper = new FortunePaper(text, 0.05);
     }
 
-    move(movement, width, height) {
-        this.paper.move(movement);
+    move(movement, width, height, ctx) {
+        this.paper.move(movement, width, height, ctx);
         if (movement.isDown) {
 
         } else {
@@ -113,8 +167,8 @@ function AnimationF(ctx, width, height, movement) {
     if (!fortuneCookie)
         fortuneCookie = new FortuneCookie('');
 
-    fortuneCookie.move(movement, width, height);
     fortuneCookie.draw(ctx, width, height);
+    fortuneCookie.move(movement, width, height, ctx);
 }
 
 export default AnimationF;
