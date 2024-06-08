@@ -8,7 +8,7 @@ class FortunePaper {
         this.fontRatio = fontRatio;
         this.isOut = false;
         this.falling = false;
-        this.angle = 0;
+        this.isDropped = false;
         this.rotate = (Math.random() + 0.01) / 40 * Math.PI;
         this.pos = { x: 0, y: 0 };
         this.leftDxRatio = -(Math.random() + 0.01) / 10;
@@ -86,7 +86,9 @@ class FortunePaper {
         }
 
         this.prevIsDown = movement.isDown;
-
+        if (this.pos.y + areaBottomCenter.y > height * 1.1) {
+            this.isDropped = true;
+        }
         return isOut;
     }
 
@@ -101,7 +103,6 @@ class FortunePaper {
         ctx.globalCompositeOperation = 'source-over';
         ctx.rotate(-Math.PI / 6);
         ctx.translate(this.pos.x, this.pos.y);
-        ctx.rotate(this.angle);
         ctx.rotate(Math.PI / 6);
         ctx.rotate(-Math.PI / 3);
         ctx.fillStyle = "rgba(255,255,255,1)";
@@ -131,10 +132,12 @@ class FortuneCookie {
         this.rightDxRatio = (Math.random() + 0.01) / 10;
         this.dyRatio = 0;
         this.ddyRatio = (Math.random() + 0.01) / 100;
+        this.isDropped = false;
     }
 
     move(movement, width, height, ctx) {
         const paperOut = this.paper.move(movement, width, height, ctx);
+        const cookieSize = width / 10;
 
         if (paperOut) {
             this.falling = paperOut;
@@ -149,6 +152,11 @@ class FortuneCookie {
             this.rightPos.y += this.dyRatio * height / 10;
             this.dyRatio += this.ddyRatio;
         }
+
+        if ((this.leftPos.y > height + cookieSize || this.leftPos.x < -cookieSize) &&
+            (this.rightPos.y > height + cookieSize || this.rightPos.x > width + cookieSize) &&
+            this.paper.isDropped)
+            this.isDropped = true;
     }
 
     draw(ctx, width, height) {
@@ -220,6 +228,10 @@ class FortuneCookie {
 const message = [
     'Look how far you\'ve come.',
     'Be bold, be courageous, be your best.',
+    'MIND MATTER',
+    'Seek adventure.',
+    'Progress, not perfection.',
+    'Whatever you can do, you must do.'
 ];
 
 var fortuneCookie = null;
@@ -229,11 +241,18 @@ function AnimationF(ctx, width, height, movement) {
     const centery = height / 2;
     const cookieSize = width / 10;
 
+    function get_random(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
     if (!fortuneCookie)
-        fortuneCookie = new FortuneCookie(message[1]);
+        fortuneCookie = new FortuneCookie(get_random(message));
 
     fortuneCookie.draw(ctx, width, height);
     fortuneCookie.move(movement, width, height, ctx);
+
+    if (fortuneCookie.isDropped)
+        fortuneCookie = null;
 }
 
 export default AnimationF;
