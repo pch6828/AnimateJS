@@ -240,10 +240,31 @@ function AnimationF(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const cookieSize = width / 10;
+    const fontSize = height / 8;
+
+    const letters = ['F', 'o', 'r', 't', 'u', 'n', 'e'];
 
     function get_random(arr) {
         return arr[Math.floor(Math.random() * arr.length)];
     }
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = 'rgba(0,0,0,1)';
+    ctx.save();
+    ctx.translate(centerx, centery);
+    for (let i = 0; i < letters.length; i++) {
+        ctx.save();
+        ctx.rotate(Math.PI / 9 * (i - 3));
+        ctx.translate(0, -cookieSize * 1.4);
+
+        ctx.font = fontSize + 'px Times New Roman';
+        const letter = letters[i];
+        const letterWidth = ctx.measureText(letter).width;
+        ctx.fillText(letter, -letterWidth / 2, 0);
+
+        ctx.restore();
+    }
+    ctx.restore();
 
     if (!fortuneCookie)
         fortuneCookie = new FortuneCookie(get_random(message));
