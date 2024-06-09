@@ -1,24 +1,24 @@
-.transitions-wrapper {
+.page-transition {
     position: relative;
     overflow: hidden;
     height: calc(var(--vh, 1vh) * 100);
     width: 100vw;
 }
 
-.right-enter {
+.enter {
     transform: translateX(100%);
 }
 
-.right-enter-active {
+.enter-active {
     transform: translateX(0);
-    transition: transform 300ms ease-in-out;
+    transition: transform 1000ms;
 }
 
-.right-exit {
+.exit {
     transform: translateX(0);
 }
 
-.right-exit-active {
-    transform: translateX(-100%);
-    transition: transform 300ms ease-in-out;
+.exit-active {
+    transform: translateX(100%);
+    transition: transform 1000ms;
 }
