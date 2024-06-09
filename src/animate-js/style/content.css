@@ -1,13 +1,13 @@
 .content-page {
     display: flex;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
 }
 
 .content-canvas {
     display: flex;
-    width: 70%;
-    height: 100%;
+    width: 70vw;
+    height: 100vh;
     background-color: bisque;
 }
 
@@ -15,8 +15,8 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 30%;
-    height: 100%;
+    width: 30vw;
+    height: 100vh;
     background-color: white;
     text-align: right;
     padding-right: 1%;
