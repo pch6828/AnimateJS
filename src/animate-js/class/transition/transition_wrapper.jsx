@@ -20,7 +20,7 @@ function TransitionWrapper() {
         <TransitionGroup>
             <CSSTransition
                 key={location.pathname}
-                timeout={10000}
+                timeout={1000}
                 className="page-transition"
             >
                 <Routes location={location}>
