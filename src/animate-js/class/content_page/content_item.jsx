@@ -3,6 +3,7 @@ import AnimationC from "../animate/c_coffee";
 import AnimationD from "../animate/d_design_develop";
 import AnimationF from "../animate/f_fortune";
 import AnimationH from "../animate/h_homebody";
+import AnimationK from "../animate/k_kidult";
 import AnimationP from "../animate/p_postgraduate";
 import AnimationV from "../animate/v_versatile";
 
@@ -87,7 +88,12 @@ const items = new Map([
     }],
     ['I', null],
     ['J', null],
-    ['K', null],
+    ['K', {
+        backgroundColor: '#D9D9D6',
+        animate: AnimationK,
+        title: 'Kidult',
+        text: ['']
+    }],
     ['L', null],
     ['M', null],
     ['N', null],

@@ -5,20 +5,20 @@
     width: 100vw;
 }
 
-.enter {
+.content-page.enter {
     transform: translateX(100%);
 }
 
-.enter-active {
+.content-page.enter-active {
     transform: translateX(0);
     transition: transform 1000ms;
 }
 
-.exit {
+.content-page.exit {
     transform: translateX(0);
 }
 
-.exit-active {
+.content-page.exit-active {
     transform: translateX(100%);
     transition: transform 1000ms;
 }

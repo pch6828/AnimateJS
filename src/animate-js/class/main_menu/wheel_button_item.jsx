@@ -51,7 +51,7 @@ const items = [
     },
     {
         key: 'K',
-        title: '', //'Kidult',
+        title: 'Kidult',
         color: '#30B700'
     },
     {
