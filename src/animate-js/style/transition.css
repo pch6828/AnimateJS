@@ -6,19 +6,45 @@
 }
 
 .content-page.enter {
-    transform: translateX(100%);
+    .content-description {
+        transform: translateX(100vw);
+    }
+
+    .content-canvas {
+        transform: translateX(70vw);
+    }
 }
 
 .content-page.enter-active {
-    transform: translateX(0);
-    transition: transform 1000ms;
+    .content-description {
+        transform: translateX(0);
+        transition: transform 1000ms;
+    }
+
+    .content-canvas {
+        transform: translateX(0);
+        transition: transform 1000ms;
+    }
 }
 
 .content-page.exit {
-    transform: translateX(0);
+    .content-description {
+        transform: translateX(0);
+    }
+
+    .content-canvas {
+        transform: translateX(0);
+    }
 }
 
 .content-page.exit-active {
-    transform: translateX(100%);
-    transition: transform 1000ms;
+    .content-description {
+        transform: translateX(100vw);
+        transition: transform 1000ms;
+    }
+
+    .content-canvas {
+        transform: translateX(70vw);
+        transition: transform 1000ms;
+    }
 }
