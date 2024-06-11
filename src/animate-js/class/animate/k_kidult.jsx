@@ -4,15 +4,16 @@ class Stud {
         this.connection = null;
         this.block = block;
         this.color = color;
+        this.centerPos = null;
     }
 
     move() {
 
     }
 
-    draw(ctx, x, y, width, height) {
+    draw(ctx, x, y) {
         if (this.connection) {
-            this.connection.draw(ctx, x, y, width, height, this);
+            this.connection.draw(ctx, x, y, this);
         }
         else {
             ctx.globalCompositeOperation = 'source-over';
@@ -24,6 +25,13 @@ class Stud {
             ctx.fill();
         }
     }
+
+    setPosition(x, y) {
+        this.centerPos = { x: x, y: y };
+        if (this.connection) {
+            this.connection.setPosition(x, y, this);
+        }
+    }
 };
 
 class LegoBlock {
@@ -32,45 +40,108 @@ class LegoBlock {
         this.letter = letter;
         this.color = blockColor;
         this.drawed = false;
+        this.positioned = false;
         this.studs = [];
         this.antiStuds = [];
-
+        this.prevIsDown = false;
         for (let i = 0; i < this.size; i++) {
             this.studs[i] = new Stud(this, studColor);
             this.antiStuds[i] = null;
         }
 
-        this.selectPos = null;
+        this.selectedPos = null;
     }
 
-    move(movement, width, height) {
-
-    }
-
-    draw(ctx, x, y, width, height, stud) {
+    move(movement, ctx) {
         const blockWidth = Stud.studWidth * 2;
         const blockHeight = Stud.studWidth * 3;
-        const antiStudIdx = this.antiStuds.indexOf(stud);
 
-        if (this.drawed) {
-            return;
+        const area = new Path2D();
+        area.moveTo(
+            this.studs[0].centerPos.x - blockWidth / 2,
+            this.studs[0].centerPos.y + blockHeight
+        );
+        area.lineTo(
+            this.studs[0].centerPos.x - blockWidth / 2 + blockWidth * this.size,
+            this.studs[0].centerPos.y + blockHeight
+        );
+        area.lineTo(
+            this.studs[0].centerPos.x - blockWidth / 2 + blockWidth * this.size,
+            this.studs[0].centerPos.y
+        );
+        area.lineTo(
+            this.studs[0].centerPos.x - blockWidth / 2,
+            this.studs[0].centerPos.y
+        );
+        area.closePath();
+
+        if (movement.isDown) {
+            if (!this.prevIsDown &&
+                ctx.isPointInPath(area, movement.mousePoint.x, movement.mousePoint.y)) {
+                this.selectedPos = { x: movement.mousePoint.x, y: movement.mousePoint.y };
+                this.unconnect();
+            }
+            if (this.selectedPos) {
+                this.selectedPos = { x: movement.mousePoint.x, y: movement.mousePoint.y };
+            }
+        } else {
+            // this.selectedPos = null;
         }
+
+        this.prevIsDown = movement.isDown;
+    }
+
+    draw(ctx, x, y, stud) {
+        const blockWidth = Stud.studWidth * 2;
+        const blockHeight = Stud.studWidth * 3;
+        const antiStudIdx = this.selectedPos ? 0 : this.antiStuds.indexOf(stud);
+
+        if (this.drawed)
+            return;
 
         this.drawed = true;
 
+        if (this.selectedPos) {
+            x = this.selectedPos.x - blockWidth / 2 * this.size + blockWidth / 2;
+            y = this.selectedPos.y + blockHeight / 2;
+        }
         for (let i = 0; i < this.size; i++) {
             const stud = this.studs[i];
-            stud.draw(ctx, x - blockWidth * antiStudIdx + blockWidth * i, y - blockHeight, width, height);
+            stud.draw(ctx, x - blockWidth * antiStudIdx + blockWidth * i, y - blockHeight);
         }
 
         ctx.globalCompositeOperation = 'source-over';
         ctx.fillStyle = this.color;
 
         ctx.fillRect(x - blockWidth * antiStudIdx - blockWidth / 2, y, blockWidth * this.size, -blockHeight);
+
     }
 
-    connect(stud) {
+    setPosition(x, y, stud) {
+        if (this.positioned) return;
+        const blockWidth = Stud.studWidth * 2;
+        const blockHeight = Stud.studWidth * 3;
+        const antiStudIdx = this.antiStuds.indexOf(stud);
 
+        this.positioned = true;
+
+        for (let i = 0; i < this.size; i++) {
+            const stud = this.studs[i];
+            const antiStud = this.antiStuds[i];
+
+            stud.setPosition(x - blockWidth * antiStudIdx + blockWidth * i, y - blockHeight);
+
+            if (antiStud)
+                antiStud.setPosition(x - blockWidth * antiStudIdx + blockWidth * i, y);
+        }
+    }
+
+    unconnect() {
+        for (let i = 0; i < this.size; i++) {
+            const antiStud = this.antiStuds[i];
+            antiStud.connection = null;
+            this.antiStuds[i] = null;
+        }
     }
 };
 
@@ -93,31 +164,46 @@ function AnimationK(ctx, width, height, movement) {
     // 조립 기능 구현, 블록 버리기 기능 구현
     // 블록을 버릴 경우 위에서 해당 글자의 블럭 떨어트리기
 
-    if (blocks.length === 0) {
-        blocks[0] = new LegoBlock('A', 'red', 'red');
-        blocks[1] = new LegoBlock('D');
-        blocks[2] = new LegoBlock('U');
-        blocks[3] = new LegoBlock('L');
-        blocks[4] = new LegoBlock('T');
-        blocks[5] = new LegoBlock('K');
-        blocks[6] = new LegoBlock('I');
-    }
-
     if (basePlateStud.length === 0) {
         for (let i = 0; i < basePlateLength; i++) {
             basePlateStud[i] = new Stud(null, basePlateColor.studColor);
         }
     }
 
-    for (let i = 0; i < blocks[0].size; i++) {
-        basePlateStud[i].connection = blocks[0];
-        blocks[0].antiStuds[i] = basePlateStud[i];
+    if (blocks.length === 0) {
+        blocks[0] = new LegoBlock('A', 'red', 'red');
+        // blocks[1] = new LegoBlock('D');
+        // blocks[2] = new LegoBlock('U');
+        // blocks[3] = new LegoBlock('L');
+        // blocks[4] = new LegoBlock('T');
+        // blocks[5] = new LegoBlock('K');
+        // blocks[6] = new LegoBlock('I');    
+        for (let i = 0; i < blocks[0].size; i++) {
+            basePlateStud[i].connection = blocks[0];
+            blocks[0].antiStuds[i] = basePlateStud[i];
+        }
+    }
+
+
+    for (let i = 0; i < basePlateLength; i++) {
+        const x = centerx - (10 - i) * Stud.studWidth * 2;
+        const y = centery * 1.3;
+        basePlateStud[i].setPosition(x, y)
+    }
+
+    for (let i = 0; i < blocks.length; i++) {
+        blocks[i].move(movement, ctx);
     }
 
     for (let i = 0; i < basePlateLength; i++) {
         const x = centerx - (10 - i) * Stud.studWidth * 2;
         const y = centery * 1.3;
-        basePlateStud[i].draw(ctx, x, y, width, height);
+        basePlateStud[i].draw(ctx, x, y);
+    }
+
+    for (let i = 0; i < blocks.length; i++) {
+        if (!blocks[i].drawed)
+            blocks[i].draw(ctx);
     }
 
     ctx.globalCompositeOperation = 'source-over';
@@ -126,6 +212,7 @@ function AnimationK(ctx, width, height, movement) {
 
     for (let i = 0; i < blocks.length; i++) {
         blocks[i].drawed = false;
+        blocks[i].positioned = false;
     }
 }
 
