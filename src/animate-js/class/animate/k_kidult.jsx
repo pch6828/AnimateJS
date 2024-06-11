@@ -1,4 +1,5 @@
 class Stud {
+    static studWidth = 0;
     constructor(block, color) {
         this.connection = null;
         this.block = block;
@@ -9,9 +10,14 @@ class Stud {
 
     }
 
-    draw(ctx, width, height) {
+    draw(ctx, x, y) {
         ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = this.color;
 
+        ctx.beginPath();
+        ctx.roundRect(x - Stud.studWidth / 2, y - Stud.studWidth / 2, Stud.studWidth, Stud.studWidth, Stud.studWidth / 4)
+        ctx.closePath();
+        ctx.fill();
     }
 };
 
@@ -49,7 +55,12 @@ const blocks = [];
 const basePlate = [];
 
 function AnimationK(ctx, width, height, movement) {
+    const centerx = width / 2;
+    const centery = height / 2;
     const basePlateLength = 21; // max block length * # of letters
+    const basePlateColor = "rgba(66,73,82,1)";
+
+    Stud.studWidth = width / 50;
     // 레고  
     // KID, ADULT로 레고 블록 
     // 회색 OR 검은색으로 플레이트
@@ -68,13 +79,18 @@ function AnimationK(ctx, width, height, movement) {
 
     if (basePlate.length === 0) {
         for (let i = 0; i < basePlateLength; i++) {
-            basePlate[i] = new Stud();
+            basePlate[i] = new Stud(null, basePlateColor);
         }
     }
 
     for (let i = 0; i < basePlateLength; i++) {
-        basePlate[i].draw(ctx, width, height);
+        basePlate[i].draw(ctx, centerx - (10 - i) * Stud.studWidth * 2, centery * 1.3);
     }
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = basePlateColor;
+    ctx.fillRect(centerx - 21 * Stud.studWidth, centery * 1.3, 42 * Stud.studWidth, Stud.studWidth);
+
 }
 
 export default AnimationK;
