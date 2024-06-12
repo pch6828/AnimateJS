@@ -154,13 +154,19 @@ class LegoBlock {
         }
     }
 
-    unconnect() {
+    unconnect(needToConnect) {
         this.isConnected = false;
         for (let i = 0; i < this.size; i++) {
             const antiStud = this.antiStuds[i];
-            if (antiStud) {
+            const stud = this.studs[i];
+
+            if (antiStud && antiStud.block !== needToConnect) {
                 antiStud.connection = null;
                 this.antiStuds[i] = null;
+            }
+
+            if (stud.connection) {
+                stud.connection.unconnect(this);
             }
         }
     }
