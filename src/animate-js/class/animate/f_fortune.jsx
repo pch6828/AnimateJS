@@ -1,3 +1,5 @@
+import { get_random } from "./util";
+
 class FortunePaper {
     constructor(text, widthRatio, fontRatio) {
         this.message = text;
@@ -243,10 +245,6 @@ function AnimationF(ctx, width, height, movement) {
     const fontSize = height / 8;
 
     const letters = ['F', 'o', 'r', 't', 'u', 'n', 'e'];
-
-    function get_random(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
-    }
 
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = 'rgba(0,0,0,1)';

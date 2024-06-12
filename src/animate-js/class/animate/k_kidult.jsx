@@ -1,3 +1,5 @@
+import { get_random } from "./util";
+
 class Stud {
     static studWidth = 0;
     constructor(block, color) {
@@ -37,17 +39,18 @@ class Stud {
 };
 
 class LegoBlock {
-    constructor(letter, blockColor, studColor) {
+    constructor(letter, colorSet) {
+        const color = get_random(colorSet);
         this.size = Math.floor(Math.random() * 3) + 1;
         this.letter = letter;
-        this.color = blockColor;
+        this.color = color.blockColor;
         this.drawed = false;
         this.positioned = false;
         this.studs = [];
         this.antiStuds = [];
         this.prevIsDown = false;
         for (let i = 0; i < this.size; i++) {
-            this.studs[i] = new Stud(this, studColor);
+            this.studs[i] = new Stud(this, color.studColor);
             this.antiStuds[i] = null;
         }
 
@@ -206,6 +209,24 @@ function AnimationK(ctx, width, height, movement) {
         studColor: "rgba(96,103,112,1)",
         blockColor: "rgba(66,73,82,1)"
     };
+    const colorSet = [
+        {
+            studColor: "rgba(234,67,74,1)",
+            blockColor: "rgba(204,37,44,1)"
+        },
+        {
+            studColor: "rgba(30,109,255,1)",
+            blockColor: "rgba(0,79,255,1)"
+        },
+        {
+            studColor: "rgba(254,231,21,1)",
+            blockColor: "rgba(255,223,0,1)"
+        },
+        {
+            studColor: "rgba(30,201,162,1)",
+            blockColor: "rgba(0,171,132,1)"
+        },
+    ]
 
     var studs = [];
 
@@ -223,8 +244,8 @@ function AnimationK(ctx, width, height, movement) {
     }
 
     if (blocks.length === 0) {
-        blocks[0] = new LegoBlock('A', 'red', 'red');
-        blocks[1] = new LegoBlock('D', 'blue', 'blue');
+        blocks[0] = new LegoBlock('A', colorSet);
+        blocks[1] = new LegoBlock('D', colorSet);
         // blocks[2] = new LegoBlock('U');
         // blocks[3] = new LegoBlock('L');
         // blocks[4] = new LegoBlock('T');
