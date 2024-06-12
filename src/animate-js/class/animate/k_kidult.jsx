@@ -50,9 +50,10 @@ class LegoBlock {
         }
 
         this.selectedPos = null;
+        this.isConnected = false;
     }
 
-    move(movement, ctx) {
+    move(movement, ctx, studs) {
         const blockWidth = Stud.studWidth * 2;
         const blockHeight = Stud.studWidth * 3;
 
@@ -83,9 +84,13 @@ class LegoBlock {
             }
             if (this.selectedPos) {
                 this.selectedPos = { x: movement.mousePoint.x, y: movement.mousePoint.y };
+                this.isConnected = this.connectIfPossible(studs);
+
             }
         } else {
-            // this.selectedPos = null;
+            if (this.isConnected) {
+                this.selectedPos = null;
+            }
         }
 
         this.prevIsDown = movement.isDown;
@@ -94,17 +99,17 @@ class LegoBlock {
     draw(ctx, x, y, stud) {
         const blockWidth = Stud.studWidth * 2;
         const blockHeight = Stud.studWidth * 3;
-        const antiStudIdx = this.selectedPos ? 0 : this.antiStuds.indexOf(stud);
+        const antiStudIdx = this.selectedPos && !this.isConnected ? 0 : this.antiStuds.indexOf(stud);
 
         if (this.drawed)
             return;
-
+        console.log(stud);
         this.drawed = true;
-
-        if (this.selectedPos) {
+        if (this.selectedPos && !this.isConnected) {
             x = this.selectedPos.x - blockWidth / 2 * this.size + blockWidth / 2;
             y = this.selectedPos.y + blockHeight / 2;
         }
+
         for (let i = 0; i < this.size; i++) {
             const stud = this.studs[i];
             stud.draw(ctx, x - blockWidth * antiStudIdx + blockWidth * i, y - blockHeight);
@@ -137,11 +142,51 @@ class LegoBlock {
     }
 
     unconnect() {
+        this.isConnected = false;
         for (let i = 0; i < this.size; i++) {
             const antiStud = this.antiStuds[i];
-            antiStud.connection = null;
-            this.antiStuds[i] = null;
+            if (antiStud) {
+                antiStud.connection = null;
+                this.antiStuds[i] = null;
+            }
         }
+    }
+
+    connectIfPossible(studs) {
+        const blockWidth = Stud.studWidth * 2;
+        const blockHeight = Stud.studWidth * 3;
+        var connectPossible = true;
+
+        this.unconnect();
+        for (let i = 0; i < this.size; i++) {
+            const x = this.selectedPos.x - blockWidth / 2 * this.size + blockWidth / 2 + blockWidth * i;
+            const y = this.selectedPos.y + blockHeight / 2;
+
+            for (let j = 0; j < studs.length; j++) {
+                const stud = studs[j];
+                const dx = x - stud.centerPos.x;
+                const dy = y - stud.centerPos.y;
+
+                if (Math.sqrt(dx * dx + dy * dy) <= Stud.studWidth / 3) {
+                    if (stud.connection && stud.connection !== this) {
+                        connectPossible = false;
+                        break;
+                    }
+                    this.antiStuds[i] = stud;
+                    stud.connection = this;
+                    break;
+                }
+            }
+        }
+
+        if (!connectPossible)
+            this.unconnect();
+
+        for (let i = 0; i < this.size; i++) {
+            if (this.antiStuds[i])
+                return true;
+        }
+        return false;
     }
 };
 
@@ -181,6 +226,7 @@ function AnimationK(ctx, width, height, movement) {
         for (let i = 0; i < blocks[0].size; i++) {
             basePlateStud[i].connection = blocks[0];
             blocks[0].antiStuds[i] = basePlateStud[i];
+            blocks[0].isConnected = true;
         }
     }
 
@@ -192,7 +238,7 @@ function AnimationK(ctx, width, height, movement) {
     }
 
     for (let i = 0; i < blocks.length; i++) {
-        blocks[i].move(movement, ctx);
+        blocks[i].move(movement, ctx, basePlateStud);
     }
 
     for (let i = 0; i < basePlateLength; i++) {
@@ -201,14 +247,14 @@ function AnimationK(ctx, width, height, movement) {
         basePlateStud[i].draw(ctx, x, y);
     }
 
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = basePlateColor.blockColor;
+    ctx.fillRect(centerx - 21 * Stud.studWidth, centery * 1.3, 42 * Stud.studWidth, Stud.studWidth);
+
     for (let i = 0; i < blocks.length; i++) {
         if (!blocks[i].drawed)
             blocks[i].draw(ctx);
     }
-
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = basePlateColor.blockColor;
-    ctx.fillRect(centerx - 21 * Stud.studWidth, centery * 1.3, 42 * Stud.studWidth, Stud.studWidth);
 
     for (let i = 0; i < blocks.length; i++) {
         blocks[i].drawed = false;
