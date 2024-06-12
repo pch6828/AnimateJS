@@ -108,7 +108,7 @@ class LegoBlock {
         const blockWidth = Stud.studWidth * 2;
         const blockHeight = Stud.studWidth * 3;
         const antiStudIdx = this.selectedPos && !this.isConnected ? 0 : this.antiStuds.indexOf(stud);
-
+        const fontSize = Stud.studWidth * 2.5;
         this.drawed = true;
 
         if (this.selectedPos && !this.isConnected) {
@@ -125,11 +125,18 @@ class LegoBlock {
         ctx.fillStyle = this.color;
 
         ctx.fillRect(x - blockWidth * antiStudIdx - blockWidth / 2, y, blockWidth * this.size, -blockHeight);
-
+        ctx.font = fontSize + 'px Comic Sans MS';
+        ctx.fillStyle = 'rgba(0,0,0,1)';
+        const textWidth = ctx.measureText(this.letter).width;
+        ctx.fillText(this.letter,
+            x - blockWidth * antiStudIdx - blockWidth / 2 + blockWidth * this.size / 2 - textWidth / 2,
+            y - blockHeight / 2 + fontSize / 2.5);
     }
 
     setPosition(x, y, stud) {
-        if (this.positioned) return;
+        if (this.positioned)
+            return;
+
         const blockWidth = Stud.studWidth * 2;
         const blockHeight = Stud.studWidth * 3;
         const antiStudIdx = this.antiStuds.indexOf(stud);
@@ -201,6 +208,57 @@ class LegoBlock {
 const blocks = [];
 const basePlateStud = [];
 
+function blockSetUp(basePlateStud, blocks) {
+    var adultLength = 0;
+    const adultRange = 5;
+    const kIdx = 5;
+    const iIdx = 6;
+    const dIdx = 1;
+
+    for (let i = 0; i < adultRange; i++) {
+        adultLength += blocks[i].size;
+    }
+    const adultStartIdx = Math.floor((basePlateStud.length - adultLength) / 2);
+    var idx = adultStartIdx;
+
+    for (let i = 0; i < adultRange; i++) {
+        const block = blocks[i];
+        for (let j = 0; j < block.size; j++) {
+            basePlateStud[idx].connection = blocks[i];
+            blocks[i].antiStuds[j] = basePlateStud[idx];
+            blocks[i].isConnected = true;
+            idx++;
+        }
+    }
+
+    var blockIdx, studIdx;
+
+    if (blocks[dIdx].size === 1 && blocks[iIdx].size === 3) {
+        blockIdx = dIdx - 1;
+        studIdx = blocks[dIdx - 1].size - 1;
+    } else {
+        blockIdx = dIdx;
+        studIdx = 0;
+    }
+
+    for (let i = 0; i < blocks[iIdx].size; i++) {
+        blocks[blockIdx].studs[studIdx].connection = blocks[iIdx];
+        blocks[iIdx].antiStuds[i] = blocks[blockIdx].studs[studIdx];
+        blocks[iIdx].isConnected = true;
+        studIdx++;
+        if (studIdx === blocks[blockIdx].size) {
+            studIdx = 0;
+            blockIdx++;
+        }
+    }
+
+    for (let i = 0; i < blocks[kIdx].size && i < blocks[iIdx].size; i++) {
+        blocks[iIdx].studs[i].connection = blocks[kIdx];
+        blocks[kIdx].antiStuds[i] = blocks[iIdx].studs[i];
+        blocks[kIdx].isConnected = true;
+    }
+}
+
 function AnimationK(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
@@ -231,9 +289,6 @@ function AnimationK(ctx, width, height, movement) {
     var studs = [];
 
     Stud.studWidth = width / 50;
-    // 레고  
-    // KID, ADULT로 레고 블록 
-    // 회색 OR 검은색으로 플레이트
     // 조립 기능 구현, 블록 버리기 기능 구현
     // 블록을 버릴 경우 위에서 해당 글자의 블럭 떨어트리기
 
@@ -246,21 +301,12 @@ function AnimationK(ctx, width, height, movement) {
     if (blocks.length === 0) {
         blocks[0] = new LegoBlock('A', colorSet);
         blocks[1] = new LegoBlock('D', colorSet);
-        // blocks[2] = new LegoBlock('U');
-        // blocks[3] = new LegoBlock('L');
-        // blocks[4] = new LegoBlock('T');
-        // blocks[5] = new LegoBlock('K');
-        // blocks[6] = new LegoBlock('I');    
-        for (let i = 0; i < blocks[0].size; i++) {
-            basePlateStud[i].connection = blocks[0];
-            blocks[0].antiStuds[i] = basePlateStud[i];
-            blocks[0].isConnected = true;
-        }
-        for (let i = blocks[0].size; i < blocks[0].size + blocks[1].size; i++) {
-            basePlateStud[i].connection = blocks[1];
-            blocks[1].antiStuds[i - blocks[0].size] = basePlateStud[i];
-            blocks[1].isConnected = true;
-        }
+        blocks[2] = new LegoBlock('U', colorSet);
+        blocks[3] = new LegoBlock('L', colorSet);
+        blocks[4] = new LegoBlock('T', colorSet);
+        blocks[5] = new LegoBlock('K', colorSet);
+        blocks[6] = new LegoBlock('I', colorSet);
+        blockSetUp(basePlateStud, blocks);
     }
 
 
