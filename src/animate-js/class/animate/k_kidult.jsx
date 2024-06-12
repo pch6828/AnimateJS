@@ -13,6 +13,8 @@ class Stud {
 
     draw(ctx, x, y) {
         if (this.connection) {
+            if (this.color === 'blue')
+                console.log(this.connection);
             this.connection.draw(ctx, x, y, this);
         }
         else {
@@ -97,14 +99,15 @@ class LegoBlock {
     }
 
     draw(ctx, x, y, stud) {
+        if (this.drawed || (!this.selectedPos && stud === undefined))
+            return;
+
         const blockWidth = Stud.studWidth * 2;
         const blockHeight = Stud.studWidth * 3;
         const antiStudIdx = this.selectedPos && !this.isConnected ? 0 : this.antiStuds.indexOf(stud);
 
-        if (this.drawed)
-            return;
-        console.log(stud);
         this.drawed = true;
+
         if (this.selectedPos && !this.isConnected) {
             x = this.selectedPos.x - blockWidth / 2 * this.size + blockWidth / 2;
             y = this.selectedPos.y + blockHeight / 2;
@@ -167,6 +170,8 @@ class LegoBlock {
                 const dx = x - stud.centerPos.x;
                 const dy = y - stud.centerPos.y;
 
+                if (stud.block === this) continue;
+
                 if (Math.sqrt(dx * dx + dy * dy) <= Stud.studWidth / 3) {
                     if (stud.connection && stud.connection !== this) {
                         connectPossible = false;
@@ -202,6 +207,8 @@ function AnimationK(ctx, width, height, movement) {
         blockColor: "rgba(66,73,82,1)"
     };
 
+    var studs = [];
+
     Stud.studWidth = width / 50;
     // 레고  
     // KID, ADULT로 레고 블록 
@@ -217,7 +224,7 @@ function AnimationK(ctx, width, height, movement) {
 
     if (blocks.length === 0) {
         blocks[0] = new LegoBlock('A', 'red', 'red');
-        // blocks[1] = new LegoBlock('D');
+        blocks[1] = new LegoBlock('D', 'blue', 'blue');
         // blocks[2] = new LegoBlock('U');
         // blocks[3] = new LegoBlock('L');
         // blocks[4] = new LegoBlock('T');
@@ -228,6 +235,11 @@ function AnimationK(ctx, width, height, movement) {
             blocks[0].antiStuds[i] = basePlateStud[i];
             blocks[0].isConnected = true;
         }
+        for (let i = blocks[0].size; i < blocks[0].size + blocks[1].size; i++) {
+            basePlateStud[i].connection = blocks[1];
+            blocks[1].antiStuds[i - blocks[0].size] = basePlateStud[i];
+            blocks[1].isConnected = true;
+        }
     }
 
 
@@ -237,8 +249,13 @@ function AnimationK(ctx, width, height, movement) {
         basePlateStud[i].setPosition(x, y)
     }
 
+    studs = studs.concat(basePlateStud);
     for (let i = 0; i < blocks.length; i++) {
-        blocks[i].move(movement, ctx, basePlateStud);
+        studs = studs.concat(blocks[i].studs)
+    }
+
+    for (let i = 0; i < blocks.length; i++) {
+        blocks[i].move(movement, ctx, studs);
     }
 
     for (let i = 0; i < basePlateLength; i++) {
