@@ -63,6 +63,13 @@ class LegoBlock {
         const blockHeight = Stud.studWidth * 3;
 
         const area = new Path2D();
+
+        for (let i = 0; i < this.size; i++) {
+            if (this.studs[i].connection) {
+                return;
+            }
+        }
+
         area.moveTo(
             this.studs[0].centerPos.x - blockWidth / 2,
             this.studs[0].centerPos.y + blockHeight
