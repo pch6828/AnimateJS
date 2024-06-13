@@ -56,6 +56,11 @@ class LegoBlock {
 
         this.selectedPos = null;
         this.isConnected = false;
+        this.isFalling = false;
+        this.dy = 0;
+        this.ddy = 1;
+        this.angle = 0;
+        this.rotate = Math.random() * Math.PI / 18;
     }
 
     move(movement, ctx, studs) {
@@ -63,6 +68,12 @@ class LegoBlock {
         const blockHeight = Stud.studWidth * 3;
 
         const area = new Path2D();
+        if (this.isFalling) {
+            this.selectedPos.y += this.dy;
+            this.dy += this.ddy;
+            this.angle += this.rotate;
+            return;
+        }
 
         for (let i = 0; i < this.size; i++) {
             if (this.studs[i].connection) {
@@ -102,6 +113,8 @@ class LegoBlock {
         } else {
             if (this.isConnected) {
                 this.selectedPos = null;
+            } else {
+                this.isFalling = true;
             }
         }
 
@@ -109,14 +122,44 @@ class LegoBlock {
     }
 
     draw(ctx, x, y, stud) {
-        if (this.drawed || (!this.selectedPos && stud === undefined))
-            return;
-
         const blockWidth = Stud.studWidth * 2;
         const blockHeight = Stud.studWidth * 3;
         const antiStudIdx = this.selectedPos && !this.isConnected ? 0 : this.antiStuds.indexOf(stud);
         const fontSize = Stud.studWidth * 2.5;
+
+        if (this.drawed || (!this.selectedPos && stud === undefined))
+            return;
+
         this.drawed = true;
+
+        if (this.isFalling) {
+            this.drawed = true;
+            ctx.save();
+            ctx.translate(this.selectedPos.x, this.selectedPos.y);
+            ctx.rotate(this.angle);
+            x = -blockWidth / 2 * this.size + blockWidth / 2;
+            y = blockHeight / 2;
+
+            for (let i = 0; i < this.size; i++) {
+                const stud = this.studs[i];
+                stud.draw(ctx, x - blockWidth * antiStudIdx + blockWidth * i, y - blockHeight);
+            }
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = this.color;
+
+            ctx.fillRect(x - blockWidth * antiStudIdx - blockWidth / 2, y, blockWidth * this.size, -blockHeight);
+            ctx.font = fontSize + 'px Comic Sans MS';
+            ctx.fillStyle = 'rgba(0,0,0,1)';
+            const textWidth = ctx.measureText(this.letter).width;
+            ctx.fillText(this.letter,
+                x - blockWidth * antiStudIdx - blockWidth / 2 + blockWidth * this.size / 2 - textWidth / 2,
+                y - blockHeight / 2 + fontSize / 2.5);
+
+            ctx.restore();
+            return;
+        }
+
+
 
         if (this.selectedPos && !this.isConnected) {
             x = this.selectedPos.x - blockWidth / 2 * this.size + blockWidth / 2;
