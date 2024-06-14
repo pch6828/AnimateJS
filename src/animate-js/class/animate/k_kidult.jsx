@@ -235,10 +235,21 @@ class LegoBlock {
                 if (stud.block === this) continue;
 
                 if (Math.sqrt(dx * dx + dy * dy) <= Stud.studWidth / 3) {
-                    if (stud.connection && stud.connection !== this) {
+                    for (let k = 0; k < studs.length; k++) {
+                        const stud2 = studs[k];
+                        if (stud2.block === this) continue;
+                        if (stud2.centerPos.x === stud.centerPos.x &&
+                            stud2.centerPos.y === stud.centerPos.y - 2 * blockHeight) {
+                            connectPossible = false;
+                            break;
+                        }
+                    }
+
+                    if (!connectPossible && stud.connection && stud.connection !== this) {
                         connectPossible = false;
                         break;
                     }
+
                     this.antiStuds[i] = stud;
                     stud.connection = this;
                     break;
@@ -265,6 +276,7 @@ class LegoBlock {
 
     spawn(studs, studToExclude) {
         const blockWidth = Stud.studWidth * 2;
+        const blockHeight = Stud.studWidth * 3;
 
         while (true) {
             const antiStudIdx = Math.floor(Math.random() * this.size);
@@ -298,6 +310,15 @@ class LegoBlock {
                     const dy = stud.centerPos.y - y;
 
                     if (Math.sqrt(dx * dx + dy * dy) <= Stud.studWidth / 3) {
+                        for (let k = 0; k < studs.length; k++) {
+                            const stud2 = studs[k];
+                            if (stud2.block === this) continue;
+                            if (stud2.centerPos.x === stud.centerPos.x &&
+                                stud2.centerPos.y === stud.centerPos.y - 2 * blockHeight) {
+                                connectPossible = false;
+                                break;
+                            }
+                        }
                         if (stud.connection && stud.connection !== this) {
                             connectPossible = false;
                             break;
