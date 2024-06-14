@@ -15,8 +15,6 @@ class Stud {
 
     draw(ctx, x, y) {
         if (this.connection) {
-            if (this.color === 'blue')
-                console.log(this.connection);
             this.connection.draw(ctx, x, y, this);
         }
         else {
@@ -267,7 +265,6 @@ class LegoBlock {
 
     spawn(studs, studToExclude) {
         const blockWidth = Stud.studWidth * 2;
-        const blockHeight = Stud.studWidth * 3;
 
         while (true) {
             const antiStudIdx = Math.floor(Math.random() * this.size);
