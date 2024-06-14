@@ -159,8 +159,6 @@ class LegoBlock {
             return;
         }
 
-
-
         if (this.selectedPos && !this.isConnected) {
             x = this.selectedPos.x - blockWidth / 2 * this.size + blockWidth / 2;
             y = this.selectedPos.y + blockHeight / 2;
@@ -259,6 +257,74 @@ class LegoBlock {
         }
         return false;
     }
+
+    isFalledOut(height) {
+        const blockWidth = Stud.studWidth * 2;
+        const blockHeight = Stud.studWidth * 3;
+
+        return this.isFalling && this.selectedPos.y > height + Math.max(blockHeight, blockWidth * this.size);
+    }
+
+    spawn(studs, studToExclude) {
+        const blockWidth = Stud.studWidth * 2;
+        const blockHeight = Stud.studWidth * 3;
+
+        while (true) {
+            const antiStudIdx = Math.floor(Math.random() * this.size);
+            var studIdx = Math.floor(Math.random() * studs.length);
+            var connectPossible = true;
+
+            while (studToExclude.includes(studs[studIdx]) || studs[studIdx].connection || (studs[studIdx].block && studs[studIdx].block.selectedPos)) {
+                studIdx = Math.floor(Math.random() * studs.length);
+            }
+
+            const stud = studs[studIdx];
+            this.antiStuds[antiStudIdx] = stud;
+            stud.connection = this;
+            this.isConnected = true;
+
+            const leftBottomX = stud.centerPos.x - blockWidth * antiStudIdx - blockWidth / 2;
+            const leftBottomY = stud.centerPos.y;
+
+            for (let i = 0; i < this.size; i++) {
+                if (this.antiStuds[i])
+                    continue;
+                const x = leftBottomX + blockWidth / 2 + blockWidth * i;
+                const y = leftBottomY;
+
+                for (let j = 0; j < studs.length; j++) {
+                    const stud = studs[j];
+                    if (studToExclude.includes(stud) || j === studIdx || (stud.block && stud.block.selectedPos))
+                        continue;
+
+                    const dx = stud.centerPos.x - x;
+                    const dy = stud.centerPos.y - y;
+
+                    if (Math.sqrt(dx * dx + dy * dy) <= Stud.studWidth / 3) {
+                        if (stud.connection && stud.connection !== this) {
+                            connectPossible = false;
+                            break;
+                        }
+                        this.antiStuds[i] = stud;
+                        stud.connection = this;
+                        break;
+                    }
+                }
+                if (!connectPossible)
+                    break;
+            }
+
+            if (connectPossible)
+                return;
+
+            for (let i = 0; i < this.size; i++) {
+                if (this.antiStuds[i]) {
+                    this.antiStuds[i].connection = null;
+                    this.antiStuds[i] = null;
+                }
+            }
+        }
+    }
 };
 
 const blocks = [];
@@ -345,8 +411,6 @@ function AnimationK(ctx, width, height, movement) {
     var studs = [];
 
     Stud.studWidth = width / 50;
-    // 조립 기능 구현, 블록 버리기 기능 구현
-    // 블록을 버릴 경우 위에서 해당 글자의 블럭 떨어트리기
 
     if (basePlateStud.length === 0) {
         for (let i = 0; i < basePlateLength; i++) {
@@ -399,6 +463,11 @@ function AnimationK(ctx, width, height, movement) {
     for (let i = 0; i < blocks.length; i++) {
         blocks[i].drawed = false;
         blocks[i].positioned = false;
+        if (blocks[i].isFalledOut(height)) {
+            const prevStuds = blocks[i].studs;
+            blocks[i] = new LegoBlock(blocks[i].letter, colorSet);
+            blocks[i].spawn(studs, prevStuds);
+        }
     }
 }
 
