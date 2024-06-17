@@ -1,6 +1,7 @@
 import AnimationA from "../animate/a_algorithm";
 import AnimationC from "../animate/c_coffee";
 import AnimationD from "../animate/d_design_develop";
+import AnimationE from "../animate/e_encyclopedia";
 import AnimationF from "../animate/f_fortune";
 import AnimationH from "../animate/h_homebody";
 import AnimationK from "../animate/k_kidult";
@@ -52,7 +53,22 @@ const items = new Map([
             '그래도 일상에서 나름의 미적 감각을 발휘할 때도 있어요.',
             '예를 들자면... 지금 이 프로젝트 같은 거 말이죠.']
     }],
-    ['E', null],
+    ['E', {
+        backgroundColor: '#6E95B2',
+        animate: AnimationE,
+        title: 'Encyclopedia',
+        text: ['잡학다식이라고 하나요?',
+            '쓸데 없는 걸 좀 많이 아는 편입니다.',
+            '예를 들자면, 여러 신화 속 상상의 동물이나',
+            '청주에 천연사이다를 많이 파는 이유 같은 거 말이죠.',
+            ' ',
+            '그러다 보니 주변인에게는 제 이미지가',
+            '일종의 "백과사전"처럼 보이기도 하나 봅니다.',
+            '모르는 게 생기면 아무거나 저한테 물어보더라구요.',
+            '(물론 꽤 높은 확률로 제가 알고 있었습니다.)',
+            '그래서 이런 별명도 있었어요.',
+            '"인간 ChatGPT"']
+    }],
     ['F', {
         backgroundColor: '#B34646',
         animate: AnimationF,

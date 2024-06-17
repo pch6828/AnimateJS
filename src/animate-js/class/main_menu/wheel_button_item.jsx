@@ -21,7 +21,7 @@ const items = [
     },
     {
         key: 'E',
-        title: '', //'Encyclopedia'
+        title: 'Encyclopedia',
         color: '#FF7500'
     },
     {
