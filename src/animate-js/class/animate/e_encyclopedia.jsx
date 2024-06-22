@@ -1,12 +1,32 @@
 class WordBalloon {
-    constructor() {
+    static maxSizeFactor = 50;
+    static maxTimestamp = 1000000;
+
+    constructor(direction) {
+        this.direction = direction;
         this.childs = [];
+        this.timestamp = 0;
+        this.dt = 1;
     }
     move(movement, width, height, ctx) {
+        this.timestamp += this.dt;
 
+        if (this.timestamp === WordBalloon.maxTimestamp) {
+            this.dt = -1;
+        } else if (this.timestamp === 0) {
+            this.dt = 0;
+        }
     }
-    draw(ctx, width, height) {
 
+    draw(ctx, x, y, balloonWidth, tailLength) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.fillRect(0, 0, balloonWidth * this.direction, -tailLength);
+        ctx.restore();
+    }
+
+    getTailLength(tailLengthUnit) {
+        return tailLengthUnit * Math.min(this.timestamp, WordBalloon.maxSizeFactor);
     }
 };
 
@@ -18,6 +38,7 @@ class Book {
         this.pageHeightRatio = 1 / 8;
         this.balloons = [];
         this.prevIsDown = false;
+        this.maxBalloon = 5;
     }
 
     move(movement, width, height, ctx) {
@@ -31,20 +52,27 @@ class Book {
 
         if (!this.prevIsDown && movement.isDown &&
             ctx.isPointInPath(area, movement.mousePoint.x, movement.mousePoint.y)) {
-            if (this.balloons.length < 5) {
-                this.balloons.push(new WordBalloon());
+            if (this.balloons.length < this.maxBalloon) {
+                const direction = this.balloons.length === 0
+                    ? -1
+                    : -(this.balloons[this.balloons.length - 1].direction);
+                console.log(direction);
+                this.balloons.push(new WordBalloon(direction));
             }
         }
         this.prevIsDown = movement.isDown;
+
+        this.balloons.forEach(balloon => {
+            balloon.move(movement, width, height, ctx);
+        });
     }
 
     draw(ctx, width, height) {
         const pageWidth = width * this.pageWidthRatio;
         const pageHeight = width * this.pageHeightRatio;
 
-        ctx.translate(width * this.xRatio, height * this.yRatio);
-
         ctx.save();
+        ctx.translate(width * this.xRatio, height * this.yRatio);
         ctx.globalCompositeOperation = 'source-over';
         ctx.fillStyle = 'rgba(165,42,42,1)';
 
@@ -108,11 +136,22 @@ class Book {
         ctx.closePath();
         ctx.stroke();
 
-        ctx.restore();
+        var leftTailLength = 0;
+        var rightTailLength = 0;
 
-        for (let i = 0; i < this.balloons.length; i++) {
-            this.balloons[i].draw(ctx, width, height);
+        for (let i = this.balloons.length - 1; i >= 0; i--) {
+            const balloon = this.balloons[i];
+            const x = i * pageWidth / 10 * balloon.direction;
+            if (balloon.direction === -1) {
+                leftTailLength += balloon.getTailLength(pageHeight / 250);
+            } else {
+                rightTailLength += balloon.getTailLength(pageHeight / 200);
+            }
+            this.balloons[i].draw(ctx, x, -pageHeight * 1.2,
+                50, (balloon.direction === -1 ? leftTailLength : rightTailLength));
         }
+
+        ctx.restore();
     }
 
 };
