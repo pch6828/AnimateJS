@@ -21,7 +21,7 @@ class WordBalloon {
     draw(ctx, x, y, balloonWidth, balloonHeight, tailLength) {
         ctx.save();
         ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = 'rgba(165,42,42,1)';
+        ctx.fillStyle = 'rgba(255,255,240,1)';
         ctx.translate(x, y);
         ctx.beginPath();
         ctx.moveTo(0, 0);
@@ -164,13 +164,13 @@ class Book {
         for (let i = this.balloons.length - 1; i >= 0; i--) {
             const balloon = this.balloons[i];
             const x = i * pageWidth / 8 * balloon.direction;
-            const balloonWidth = balloon.getBalloonWidth(pageWidth / 20);
-            const balloonHeight = balloon.getBalloonHeight(pageHeight / 100);
+            const balloonWidth = balloon.getBalloonWidth(pageWidth / (60 - i * 5));
+            const balloonHeight = balloon.getBalloonHeight(pageHeight / (100 - i * 5));
 
             if (balloon.direction === -1) {
-                leftTailLength += balloon.getTailLength(pageHeight / 250);
+                leftTailLength += balloon.getTailLength(pageHeight / 800);
             } else {
-                rightTailLength += balloon.getTailLength(pageHeight / 200);
+                rightTailLength += balloon.getTailLength(pageHeight / 250);
             }
 
             this.balloons[i].draw(ctx, x, -pageHeight * 1.2,
