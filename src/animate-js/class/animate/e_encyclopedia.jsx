@@ -18,15 +18,37 @@ class WordBalloon {
         }
     }
 
-    draw(ctx, x, y, balloonWidth, tailLength) {
+    draw(ctx, x, y, balloonWidth, balloonHeight, tailLength) {
         ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = 'rgba(165,42,42,1)';
         ctx.translate(x, y);
-        ctx.fillRect(0, 0, balloonWidth * this.direction, -tailLength);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, -tailLength);
+        ctx.lineTo(this.direction * balloonWidth / 10, -tailLength);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.translate(0, -tailLength);
+        ctx.beginPath();
+        ctx.roundRect(0, 1, balloonWidth * this.direction, -balloonHeight,
+            [0, balloonHeight / 4, balloonHeight / 4, balloonHeight / 4]);
+        ctx.closePath();
+        ctx.fill();
         ctx.restore();
     }
 
     getTailLength(tailLengthUnit) {
         return tailLengthUnit * Math.min(this.timestamp, WordBalloon.maxSizeFactor);
+    }
+
+    getBalloonHeight(balloonHeightUnit) {
+        return balloonHeightUnit * Math.min(this.timestamp, WordBalloon.maxSizeFactor);
+    }
+
+    getBalloonWidth(balloonWidthUnit) {
+        return balloonWidthUnit * Math.min(this.timestamp, WordBalloon.maxSizeFactor);
     }
 };
 
@@ -141,14 +163,25 @@ class Book {
 
         for (let i = this.balloons.length - 1; i >= 0; i--) {
             const balloon = this.balloons[i];
-            const x = i * pageWidth / 10 * balloon.direction;
+            const x = i * pageWidth / 8 * balloon.direction;
+            const balloonWidth = balloon.getBalloonWidth(pageWidth / 20);
+            const balloonHeight = balloon.getBalloonHeight(pageHeight / 100);
+
             if (balloon.direction === -1) {
                 leftTailLength += balloon.getTailLength(pageHeight / 250);
             } else {
                 rightTailLength += balloon.getTailLength(pageHeight / 200);
             }
+
             this.balloons[i].draw(ctx, x, -pageHeight * 1.2,
-                50, (balloon.direction === -1 ? leftTailLength : rightTailLength));
+                balloonWidth, balloonHeight,
+                (balloon.direction === -1 ? leftTailLength : rightTailLength));
+
+            if (balloon.direction === -1) {
+                leftTailLength += balloonHeight;
+            } else {
+                rightTailLength += balloonHeight;
+            }
         }
 
         ctx.restore();
