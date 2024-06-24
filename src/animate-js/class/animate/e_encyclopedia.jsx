@@ -5,10 +5,12 @@ class WordBalloon {
     constructor(direction) {
         this.direction = direction;
         this.childs = [];
+        this.maxChild = 0;
         this.timestamp = 0;
         this.dt = 1;
+        this.prevIsDown = false;
     }
-    move(movement, width, height, ctx) {
+    move(movement, x, y, balloonWidth, balloonHeight, ctx) {
         this.timestamp += this.dt;
 
         if (this.timestamp === WordBalloon.maxTimestamp) {
@@ -16,6 +18,18 @@ class WordBalloon {
         } else if (this.timestamp === 0) {
             this.dt = 0;
         }
+
+        const area = new Path2D();
+        area.rect(x, y, balloonWidth * this.direction, -balloonHeight);
+
+        if (!this.prevIsDown && movement.isDown &&
+            ctx.isPointInPath(area, movement.mousePoint.x, movement.mousePoint.y)) {
+            if (this.childs.length < this.maxChild) {
+                this.childs.push(new WordBalloon(this.direction));
+            }
+        }
+
+        this.prevIsDown = movement.isDown;
     }
 
     draw(ctx, x, y, balloonWidth, balloonHeight, tailLength) {
@@ -78,15 +92,38 @@ class Book {
                 const direction = this.balloons.length === 0
                     ? -1
                     : -(this.balloons[this.balloons.length - 1].direction);
-                console.log(direction);
                 this.balloons.push(new WordBalloon(direction));
             }
         }
         this.prevIsDown = movement.isDown;
 
-        this.balloons.forEach(balloon => {
-            balloon.move(movement, width, height, ctx);
-        });
+        var leftTailLength = 0;
+        var rightTailLength = 0;
+
+        for (let i = this.balloons.length - 1; i >= 0; i--) {
+            const balloon = this.balloons[i];
+
+
+            const balloonWidth = balloon.getBalloonWidth(pageWidth / (60 - i * 5));
+            const balloonHeight = balloon.getBalloonHeight(pageHeight / (100 - i * 5));
+
+            if (balloon.direction === -1) {
+                leftTailLength += balloon.getTailLength(pageHeight / 800);
+            } else {
+                rightTailLength += balloon.getTailLength(pageHeight / 250);
+            }
+
+            const x = bottomCenterX + i * pageWidth / 8 * balloon.direction;
+            const y = bottomCenterY - pageHeight * 1.2 - (balloon.direction === -1 ? leftTailLength : rightTailLength);
+
+            balloon.move(movement, x, y, balloonWidth, balloonHeight, ctx);
+
+            if (balloon.direction === -1) {
+                leftTailLength += balloonHeight;
+            } else {
+                rightTailLength += balloonHeight;
+            }
+        }
     }
 
     draw(ctx, width, height) {
