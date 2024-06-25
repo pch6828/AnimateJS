@@ -1,6 +1,6 @@
 class WordBalloon {
     static maxSizeFactor = 50;
-    static maxTimestamp = 1000000;
+    static maxTimestamp = 200;
 
     constructor(direction, word) {
         this.direction = direction;
@@ -15,9 +15,17 @@ class WordBalloon {
     move(movement, x, y, balloonWidth, balloonHeight, ctx) {
         this.timestamp += this.dt;
 
-        if (this.timestamp === WordBalloon.maxTimestamp) {
-            this.dt = -1;
-        } else if (this.timestamp === 0) {
+        if (this.timestamp >= WordBalloon.maxTimestamp) {
+            var noChild = true;
+            for (let i = 0; i < this.childs.length; i++) {
+                const balloon = this.childs[i];
+                if (balloon.dt !== 0) {
+                    noChild = false;
+                }
+            }
+            if (noChild)
+                this.dt = -1;
+        } else if (this.timestamp <= 0) {
             this.dt = 0;
         }
 
@@ -26,8 +34,17 @@ class WordBalloon {
 
         if (!this.prevIsDown && movement.isDown &&
             ctx.isPointInPath(area, movement.mousePoint.x, movement.mousePoint.y)) {
+            this.dt = 1;
             if (this.childs.length < this.maxChild) {
                 this.childs.push(new WordBalloon(this.direction, ' '));
+            } else {
+                for (let i = 0; i < this.maxChild; i++) {
+                    const balloon = this.childs[i];
+                    if (balloon.dt !== 1) {
+                        balloon.dt = 1;
+                        break;
+                    }
+                }
             }
         }
 
@@ -62,8 +79,8 @@ class WordBalloon {
         for (let i = this.childs.length - 1; i >= 0; i--) {
             const balloon = this.childs[i];
 
-            const childWidth = balloon.getBalloonWidth(balloonWidth / (80 + i * 5));
-            const childHeight = balloon.getBalloonHeight(balloonHeight / (80 + i * 5));
+            const childWidth = balloon.getBalloonWidth(balloonWidth / (100 + i * 5));
+            const childHeight = balloon.getBalloonHeight(balloonHeight / (100 + i * 5));
             const childX = (shadowLength + i * balloonWidth / 8) * balloon.direction;
 
             childTailLength += balloon.getTailLength(balloonHeight / 500);
@@ -117,6 +134,14 @@ class Book {
                     ? -1
                     : -(this.balloons[this.balloons.length - 1].direction);
                 this.balloons.push(new WordBalloon(direction, Book.wordList[this.balloons.length]));
+            } else {
+                for (let i = 0; i < this.maxBalloon; i++) {
+                    const balloon = this.balloons[i];
+                    if (balloon.dt !== 1) {
+                        balloon.dt = 1;
+                        break;
+                    }
+                }
             }
         }
         this.prevIsDown = movement.isDown;
@@ -226,9 +251,9 @@ class Book {
             const x = i * pageWidth / 8 * balloon.direction;
             const balloonWidth = balloon.getBalloonWidth(pageWidth / (60 - i * 5));
             const balloonHeight = balloon.getBalloonHeight(pageHeight / (100 - i * 5));
-            const shadowLength = i - 2 >= 0 ?
+            const shadowLength = Math.max((i - 2 >= 0 ?
                 this.balloons[i - 2].getBalloonWidth(pageWidth / (60 - (i - 2) * 5)) - pageWidth / 8 * 1.5
-                : 0;
+                : 0), 0);
 
             if (balloon.direction === -1) {
                 leftTailLength += balloon.getTailLength(pageHeight / 800);
@@ -256,13 +281,20 @@ class Book {
 var book = null;
 
 function AnimationE(ctx, width, height, movement) {
-
+    const centerx = width / 2;
+    const centery = height / 2;
+    const fontSize = height / 8;
     if (book === null) {
-        book = new Book(0.5, 0.85);
+        book = new Book(0.5, 0.75);
     }
 
     book.move(movement, width, height, ctx);
     book.draw(ctx, width, height);
+
+    ctx.fillStyle = 'black';
+    ctx.font = fontSize + 'px Georgia';
+    const textWidth = ctx.measureText('Encyclopedia').width;
+    ctx.fillText('Encyclopedia', centerx - textWidth / 2, centery + fontSize * 3);
 }
 
 export default AnimationE;
