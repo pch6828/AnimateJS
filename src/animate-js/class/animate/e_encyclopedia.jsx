@@ -14,7 +14,7 @@ class WordBalloon {
     }
     move(movement, x, y, balloonWidth, balloonHeight, ctx) {
         this.timestamp += this.dt;
-        this.timestamp = Math.max(this.timestamp, WordBalloon.maxTimestamp)
+        this.timestamp = Math.min(this.timestamp, WordBalloon.maxTimestamp)
 
         if (this.timestamp >= WordBalloon.maxTimestamp) {
             var noChild = true;
