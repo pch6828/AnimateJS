@@ -2,13 +2,15 @@ class WordBalloon {
     static maxSizeFactor = 50;
     static maxTimestamp = 1000000;
 
-    constructor(direction) {
+    constructor(direction, word) {
         this.direction = direction;
         this.childs = [];
-        this.maxChild = 0;
+        this.maxChild = word.length === 1 ? 0 : word.length;
         this.timestamp = 0;
         this.dt = 1;
         this.prevIsDown = false;
+        this.word = word;
+        console.log(word);
     }
     move(movement, x, y, balloonWidth, balloonHeight, ctx) {
         this.timestamp += this.dt;
@@ -25,14 +27,19 @@ class WordBalloon {
         if (!this.prevIsDown && movement.isDown &&
             ctx.isPointInPath(area, movement.mousePoint.x, movement.mousePoint.y)) {
             if (this.childs.length < this.maxChild) {
-                this.childs.push(new WordBalloon(this.direction));
+                this.childs.push(new WordBalloon(this.direction, ' '));
             }
         }
 
         this.prevIsDown = movement.isDown;
+
+        for (let i = 0; i < this.childs.length; i++) {
+            const balloon = this.childs[i];
+            balloon.move(movement, 0, 0, 0, 0, ctx);
+        }
     }
 
-    draw(ctx, x, y, balloonWidth, balloonHeight, tailLength) {
+    draw(ctx, x, y, balloonWidth, balloonHeight, tailLength, shadowLength) {
         ctx.save();
         ctx.globalCompositeOperation = 'source-over';
         ctx.fillStyle = 'rgba(255,255,240,1)';
@@ -50,6 +57,22 @@ class WordBalloon {
             [0, balloonHeight / 4, balloonHeight / 4, balloonHeight / 4]);
         ctx.closePath();
         ctx.fill();
+
+        var childTailLength = 0;
+        for (let i = this.childs.length - 1; i >= 0; i--) {
+            const balloon = this.childs[i];
+
+            const childWidth = balloon.getBalloonWidth(balloonWidth / (80 + i * 5));
+            const childHeight = balloon.getBalloonHeight(balloonHeight / (80 + i * 5));
+            const childX = (shadowLength + i * balloonWidth / 8) * balloon.direction;
+
+            childTailLength += balloon.getTailLength(balloonHeight / 500);
+
+            balloon.draw(ctx, childX, -balloonHeight * 1.1, childWidth, childHeight, childTailLength);
+
+            childTailLength += childHeight;
+        }
+
         ctx.restore();
     }
 
@@ -67,6 +90,7 @@ class WordBalloon {
 };
 
 class Book {
+    static wordList = ["cl", "ope", "cy", "dia", "en"];
     constructor(xRatio, yRatio) {
         this.xRatio = xRatio;
         this.yRatio = yRatio;
@@ -92,7 +116,7 @@ class Book {
                 const direction = this.balloons.length === 0
                     ? -1
                     : -(this.balloons[this.balloons.length - 1].direction);
-                this.balloons.push(new WordBalloon(direction));
+                this.balloons.push(new WordBalloon(direction, Book.wordList[this.balloons.length]));
             }
         }
         this.prevIsDown = movement.isDown;
@@ -102,7 +126,6 @@ class Book {
 
         for (let i = this.balloons.length - 1; i >= 0; i--) {
             const balloon = this.balloons[i];
-
 
             const balloonWidth = balloon.getBalloonWidth(pageWidth / (60 - i * 5));
             const balloonHeight = balloon.getBalloonHeight(pageHeight / (100 - i * 5));
@@ -203,6 +226,9 @@ class Book {
             const x = i * pageWidth / 8 * balloon.direction;
             const balloonWidth = balloon.getBalloonWidth(pageWidth / (60 - i * 5));
             const balloonHeight = balloon.getBalloonHeight(pageHeight / (100 - i * 5));
+            const shadowLength = i - 2 >= 0 ?
+                this.balloons[i - 2].getBalloonWidth(pageWidth / (60 - (i - 2) * 5)) - pageWidth / 8 * 1.5
+                : 0;
 
             if (balloon.direction === -1) {
                 leftTailLength += balloon.getTailLength(pageHeight / 800);
@@ -212,7 +238,8 @@ class Book {
 
             this.balloons[i].draw(ctx, x, -pageHeight * 1.2,
                 balloonWidth, balloonHeight,
-                (balloon.direction === -1 ? leftTailLength : rightTailLength));
+                (balloon.direction === -1 ? leftTailLength : rightTailLength),
+                shadowLength);
 
             if (balloon.direction === -1) {
                 leftTailLength += balloonHeight;
