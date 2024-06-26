@@ -12,6 +12,7 @@ const items = new Map([
     ['A', {
         backgroundColor: '#FFAD00',
         toolTipColor: 'black',
+        toolTipTextColor: 'white',
         animate: AnimationA,
         title: 'Algorithm',
         text: ['대학에서는 알고리즘 공부를 좀 했어요.',
@@ -22,12 +23,15 @@ const items = new Map([
             '인생 첫 코딩 공부였는데 나름 적성에 맞았던 것 같아요.',
             '덕분에 전공 수업도 나름 잘 따라갈 수 있었죠.',
             '지금은 알고리즘 공부를 따로 하지는 않지만,',
-            '가끔씩 재미로 문제 풀이는 하고 있어요.']
+            '가끔씩 재미로 문제 풀이는 하고 있어요.'],
+        toolTipText: ['마우스를 꾹 누르면 막대가 섞입니다.',
+            '섞인 막대가 정렬되는 것을 지켜보세요!']
     }],
     ['B', null],
     ['C', {
         backgroundColor: '#00CFB4',
         toolTipColor: 'black',
+        toolTipTextColor: 'white',
         animate: AnimationC,
         title: 'Coffee',
         text: ['커피를 참 좋아합니다.',
@@ -38,11 +42,15 @@ const items = new Map([
             '불면증이 생기면서 3년 정도 끊었지만요.',
             ' ',
             '요새는 가끔 한잔씩 마시고 있습니다.',
-            '점심 식사 후에 커피를 마시는 게 참 좋더라구요.']
+            '점심 식사 후에 커피를 마시는 게 참 좋더라구요.'],
+        toolTipText: ['마우스를 꾹 누르면 커피가 잔으로 떨어집니다.',
+            '커피가 넘치지는 않을테니 걱정 마세요!',
+            '시간이 지나면 커피는 다시 줄어듭니다.']
     }],
     ['D', {
         backgroundColor: '#32363F',
         toolTipColor: 'white',
+        toolTipTextColor: 'black',
         animate: AnimationD,
         title: 'Design? Develop?',
         text: ['원래는 디자인과로 진학하려 했습니다.',
@@ -54,11 +62,15 @@ const items = new Map([
             '지금 생각하면 바꾸길 잘했다고 생각합니다.',
             ' ',
             '그래도 일상에서 나름의 미적 감각을 발휘할 때도 있어요.',
-            '예를 들자면... 지금 이 프로젝트 같은 거 말이죠.']
+            '예를 들자면... 지금 이 프로젝트 같은 거 말이죠.'],
+        toolTipText: ['마우스를 꾹 누른 채로 움직여보세요!',
+            '숨겨진 글자가 드러납니다.',
+            '왼쪽, 오른쪽 버튼에 따라 서로 다른 글자를 찾을 수 있습니다.']
     }],
     ['E', {
         backgroundColor: '#6E95B2',
         toolTipColor: 'black',
+        toolTipTextColor: 'white',
         animate: AnimationE,
         title: 'Encyclopedia',
         text: ['잡학다식이라고 하나요?',
@@ -71,11 +83,16 @@ const items = new Map([
             '모르는 게 생기면 아무거나 저한테 물어보더라구요.',
             '(물론 꽤 높은 확률로 제가 알고 있었습니다.)',
             '그래서 이런 별명도 있었어요.',
-            '"인간 ChatGPT"']
+            '"인간 ChatGPT"'],
+        toolTipText: ['백과 사전을 여러번 클릭해보세요!',
+            '말풍선이 나왔나요?',
+            '이번에는 말풍선을 클릭해보세요!',
+            '말풍선이 몇 개까지 나올까요?']
     }],
     ['F', {
         backgroundColor: '#B34646',
         toolTipColor: 'white',
+        toolTipTextColor: 'black',
         animate: AnimationF,
         title: 'Fortune',
         text: ['\'운\'이 좋게 잘 풀린 일이 많습니다.',
@@ -89,12 +106,16 @@ const items = new Map([
             '공교롭게도 바로 전문연 편입을 할 수 있었습니다.',
             ' ',
             '이 모든 게 단순히 운 때문은 아니지만,',
-            '그래도 제 예상보다 결과가 더 좋게 나온 건 사실이죠.']
+            '그래도 제 예상보다 결과가 더 좋게 나온 건 사실이죠.'],
+        toolTipText: ['포춘 쿠키에서 쪽지를 꺼내보세요!',
+            '당신의 운세는 무엇인가요?',
+            '포춘 쿠키마다 운세가 다릅니다. 여러가지 메시지를 찾아보세요!']
     }],
     ['G', null],
     ['H', {
         backgroundColor: '#191970',
         toolTipColor: 'white',
+        toolTipTextColor: 'black',
         animate: AnimationH,
         title: 'Homebody',
         text: ['집돌이입니다.',
@@ -106,13 +127,17 @@ const items = new Map([
             ' ',
             '물론 집 밖으로 나가는 걸 싫어하는 건 아닙니다.',
             '약속이 잡히면 즐겁게 나갑니다.',
-            '단지 제가 먼저 약속을 잡는 일이 적을 뿐이죠.']
+            '단지 제가 먼저 약속을 잡는 일이 적을 뿐이죠.'],
+        toolTipText: ['집안에 있는 글자들을 밖으로 내보내보세요.',
+            '이 글자들도 집을 정말 좋아합니다.',
+            '글자들이 서둘러 집으로 돌아가는 모습을 지켜보세요.']
     }],
     ['I', null],
     ['J', null],
     ['K', {
         backgroundColor: '#C9CBDB',
         toolTipColor: 'black',
+        toolTipTextColor: 'white',
         animate: AnimationK,
         title: 'Kidult',
         text: ['키덜트입니다.',
@@ -126,7 +151,11 @@ const items = new Map([
             '그러다 대학원생이 되고, 보다 넓은 집에 살면서',
             '이런 취미들을 다시 시작할 수 있었어요.',
             '지금은 레고도 간간히 사모으고 있습니다.',
-            '너무 돈을 많이 쓰는 건 아닌가 좀 걱정되기도 해요.']
+            '너무 돈을 많이 쓰는 건 아닌가 좀 걱정되기도 해요.'],
+        toolTipText: ['레고 블록을 가지고 여러가지 모양이나 단어를 만들어보세요!',
+            '한번에 하나의 블록만 옮길 수 있습니다.',
+            '색깔이나 크기가 마음에 안 들면 공중에서 블록을 놓아보세요.',
+            '새로운 블록이 생길 겁니다.']
     }],
     ['L', null],
     ['M', null],
@@ -135,6 +164,7 @@ const items = new Map([
     ['P', {
         backgroundColor: '#B6CADA',
         toolTipColor: 'black',
+        toolTipTextColor: 'white',
         animate: AnimationP,
         title: 'Postgraduate',
         text: ['대학원 졸업했습니다.',
@@ -145,7 +175,8 @@ const items = new Map([
             '왜 박사 안 갔냐구요?',
             '전 연구 쪽으로는 잘 안 맞더라구요.',
             '그럼에도 연구실 생활은 행복했습니다.',
-            '오죽하면 졸업하고도 교수님 회사에 입사했을까요.']
+            '오죽하면 졸업하고도 교수님 회사에 입사했을까요.'],
+        toolTipText: ['졸업식을 떠올리며, 학사모를 잡고 던져보세요!']
     }],
     ['Q', null],
     ['R', null],
@@ -155,6 +186,7 @@ const items = new Map([
     ['V', {
         backgroundColor: '#D7D2CB',
         toolTipColor: 'black',
+        toolTipTextColor: 'white',
         animate: AnimationV,
         title: 'Versatile',
         text: ['제 입으로 말하긴 민망하지만,',
@@ -168,7 +200,9 @@ const items = new Map([
             '지금은 DB 엔진 개발을 하고 있죠.',
             ' ',
             '너무 얕게만 알고 있어서 이걸 다 어디다 쓰나 싶었는데,',
-            '지금 와서 보니까 다 언젠가는 쓰게 되더라구요.']
+            '지금 와서 보니까 다 언젠가는 쓰게 되더라구요.'],
+        toolTipText: ['멀티툴의 다양한 도구를 선택해보세요!',
+            '선택된 도구를 다시 누르면 원래 상태로 돌아옵니다.']
     }],
     ['W', null],
     ['X', null],

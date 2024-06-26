@@ -14,6 +14,7 @@ function Content() {
     const [isDown, setIsDown] = useState(false);
     const [mousePoint, setMousePoint] = useState({ x: 0, y: 0 });
     const [mouseButton, setMouseButton] = useState(null);
+    const [isToolTipOn, setIsToolTipOn] = useState(false);
 
     const animation = items.get(id);
 
@@ -81,7 +82,7 @@ function Content() {
     };
 
     function toolTipClick() {
-        console.log("!");
+        setIsToolTipOn(!isToolTipOn);
     }
 
     return (
@@ -115,14 +116,38 @@ function Content() {
                     onContextMenu={(e) => { e.preventDefault(); }}
                 >
                 </canvas>
-                <div className='content-canvas-info'
+                {
+                    isToolTipOn ?
+                        (<div
+                            className='content-canvas-info'
+                            style={{
+                                backgroundColor: animation.toolTipColor,
+                                borderColor: animation.toolTipColor,
+                                color: animation.toolTipTextColor
+                            }}
+                        >
+                            {animation ?
+                                animation.toolTipText.map((line, i) => (
+                                    <div className='content-canvas-info-line'
+                                        key={i}>
+                                        {line}
+                                    </div>
+                                ))
+                                : ''}
+                        </div>)
+                        :
+                        null
+                }
+
+                <div
+                    className='content-canvas-info-button'
                     style={{
                         borderColor: animation.toolTipColor,
                         color: animation.toolTipColor
                     }}
                     onClick={toolTipClick}
                 >
-                    ?
+                    {isToolTipOn ? '!' : '?'}
                 </div>
             </div>
         </div >

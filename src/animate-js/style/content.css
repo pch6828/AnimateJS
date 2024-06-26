@@ -94,6 +94,43 @@
 }
 
 .content-canvas-info {
+    flex-direction: column;
+    justify-content: center;
+    display: flex;
+    position: absolute;
+    bottom: 7vw;
+    right: 2.5vw;
+    border-radius: 1vw 1vw 0 1vw;
+    width: 30vw;
+    height: 10vw;
+    opacity: 0.7;
+    z-index: inherit;
+}
+
+.content-canvas-info:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border: 2vw solid transparent;
+    border-top-color: inherit;
+    border-bottom: 0;
+    border-right: 0;
+    margin-right: 0;
+    margin-bottom: calc(-2vw + 1px);
+}
+
+.content-canvas-info-line {
+    width: 100%;
+    height: 1.5vw;
+    z-index: inherit;
+    text-align: center;
+    font-size: 1vw;
+}
+
+.content-canvas-info-button {
     position: absolute;
     bottom: 1vw;
     right: 1vw;
