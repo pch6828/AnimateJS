@@ -4,6 +4,7 @@ import AnimationD from "../animate/d_design_develop";
 import AnimationE from "../animate/e_encyclopedia";
 import AnimationF from "../animate/f_fortune";
 import AnimationH from "../animate/h_homebody";
+import AnimationJ from "../animate/j_judging";
 import AnimationK from "../animate/k_kidult";
 import AnimationP from "../animate/p_postgraduate";
 import AnimationV from "../animate/v_versatile";
@@ -133,7 +134,28 @@ const items = new Map([
             '글자들이 서둘러 집으로 돌아가는 모습을 지켜보세요.']
     }],
     ['I', null],
-    ['J', null],
+    ['J', {
+        backgroundColor: '#F7C46C',
+        toolTipColor: 'black',
+        toolTipTextColor: 'white',
+        animate: AnimationJ,
+        title: 'Judging (MBTI)',
+        text: ['흔히들 J에 대해 하는 말이 있죠.',
+            '"J는 계획이 틀어지면 스트레스를 받는다."',
+            '네, 제가 그렇습니다.',
+            ' ',
+            '그렇다고 제가 계획에 미친 강박증 환자는 아니에요.',
+            '어느 정도의 여유도 "계획"해둔다구요.',
+            '',
+            '그리고 제 계획이 틀어지는 일은 많지 않습니다.',
+            '플랜 A가 틀어질 것을 대비한 플랜 B,',
+            '그리고 그 플랜까지도 틀어질 것을 대비한 플랜 C, D...',
+            '이렇게 여러가지 플랜을 만들어두거든요.',
+            '',
+            '피곤하게 산다구요? 뭐, 사람마다 생각은 다른 거니까요.'],
+
+        toolTipText: ['']
+    }],
     ['K', {
         backgroundColor: '#C9CBDB',
         toolTipColor: 'black',

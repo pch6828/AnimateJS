@@ -46,7 +46,7 @@ const items = [
     },
     {
         key: 'J',
-        title: '',//'Judging (MBTI)',
+        title: 'Judging (MBTI)',
         color: '#5BC500'
     },
     {

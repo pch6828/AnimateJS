@@ -117,7 +117,7 @@ function Content() {
                 >
                 </canvas>
                 {
-                    isToolTipOn ?
+                    isToolTipOn && animation ?
                         (<div
                             className='content-canvas-info'
                             style={{
@@ -142,8 +142,8 @@ function Content() {
                 <div
                     className='content-canvas-info-button'
                     style={{
-                        borderColor: animation.toolTipColor,
-                        color: animation.toolTipColor
+                        borderColor: animation ? animation.toolTipColor : 'black',
+                        color: animation ? animation.toolTipColor : 'black'
                     }}
                     onClick={toolTipClick}
                 >
