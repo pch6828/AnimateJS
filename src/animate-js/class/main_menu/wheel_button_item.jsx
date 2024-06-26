@@ -31,7 +31,7 @@ const items = [
     },
     {
         key: 'G',
-        title: '', //'Geek'
+        title: '', //'Geek',
         color: '#F4AF23'
     },
     {
@@ -46,7 +46,7 @@ const items = [
     },
     {
         key: 'J',
-        title: '',//'Judging (MBTI)'
+        title: '',//'Judging (MBTI)',
         color: '#5BC500'
     },
     {
@@ -61,7 +61,7 @@ const items = [
     },
     {
         key: 'M',
-        title: '',
+        title: '', //'Mentor',
         color: '#249E6B'
     },
     {
