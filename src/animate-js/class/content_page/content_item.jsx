@@ -11,6 +11,7 @@ import AnimationV from "../animate/v_versatile";
 const items = new Map([
     ['A', {
         backgroundColor: '#FFAD00',
+        toolTipColor: 'black',
         animate: AnimationA,
         title: 'Algorithm',
         text: ['대학에서는 알고리즘 공부를 좀 했어요.',
@@ -26,6 +27,7 @@ const items = new Map([
     ['B', null],
     ['C', {
         backgroundColor: '#00CFB4',
+        toolTipColor: 'black',
         animate: AnimationC,
         title: 'Coffee',
         text: ['커피를 참 좋아합니다.',
@@ -40,6 +42,7 @@ const items = new Map([
     }],
     ['D', {
         backgroundColor: '#32363F',
+        toolTipColor: 'white',
         animate: AnimationD,
         title: 'Design? Develop?',
         text: ['원래는 디자인과로 진학하려 했습니다.',
@@ -55,6 +58,7 @@ const items = new Map([
     }],
     ['E', {
         backgroundColor: '#6E95B2',
+        toolTipColor: 'black',
         animate: AnimationE,
         title: 'Encyclopedia',
         text: ['잡학다식이라고 하나요?',
@@ -71,6 +75,7 @@ const items = new Map([
     }],
     ['F', {
         backgroundColor: '#B34646',
+        toolTipColor: 'white',
         animate: AnimationF,
         title: 'Fortune',
         text: ['\'운\'이 좋게 잘 풀린 일이 많습니다.',
@@ -89,6 +94,7 @@ const items = new Map([
     ['G', null],
     ['H', {
         backgroundColor: '#191970',
+        toolTipColor: 'white',
         animate: AnimationH,
         title: 'Homebody',
         text: ['집돌이입니다.',
@@ -106,6 +112,7 @@ const items = new Map([
     ['J', null],
     ['K', {
         backgroundColor: '#C9CBDB',
+        toolTipColor: 'black',
         animate: AnimationK,
         title: 'Kidult',
         text: ['키덜트입니다.',
@@ -127,6 +134,7 @@ const items = new Map([
     ['O', null],
     ['P', {
         backgroundColor: '#B6CADA',
+        toolTipColor: 'black',
         animate: AnimationP,
         title: 'Postgraduate',
         text: ['대학원 졸업했습니다.',
@@ -146,6 +154,7 @@ const items = new Map([
     ['U', null],
     ['V', {
         backgroundColor: '#D7D2CB',
+        toolTipColor: 'black',
         animate: AnimationV,
         title: 'Versatile',
         text: ['제 입으로 말하긴 민망하지만,',

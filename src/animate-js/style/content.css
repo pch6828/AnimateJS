@@ -6,6 +6,13 @@
     z-index: 1;
 }
 
+.content-canvas-wrapper {
+    display: flex;
+    width: 70vw;
+    height: 100vh;
+    z-index: inherit;
+}
+
 .content-canvas {
     display: flex;
     width: 70vw;
@@ -84,4 +91,28 @@
 .content-close:after {
     transform: rotate(-45deg) translate(-50%, -50%);
     z-index: inherit;
+}
+
+.content-canvas-info {
+    position: absolute;
+    bottom: 1vw;
+    right: 1vw;
+    width: 2.5vw;
+    height: 2.5vw;
+    z-index: inherit;
+    background-color: none;
+    text-align: center;
+    align-content: center;
+    border-radius: 50%;
+    border-style: solid;
+    border-width: 0.3vw;
+    font-size: 2vw;
+    font-family: 'Georgia';
+    font-weight: bold;
+    font-style: italic;
+    border-color: black;
+    color: black;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

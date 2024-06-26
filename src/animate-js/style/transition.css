@@ -10,7 +10,7 @@
         transform: translateX(100vw);
     }
 
-    .content-canvas {
+    .content-canvas-wrapper {
         transform: translateX(70vw);
     }
 }
@@ -21,7 +21,7 @@
         transition: transform 1000ms;
     }
 
-    .content-canvas {
+    .content-canvas-wrapper {
         transform: translateX(0);
         transition: transform 1000ms;
     }
@@ -32,7 +32,7 @@
         transform: translateX(0);
     }
 
-    .content-canvas {
+    .content-canvas-wrapper {
         transform: translateX(0);
     }
 }
@@ -43,7 +43,7 @@
         transition: transform 1000ms;
     }
 
-    .content-canvas {
+    .content-canvas-wrapper {
         transform: translateX(70vw);
         transition: transform 1000ms;
     }

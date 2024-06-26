@@ -80,6 +80,10 @@ function Content() {
         setMousePoint({ x: devicePixelRatio * offsetX, y: devicePixelRatio * offsetY });
     };
 
+    function toolTipClick() {
+        console.log("!");
+    }
+
     return (
         <div className='content-page'>
             <div className='content-description'>
@@ -100,17 +104,27 @@ function Content() {
                         ))
                         : ''}
                 </div>
-
             </div>
-            <canvas className='content-canvas'
-                ref={canvasRef}
-                onMouseDown={mouseDown}
-                onMouseUp={mouseUp}
-                onMouseLeave={mouseUp}
-                onMouseMove={mouseMove}
-                onContextMenu={(e) => { e.preventDefault(); }}
-            >
-            </canvas>
+            <div className='content-canvas-wrapper'>
+                <canvas className='content-canvas'
+                    ref={canvasRef}
+                    onMouseDown={mouseDown}
+                    onMouseUp={mouseUp}
+                    onMouseLeave={mouseUp}
+                    onMouseMove={mouseMove}
+                    onContextMenu={(e) => { e.preventDefault(); }}
+                >
+                </canvas>
+                <div className='content-canvas-info'
+                    style={{
+                        borderColor: animation.toolTipColor,
+                        color: animation.toolTipColor
+                    }}
+                    onClick={toolTipClick}
+                >
+                    ?
+                </div>
+            </div>
         </div >
     );
 }
