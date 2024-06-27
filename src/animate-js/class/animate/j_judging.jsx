@@ -17,10 +17,10 @@ class Tree {
 
         if (this.timestamp1 === Tree.maxTimestamp) {
             if (this.subtree.length === 0 && this.maxGeneration !== 0) {
-                const numSubtree = Math.max(Math.ceil(Math.random() * (this.maxGeneration)), 2);
+                const numSubtree = Math.max(Math.ceil(Math.random()) + this.maxGeneration - 1, 2);
                 for (let i = 0; i < numSubtree; i++) {
-                    var xRatio = Math.max((Math.random() - 0.5) / (5 - this.maxGeneration), branchWidth * 1.5 / width);
-                    const changeDir = i > 0 && (xRatio > 0 === this.subtree[i - 1].root.xRatio > 0);
+                    var xRatio = Math.min(Math.max(Math.abs(Math.random() - 0.5) / (5 - this.maxGeneration), branchWidth * 1.5 / width), this.root.xRatio * 0.4 * (i + 1));
+                    const changeDir = i > 0 && ((xRatio > 0) === (this.subtree[i - 1].root.xRatio > 0));
 
                     this.subtree[i] = new Tree(changeDir ? -xRatio : xRatio, -this.branchLengthRatio, this.branchLengthRatio * (5 + this.maxGeneration - Math.abs(xRatio) * 10) / 10, this.maxGeneration - 1);
                 }
