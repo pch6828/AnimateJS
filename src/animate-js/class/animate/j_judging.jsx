@@ -4,28 +4,32 @@ class Tree {
         this.root = { xRatio: rootXRatio, yRatio: rootYRatio };
         this.branchLengthRatio = branchLengthRatio;
         this.subtree = [];
-        this.timestamp = 0;
+        this.timestamp1 = 0;
+        this.timestamp2 = 0;
         this.dt = 1;
         this.maxGeneration = maxGeneration;
     }
 
     move(movement, width, height) {
         const branchWidth = width / 100 * (this.maxGeneration + 1);
-        this.timestamp = Math.min(this.timestamp + this.dt, Tree.maxTimestamp);
+        this.timestamp1 = Math.min(this.timestamp1 + this.dt, Tree.maxTimestamp);
+        this.timestamp2 = Math.max(0, Math.min(this.timestamp2 + this.dt + this.timestamp1 - Tree.maxTimestamp, Tree.maxTimestamp));
 
-        if (this.timestamp === Tree.maxTimestamp) {
+        if (this.timestamp1 === Tree.maxTimestamp) {
             if (this.subtree.length === 0 && this.maxGeneration !== 0) {
                 const numSubtree = Math.max(Math.ceil(Math.random() * (this.maxGeneration)), 2);
                 for (let i = 0; i < numSubtree; i++) {
-                    const xRatio = Math.max((Math.random() - 0.5) / (5 - this.maxGeneration), branchWidth * 2 / width);
+                    var xRatio = Math.max((Math.random() - 0.5) / (5 - this.maxGeneration), branchWidth * 1.5 / width);
                     const changeDir = i > 0 && (xRatio > 0 === this.subtree[i - 1].root.xRatio > 0);
 
                     this.subtree[i] = new Tree(changeDir ? -xRatio : xRatio, -this.branchLengthRatio, this.branchLengthRatio * (5 + this.maxGeneration - Math.abs(xRatio) * 10) / 10, this.maxGeneration - 1);
                 }
             }
 
-            for (let i = 0; i < this.subtree.length; i++) {
-                this.subtree[i].move(movement, width, height);
+            if (this.timestamp2 === Tree.maxTimestamp) {
+                for (let i = 0; i < this.subtree.length; i++) {
+                    this.subtree[i].move(movement, width, height);
+                }
             }
         }
     }
@@ -40,12 +44,20 @@ class Tree {
 
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(0, -this.branchLengthRatio * height * this.timestamp / Tree.maxTimestamp);
+        ctx.lineTo(0, -this.branchLengthRatio * height * this.timestamp1 / Tree.maxTimestamp);
         ctx.closePath();
         ctx.stroke();
 
         for (let i = 0; i < this.subtree.length; i++) {
-            this.subtree[i].draw(ctx, width, height);
+            const subtree = this.subtree[i];
+            ctx.lineWidth = width / 100 * this.maxGeneration;
+            ctx.beginPath();
+            ctx.moveTo(0, -this.branchLengthRatio * height * this.timestamp1 / Tree.maxTimestamp);
+            ctx.lineTo(subtree.root.xRatio * width * this.timestamp2 / Tree.maxTimestamp, -this.branchLengthRatio * height * this.timestamp1 / Tree.maxTimestamp);
+            ctx.closePath();
+            ctx.stroke();
+
+            subtree.draw(ctx, width, height);
         }
         ctx.restore();
     }
