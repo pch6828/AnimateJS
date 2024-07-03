@@ -22,7 +22,8 @@ class Tree {
                     var xRatio = Math.min(Math.max(Math.abs(Math.random() - 0.5) / (5 - this.maxGeneration), branchWidth * 1.5 / width), this.root.xRatio * 0.4 * (i + 1));
                     const changeDir = i > 0 && ((xRatio > 0) === (this.subtree[i - 1].root.xRatio > 0));
 
-                    this.subtree[i] = new Tree(changeDir ? -xRatio : xRatio, -this.branchLengthRatio, this.branchLengthRatio * (5 + this.maxGeneration - Math.abs(xRatio) * 10) / 10, this.maxGeneration - 1);
+                    this.subtree[i] = new Tree(changeDir ? -xRatio : xRatio, -this.branchLengthRatio,
+                        this.branchLengthRatio * (5 + this.maxGeneration - Math.abs(xRatio) * 10) / 10, this.maxGeneration - 1);
                 }
             }
 
@@ -63,19 +64,34 @@ class Tree {
     }
 }
 
-var tree = null;
+class TrailLine {
+    constructor(tree) {
+        this.tree = tree;
+        this.nextLayer = null;
+    }
+
+    movement(movement, width, height) {
+
+    }
+
+    draw(ctx, width, height) {
+
+    }
+}
+
+var treeWithLine = null;
 
 function AnimationJ(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const fontSize = height / 8;
 
-    if (tree === null) {
-        tree = new Tree(0.5, 1, 0.25, 3);
+    if (treeWithLine === null) {
+        treeWithLine = new TrailLine(new Tree(0.5, 1, 0.25, 3));
     }
 
-    tree.move(movement, width, height);
-    tree.draw(ctx, width, height);
+    treeWithLine.tree.move(movement, width, height);
+    treeWithLine.tree.draw(ctx, width, height);
     // 계획이 가지치는 모습
     // 매번 약 3회 정도의 분기를 가짐 (분기 횟수, 분기 시 가지 갯수 모두 랜덤으로)
     // 마우스의 움직임을 따라 실제 선택된 계획이 결정됨
