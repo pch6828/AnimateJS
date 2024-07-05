@@ -36,22 +36,24 @@ class Tree {
     }
 
     draw(ctx, width, height) {
+        const treeLineWidth = width / 100 * (this.maxGeneration + 1);
+        const nextTreeLineWidth = width / 100 * this.maxGeneration;
         ctx.save();
         ctx.strokeStyle = 'black';
-        ctx.lineWidth = width / 100 * (this.maxGeneration + 1);
+        ctx.lineWidth = treeLineWidth;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.translate(this.root.xRatio * width, this.root.yRatio * height);
 
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(0, -this.branchLengthRatio * height * this.timestamp1 / Tree.maxTimestamp);
+        ctx.lineTo(0, (-this.branchLengthRatio * height + (treeLineWidth - nextTreeLineWidth) / 2) * this.timestamp1 / Tree.maxTimestamp);
         ctx.closePath();
         ctx.stroke();
 
         for (let i = 0; i < this.subtree.length; i++) {
             const subtree = this.subtree[i];
-            ctx.lineWidth = width / 100 * this.maxGeneration;
+            ctx.lineWidth = nextTreeLineWidth;
             ctx.beginPath();
             ctx.moveTo(0, -this.branchLengthRatio * height * this.timestamp1 / Tree.maxTimestamp);
             ctx.lineTo(subtree.root.xRatio * width * this.timestamp2 / Tree.maxTimestamp, -this.branchLengthRatio * height * this.timestamp1 / Tree.maxTimestamp);
@@ -79,7 +81,7 @@ class TrailLine {
         if (this.tree.timestamp1 === Tree.maxTimestamp) {
             this.timestamp = Math.min(this.timestamp + this.dt, Tree.maxTimestamp);
 
-            if (this.nextLayer === null && this.timestamp === Tree.maxTimestamp) {
+            if (this.nextLayer === null && this.tree.subtree.length !== 0 && this.timestamp === Tree.maxTimestamp) {
                 this.xRatio += movement.mousePoint.x / width * 0.003;
                 for (let i = 0; i < this.tree.subtree.length; i++) {
                     const subtree = this.tree.subtree[i];
@@ -97,10 +99,11 @@ class TrailLine {
     }
 
     draw(ctx, width, height) {
-        const treeLineWidth = width / 100 * (this.tree.maxGeneration + 1);
+        const treeLineWidth = width / 100 * (this.tree.maxGeneration + 1) * 0.6;
+        const nextTreeLineWidth = width / 100 * this.tree.maxGeneration * 0.6;
         ctx.save();
         ctx.strokeStyle = 'white';
-        ctx.lineWidth = treeLineWidth * 0.6;
+        ctx.lineWidth = treeLineWidth;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
@@ -108,11 +111,12 @@ class TrailLine {
 
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(0, -this.tree.branchLengthRatio * height * this.timestamp / Tree.maxTimestamp);
+        ctx.lineTo(0, Math.min(0, (-this.tree.branchLengthRatio * height + (treeLineWidth - nextTreeLineWidth) / 2) * this.timestamp / Tree.maxTimestamp));
         ctx.closePath();
         ctx.stroke();
 
         if (this.timestamp === Tree.maxTimestamp) {
+            ctx.lineWidth = nextTreeLineWidth;
             ctx.beginPath();
             ctx.moveTo(0, -this.tree.branchLengthRatio * height * this.timestamp / Tree.maxTimestamp);
             ctx.lineTo(this.xRatio * width, -this.tree.branchLengthRatio * height * this.timestamp / Tree.maxTimestamp);
