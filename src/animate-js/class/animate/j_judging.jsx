@@ -66,6 +66,13 @@ class Tree {
     }
 }
 
+class Seed {
+    constructor(rootXRatio, rootYRatio) {
+        this.root = { xRatio: rootXRatio, yRatio: rootYRatio };
+
+    }
+}
+
 class TrailLine {
     constructor(tree) {
         this.tree = tree;
