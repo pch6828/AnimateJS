@@ -1,7 +1,8 @@
 class Tree {
     static maxTimestamp = 100;
-    constructor(rootXRatio, rootYRatio, branchLengthRatio, maxGeneration) {
+    constructor(branchLengthRatio, maxGeneration, maxBranchWidthRatio, rootXRatio = 0, rootYRatio = 0) {
         this.root = { xRatio: rootXRatio, yRatio: rootYRatio };
+        this.maxBranchWidthRatio = maxBranchWidthRatio;
         this.branchLengthRatio = branchLengthRatio;
         this.subtree = [];
         this.timestamp1 = 0;
@@ -19,11 +20,14 @@ class Tree {
             if (this.subtree.length === 0 && this.maxGeneration !== 0) {
                 const numSubtree = 2
                 for (let i = 0; i < numSubtree; i++) {
-                    var xRatio = Math.min(Math.max(Math.abs(Math.random() - 0.5) / (5 - this.maxGeneration), branchWidth * 1.5 / width), this.root.xRatio * 0.4 * (i + 1));
+                    var xRatio = Math.min(Math.max(Math.abs(Math.random() - 0.5) / (5 - this.maxGeneration), branchWidth * 1.5 / width), this.maxBranchWidthRatio * 0.3 * (i + 1));
                     const changeDir = i > 0 && ((xRatio > 0) === (this.subtree[i - 1].root.xRatio > 0));
 
-                    this.subtree[i] = new Tree(changeDir ? -xRatio : xRatio, -this.branchLengthRatio,
-                        this.branchLengthRatio * (5 + this.maxGeneration - Math.abs(xRatio) * 10) / 10, this.maxGeneration - 1);
+                    this.subtree[i] = new Tree(
+                        this.branchLengthRatio * (5 + this.maxGeneration - Math.abs(xRatio) * 10) / 10,
+                        this.maxGeneration - 1, xRatio,
+                        changeDir ? -xRatio : xRatio, -this.branchLengthRatio
+                    );
                 }
             }
 
@@ -67,9 +71,27 @@ class Tree {
 }
 
 class Seed {
-    constructor(rootXRatio, rootYRatio) {
+    constructor(rootXRatio, rootYRatio, trailLine) {
         this.root = { xRatio: rootXRatio, yRatio: rootYRatio };
+        if (trailLine) {
+            this.trailLine = trailLine;
+            this.tree = trailLine.tree;
+        }
+    }
+    move(movement, width, height) {
+        const rootX = this.root.xRatio * width;
+        movement.mousePoint.x -= rootX;
 
+        this.trailLine.move(movement, width, height);
+        this.tree.move(width, height);
+        movement.mousePoint.x += rootX;
+    }
+    draw(ctx, width, height) {
+        ctx.save();
+        ctx.translate(this.root.xRatio * width, this.root.yRatio * height);
+        this.tree.draw(ctx, width, height);
+        this.trailLine.draw(ctx, width, height);
+        ctx.restore();
     }
 }
 
@@ -141,6 +163,7 @@ class TrailLine {
     }
 }
 
+var seed = null;
 var treeWithLine = null;
 
 function AnimationJ(ctx, width, height, movement) {
@@ -148,15 +171,14 @@ function AnimationJ(ctx, width, height, movement) {
     const centery = height / 2;
     const fontSize = height / 8;
 
-    if (treeWithLine === null) {
-        treeWithLine = new TrailLine(new Tree(0.5, 1, 0.25, 3));
+    if (seed === null) {
+        const tree = new Tree(0.25, 3, 0.5);
+        const trailLine = new TrailLine(tree);
+        seed = new Seed(0.5, 1, trailLine);
     }
 
-    treeWithLine.tree.move(width, height);
-    treeWithLine.move(movement, width, height);
-
-    treeWithLine.tree.draw(ctx, width, height);
-    treeWithLine.draw(ctx, width, height);
+    seed.move(movement, width, height);
+    seed.draw(ctx, width, height);
     // 계획이 가지치는 모습
     // 매번 약 3회 정도의 분기를 가짐 (분기 횟수, 분기 시 가지 갯수 모두 랜덤으로)
     // 마우스의 움직임을 따라 실제 선택된 계획이 결정됨
