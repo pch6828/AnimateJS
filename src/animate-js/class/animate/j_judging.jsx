@@ -20,7 +20,7 @@ class Tree {
             if (this.subtree.length === 0 && this.maxGeneration !== 0) {
                 const numSubtree = 2
                 for (let i = 0; i < numSubtree; i++) {
-                    var xRatio = Math.min(Math.max(Math.abs(Math.random() - 0.5) / (5 - this.maxGeneration), branchWidth * 1.5 / width), this.maxBranchWidthRatio * 0.3 * (i + 1));
+                    var xRatio = Math.min(Math.max(Math.abs(Math.random() - 0.5) / (5 - this.maxGeneration), branchWidth * 2 / width), this.maxBranchWidthRatio * 0.5 * (i + 1));
                     const changeDir = i > 0 && ((xRatio > 0) === (this.subtree[i - 1].root.xRatio > 0));
 
                     this.subtree[i] = new Tree(
@@ -89,8 +89,22 @@ class Seed {
     draw(ctx, width, height) {
         ctx.save();
         ctx.translate(this.root.xRatio * width, this.root.yRatio * height);
+
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.arc(0, 0, width / 30, 0, 2 * Math.PI);
+        ctx.closePath();
+        ctx.fill();
+
         this.tree.draw(ctx, width, height);
         this.trailLine.draw(ctx, width, height);
+
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(0, 0, width / 40, 0, 2 * Math.PI);
+        ctx.closePath();
+        ctx.fill();
+
         ctx.restore();
     }
 }
@@ -111,7 +125,7 @@ class TrailLine {
             this.timestamp = Math.min(this.timestamp + this.dt, Tree.maxTimestamp);
 
             if (this.nextLayer === null && this.tree.subtree.length !== 0 && this.timestamp === Tree.maxTimestamp) {
-                this.xRatio += movement.mousePoint.x / width * 0.003;
+                this.xRatio += movement.mousePoint.x / width * 0.002;
                 for (let i = 0; i < this.tree.subtree.length; i++) {
                     const subtree = this.tree.subtree[i];
                     if ((subtree.root.xRatio > 0) === (this.xRatio > 0) &&
