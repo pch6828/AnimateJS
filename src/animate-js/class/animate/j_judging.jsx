@@ -274,7 +274,20 @@ var treeWithLine = null;
 function AnimationJ(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
-    const fontSize = height / 8;
+    const fontSize = height / 5;
+
+    ctx.font = fontSize + 'px Audiowide';
+    const largeTextWidth = ctx.measureText('J').width;
+    ctx.font = fontSize / 2 + 'px Audiowide';
+    const smallTextWidth = Math.max(ctx.measureText('Plan of').width, ctx.measureText('Madness').width);
+    // 좌측에 거대한 J
+    // 바로 옆으로 Plan of / Madness를 두 줄로 작성
+
+    ctx.font = fontSize + 'px Audiowide';
+    ctx.fillText('J', centerx - (largeTextWidth + smallTextWidth) / 2, height / 5);
+    ctx.font = fontSize / 2 + 'px Audiowide';
+    ctx.fillText('Plan of', centerx - (largeTextWidth + smallTextWidth) / 2 + largeTextWidth, height / 5 - fontSize / 2);
+    ctx.fillText('Madness', centerx - (largeTextWidth + smallTextWidth) / 2 + largeTextWidth, height / 5);
 
     if (seed === null) {
         const tree = new Tree(0.25, 3, 0.5);
@@ -284,11 +297,6 @@ function AnimationJ(ctx, width, height, movement) {
 
     seed = seed.move(movement, width, height);
     seed.draw(ctx, width, height);
-    // 계획이 가지치는 모습
-    // 매번 약 3회 정도의 분기를 가짐 (분기 횟수, 분기 시 가지 갯수 모두 랜덤으로)
-    // 마우스의 움직임을 따라 실제 선택된 계획이 결정됨
-    // 종착지에 도착할 경우 클릭시 그 자리에서 다시 반복
-    // 일정 길이 이상이 되면 기준점을 다시 업데이트
 }
 
 export default AnimationJ;
