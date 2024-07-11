@@ -77,35 +77,74 @@ class Seed {
             this.trailLine = trailLine;
             this.tree = trailLine.tree;
         }
+        this.prevSeed = null;
     }
     move(movement, width, height) {
         const rootX = this.root.xRatio * width;
+        var nextSeed = null;
         movement.mousePoint.x -= rootX;
 
-        this.trailLine.move(movement, width, height);
-        this.tree.move(width, height);
+        if (this.trailLine)
+            nextSeed = this.trailLine.move(movement, width, height);
+        if (nextSeed) {
+            const dxRatio = nextSeed.root.xRatio;
+            const dyRatio = nextSeed.root.yRatio;
+
+            nextSeed.prevSeed = this;
+            nextSeed.root.xRatio += this.root.xRatio;
+            nextSeed.root.yRatio += this.root.yRatio;
+
+            this.root.xRatio = -dxRatio;
+            this.root.yRatio = -dyRatio;
+        }
+        if (this.tree)
+            this.tree.move(width, height);
         movement.mousePoint.x += rootX;
+
+        return nextSeed ? nextSeed : this;
     }
     draw(ctx, width, height) {
-        ctx.save();
-        ctx.translate(this.root.xRatio * width, this.root.yRatio * height);
+        if (this.prevSeed) {
+            ctx.save();
+            ctx.translate(this.root.xRatio * width, this.root.yRatio * height);
+            this.prevSeed.draw(ctx, width, height);
 
-        ctx.fillStyle = 'black';
-        ctx.beginPath();
-        ctx.arc(0, 0, width / 30, 0, 2 * Math.PI);
-        ctx.closePath();
-        ctx.fill();
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(0, 0, width / 80, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
 
-        this.tree.draw(ctx, width, height);
-        this.trailLine.draw(ctx, width, height);
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(0, 0, width / 100, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
 
-        ctx.fillStyle = 'white';
-        ctx.beginPath();
-        ctx.arc(0, 0, width / 40, 0, 2 * Math.PI);
-        ctx.closePath();
-        ctx.fill();
+            ctx.restore();
+        } else {
+            ctx.save();
+            ctx.translate(this.root.xRatio * width, this.root.yRatio * height);
 
-        ctx.restore();
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(0, 0, width / 30, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
+
+            if (this.tree)
+                this.tree.draw(ctx, width, height);
+            if (this.trailLine)
+                this.trailLine.draw(ctx, width, height);
+
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(0, 0, width / 40, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
     }
 }
 
@@ -120,7 +159,9 @@ class TrailLine {
 
     move(movement, width, height) {
         const rootX = this.tree.root.xRatio * width;
+        var seed = null;
         movement.mousePoint.x -= rootX;
+
         if (this.tree.timestamp1 === Tree.maxTimestamp) {
             this.timestamp = Math.min(this.timestamp + this.dt, Tree.maxTimestamp);
 
@@ -136,13 +177,23 @@ class TrailLine {
                 }
             }
         }
+
         if (this.nextLayer)
-            this.nextLayer.move(movement, width, height);
+            seed = this.nextLayer.move(movement, width, height);
         movement.mousePoint.x += rootX;
 
-        if (this.timestamp === Tree.maxTimestamp && this.tree.subtree.length === 0) {
-
+        if (seed === null &&
+            this.timestamp === Tree.maxTimestamp &&
+            this.tree.subtree.length === 0) {
+            seed = new Seed(0, -this.tree.branchLengthRatio, null);
         }
+
+        if (seed) {
+            seed.root.xRatio += this.tree.root.xRatio;
+            seed.root.yRatio += this.tree.root.yRatio;
+        }
+
+        return seed;
     }
 
     draw(ctx, width, height) {
@@ -191,7 +242,7 @@ function AnimationJ(ctx, width, height, movement) {
         seed = new Seed(0.5, 1, trailLine);
     }
 
-    seed.move(movement, width, height);
+    seed = seed.move(movement, width, height);
     seed.draw(ctx, width, height);
     // 계획이 가지치는 모습
     // 매번 약 3회 정도의 분기를 가짐 (분기 횟수, 분기 시 가지 갯수 모두 랜덤으로)
