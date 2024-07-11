@@ -71,6 +71,9 @@ class Tree {
 }
 
 class Seed {
+    static fullRatio = 1 / 30;
+    static newSeedRatio = 1 / 80;
+
     constructor(rootXRatio, rootYRatio, trailLine) {
         this.root = { xRatio: rootXRatio, yRatio: rootYRatio };
         if (trailLine) {
@@ -78,11 +81,39 @@ class Seed {
             this.tree = trailLine.tree;
         }
         this.prevSeed = null;
+        this.timestamp1 = 0;
+        this.timestamp2 = 0;
+        this.dt1 = 1;
+        this.dt2 = 0.5;
+        this.proceedingToNext = false;
     }
+
     move(movement, width, height) {
         const rootX = this.root.xRatio * width;
         var nextSeed = null;
         movement.mousePoint.x -= rootX;
+
+        if (this.prevSeed) {
+            this.timestamp1 = Math.min(Tree.maxTimestamp, this.timestamp1 + this.dt1);
+
+            if (this.timestamp1 === Tree.maxTimestamp && movement.isDown)
+                this.proceedingToNext = true;
+
+            if (this.proceedingToNext)
+                this.timestamp2 = Math.min(Tree.maxTimestamp, this.timestamp2 + this.dt2);
+
+            if (this.timestamp2 === Tree.maxTimestamp) {
+                const tree = new Tree(0.25, 3, 0.5);
+                const trailLine = new TrailLine(tree);
+
+                this.root.xRatio += this.prevSeed.root.xRatio;
+                this.root.yRatio += this.prevSeed.root.yRatio;
+                this.prevSeed = null;
+
+                this.trailLine = trailLine;
+                this.tree = tree;
+            }
+        }
 
         if (this.trailLine)
             nextSeed = this.trailLine.move(movement, width, height);
@@ -105,19 +136,28 @@ class Seed {
     }
     draw(ctx, width, height) {
         if (this.prevSeed) {
+            const timestamp1Ratio = this.timestamp1 / Tree.maxTimestamp;
+            const timestamp2Ratio = this.timestamp2 / Tree.maxTimestamp;
+            const scaleRatio = 1 + (Seed.fullRatio / Seed.newSeedRatio - 1) * timestamp2Ratio;
+
             ctx.save();
-            ctx.translate(this.root.xRatio * width, this.root.yRatio * height);
-            this.prevSeed.draw(ctx, width, height);
+            ctx.translate(
+                (this.root.xRatio + this.prevSeed.root.xRatio * timestamp2Ratio) * width,
+                (this.root.yRatio + this.prevSeed.root.yRatio * timestamp2Ratio) * height
+            );
+            ctx.scale(scaleRatio, scaleRatio);
 
             ctx.fillStyle = 'black';
             ctx.beginPath();
-            ctx.arc(0, 0, width / 80, 0, 2 * Math.PI);
+            ctx.arc(0, 0, width * Seed.newSeedRatio * timestamp1Ratio, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
 
+            this.prevSeed.draw(ctx, width, height);
+
             ctx.fillStyle = 'white';
             ctx.beginPath();
-            ctx.arc(0, 0, width / 100, 0, 2 * Math.PI);
+            ctx.arc(0, 0, width * Seed.newSeedRatio * 0.75 * timestamp1Ratio, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
 
@@ -128,7 +168,7 @@ class Seed {
 
             ctx.fillStyle = 'black';
             ctx.beginPath();
-            ctx.arc(0, 0, width / 30, 0, 2 * Math.PI);
+            ctx.arc(0, 0, width * Seed.fullRatio, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
 
@@ -139,7 +179,7 @@ class Seed {
 
             ctx.fillStyle = 'white';
             ctx.beginPath();
-            ctx.arc(0, 0, width / 40, 0, 2 * Math.PI);
+            ctx.arc(0, 0, width * Seed.fullRatio * 0.75, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
 
