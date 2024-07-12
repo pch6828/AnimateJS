@@ -139,7 +139,7 @@ const items = new Map([
         toolTipColor: 'black',
         toolTipTextColor: 'white',
         animate: AnimationJ,
-        title: 'Judging (MBTI)',
+        title: 'mbti-J',
         text: ['흔히들 J에 대해 하는 말이 있죠.',
             '"J는 계획이 틀어지면 스트레스를 받는다."',
             '네, 제가 그렇습니다.',

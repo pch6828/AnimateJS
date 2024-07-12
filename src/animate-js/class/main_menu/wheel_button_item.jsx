@@ -52,7 +52,7 @@ const items = [
     },
     {
         key: 'J',
-        title: 'Judging (MBTI)',
+        title: 'mbti-J',
         color: '#5BC500',
         date: '2024-07-11'
     },
