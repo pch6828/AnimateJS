@@ -8,6 +8,7 @@ import AnimationJ from "../animate/j_judging";
 import AnimationK from "../animate/k_kidult";
 import AnimationP from "../animate/p_postgraduate";
 import AnimationV from "../animate/v_versatile";
+import AnimationW from "../animate/w_workaholic";
 
 const items = new Map([
     ['A', {
@@ -229,7 +230,24 @@ const items = new Map([
         toolTipText: ['멀티툴의 다양한 도구를 선택해보세요!',
             '선택된 도구를 다시 누르면 원래 상태로 돌아옵니다.']
     }],
-    ['W', null],
+    ['W', {
+        backgroundColor: '#0A3255',
+        toolTipColor: 'white',
+        toolTipTextColor: 'black',
+        animate: AnimationW,
+        title: 'Workaholic',
+        text: ['약간 워크홀릭 기질이 있어요.',
+            '일이 생기면 가급적 당장 처리하려고 하고,',
+            '진행 중인 일이 계속 머릿속에서 맴돌아요.',
+            ' ',
+            '물론 일을 가장 좋아하는 건 아닙니다.',
+            '당연히 노는 게 일하는 것보다 즐겁죠.',
+            '그렇지만 하던 일이 잘 풀리면 그것도 나름대로 즐겁습니다.',
+            '시험 문제가 잘 풀린다던가, ',
+            '짜던 코드가 내 생각대로 동작해준다면,',
+            '정말 희열이 느껴지거든요.'],
+        toolTipText: []
+    }],
     ['X', null],
     ['Y', null],
     ['Z', null]

@@ -121,8 +121,9 @@ const items = [
     },
     {
         key: 'W',
-        title: '',//'Workaholic',
-        color: '#4A25AA'
+        title: 'Workaholic',
+        color: '#4A25AA',
+        date: '2024-07-XX'
     },
     {
         key: 'X',
