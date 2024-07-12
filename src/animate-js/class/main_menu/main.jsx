@@ -47,6 +47,7 @@ function Main({ deg, setDeg }) {
                     alphabet={item.key}
                     title={item.title}
                     color={item.color}
+                    date={item.date}
                     selected={(Math.round(-deg / (360 / 26)) + 26) % 26 === i}
                 />
             ))}

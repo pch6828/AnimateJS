@@ -58,17 +58,46 @@
     z-index: inherit;
 }
 
-.wheel-slot-title {
+.wheel-slot-description {
     display: flex;
+    flex-direction: column;
     position: absolute;
-    width: 40vw;
-    height: 3vw;
+    width: fit-content;
+    height: 6vw;
     left: 13vw;
     font-size: 2vw;
     text-align: center;
-    align-items: center;
     justify-content: left;
     color: darkgray;
+    z-index: inherit;
+}
+
+.wheel-slot-title {
+    display: flex;
+    width: max-content;
+    height: 4vw;
+    font-size: 2vw;
+    text-align: center;
+    align-items: end;
+    justify-content: left;
+    color: darkgray;
+    z-index: inherit;
+}
+
+.wheel-slot-date {
+    display: flex;
+    width: max-content;
+    height: 2vw;
+    font-size: 1vw;
+    text-align: center;
+    align-items: top;
+    justify-content: left;
+    color: darkgray;
+    z-index: inherit;
+}
+
+.selected-description {
+    height: 6vw;
     z-index: inherit;
 }
 
@@ -78,7 +107,15 @@
 }
 
 .selected-title {
+    height: 4vw;
     font-size: 4vw;
+    color: black;
+    z-index: inherit;
+}
+
+.selected-date {
+    height: 2vw;
+    font-size: 1.5vw;
     color: black;
     z-index: inherit;
 }

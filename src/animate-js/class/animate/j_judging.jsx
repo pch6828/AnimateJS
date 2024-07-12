@@ -269,19 +269,15 @@ class TrailLine {
 }
 
 var seed = null;
-var treeWithLine = null;
 
 function AnimationJ(ctx, width, height, movement) {
     const centerx = width / 2;
-    const centery = height / 2;
     const fontSize = height / 5;
 
     ctx.font = fontSize + 'px Audiowide';
     const largeTextWidth = ctx.measureText('J').width;
     ctx.font = fontSize / 2 + 'px Audiowide';
     const smallTextWidth = Math.max(ctx.measureText('Plan of').width, ctx.measureText('Madness').width);
-    // 좌측에 거대한 J
-    // 바로 옆으로 Plan of / Madness를 두 줄로 작성
 
     ctx.font = fontSize + 'px Audiowide';
     ctx.fillText('J', centerx - (largeTextWidth + smallTextWidth) / 2, height / 5);

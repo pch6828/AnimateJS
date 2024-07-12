@@ -2,7 +2,8 @@ const items = [
     {
         key: 'A',
         title: 'Algorithm',
-        color: '#E10600'
+        color: '#E10600',
+        date: '2024-05-22'
     },
     {
         key: 'B',
@@ -12,22 +13,26 @@ const items = [
     {
         key: 'C',
         title: 'Coffee',
-        color: '#EB3300'
+        color: '#EB3300',
+        date: '2024-05-21'
     },
     {
         key: 'D',
         title: 'Design? Develop?',
-        color: '#FF6900'
+        color: '#FF6900',
+        date: '2024-06-03'
     },
     {
         key: 'E',
         title: 'Encyclopedia',
-        color: '#FF7500'
+        color: '#FF7500',
+        date: '2024-06-25'
     },
     {
         key: 'F',
         title: 'Fortune',
-        color: '#FF8200'
+        color: '#FF8200',
+        date: '2024-06-12'
     },
     {
         key: 'G',
@@ -37,7 +42,8 @@ const items = [
     {
         key: 'H',
         title: 'Homebody',
-        color: '#F6B700'
+        color: '#F6B700',
+        date: '2024-05-24'
     },
     {
         key: 'I',
@@ -47,12 +53,14 @@ const items = [
     {
         key: 'J',
         title: 'Judging (MBTI)',
-        color: '#5BC500'
+        color: '#5BC500',
+        date: '2024-07-11'
     },
     {
         key: 'K',
         title: 'Kidult',
-        color: '#30B700'
+        color: '#30B700',
+        date: '2024-06-14'
     },
     {
         key: 'L',
@@ -77,7 +85,8 @@ const items = [
     {
         key: 'P',
         title: 'Postgraduate',
-        color: '#2AD2C9'
+        color: '#2AD2C9',
+        date: '2024-05-30'
     },
     {
         key: 'Q',
@@ -107,7 +116,8 @@ const items = [
     {
         key: 'V',
         title: 'Versatile',
-        color: '#33058D'
+        color: '#33058D',
+        date: '2024-06-01'
     },
     {
         key: 'W',
