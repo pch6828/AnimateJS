@@ -4,6 +4,7 @@ class FallingObject {
         this.dyRatio = 0;
         this.ddyRatio = Math.random() * 0.0003;
         this.scale = Math.random() * 0.2 + 0.8;
+        this.direction = Math.random() > 0.5 ? 1 : -1;
     }
 
     move(movement, width, height) {
@@ -27,8 +28,8 @@ class PaperPile extends FallingObject {
 }
 
 class ColorBox extends FallingObject {
-    static widthRatio = 0.1;
-    static heightRatio = 0.07;
+    static widthRatio = 0.15;
+    static heightRatio = 0.1;
     constructor() {
         super();
 
@@ -44,7 +45,7 @@ class ColorBox extends FallingObject {
 
         ctx.save();
         ctx.translate(width * this.posRatio.xRatio, height * this.posRatio.yRatio);
-        ctx.scale(this.scale, this.scale);
+        ctx.scale(this.scale * this.direction, this.scale);
         ctx.globalCompositeOperation = 'source-over';
 
         ctx.fillStyle = this.color;
@@ -72,8 +73,46 @@ class ColorBox extends FallingObject {
 }
 
 class ColorFile extends FallingObject {
-    draw(ctx, width, height) {
+    static widthRatio = 0.1;
+    constructor() {
+        super();
 
+        const randomCode = Math.random();
+
+        this.color = randomCode < 0.33 ? '#DEA5A4' : (randomCode > 0.66 ? '#89CFF0' : '#FF8F6C');
+        this.heightRatio = (Math.random() * 0.2 + 0.8) * 0.04;
+    }
+
+    draw(ctx, width, height) {
+        const fileWidth = width * ColorFile.widthRatio;
+        const fileHeight = width * this.heightRatio;
+        const fileFrontWidthRatio = 0.8;
+        const fileLabelHeightRatio = 0.4;
+
+        ctx.save();
+        ctx.translate(width * this.posRatio.xRatio, height * this.posRatio.yRatio);
+        ctx.scale(this.scale * this.direction, this.scale);
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-fileWidth / 2, -fileHeight / 2, fileWidth, fileHeight);
+
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillRect(
+            -fileWidth / 2 + fileWidth * fileFrontWidthRatio, -fileHeight / 2,
+            fileWidth * (1 - fileFrontWidthRatio), fileHeight
+        );
+
+        ctx.fillStyle = 'rgba(255,255,240,1)';
+        ctx.fillRect(
+            -fileWidth / 2 + fileWidth * 0.3, -fileHeight / 2 * fileLabelHeightRatio,
+            fileHeight * fileLabelHeightRatio * 1.5, fileHeight * fileLabelHeightRatio
+        )
+        ctx.beginPath();
+        ctx.arc(-fileWidth / 2 + fileWidth * 0.3 + fileHeight * fileLabelHeightRatio * 2.5, 0, fileHeight * fileLabelHeightRatio / 2, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
     }
 }
 
@@ -100,7 +139,7 @@ class MouseChasingWord {
 }
 
 const mouseChasingWord = new MouseChasingWord('Workaholic');
-const temp = new ColorBox();
+const temp = new ColorFile();
 
 function AnimationW(ctx, width, height, movement) {
 
