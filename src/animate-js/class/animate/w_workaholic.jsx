@@ -21,12 +21,6 @@ class FallingObject {
     }
 }
 
-class PaperPile extends FallingObject {
-    draw(ctx, width, height) {
-
-    }
-}
-
 class ColorBox extends FallingObject {
     static widthRatio = 0.15;
     static heightRatio = 0.1;
@@ -116,6 +110,63 @@ class ColorFile extends FallingObject {
     }
 }
 
+class PaperPile extends FallingObject {
+    static widthRatio = 0.1;
+    constructor() {
+        super();
+
+        this.heightRatio = (Math.random() * 0.6 + 0.4) * 0.08;
+
+        const markCount = Math.ceil(Math.random() * 5 + 3);
+        this.marks = [];
+
+        for (let i = 0; i < markCount; i++) {
+            const randomCode = Math.random();
+            const dir = randomCode < 0.33 ? -1 : (randomCode > 0.66 ? 1 : 0);
+
+            this.marks[i] = { length: Math.random() * 0.3, pos: Math.random() * 0.8 + 0.1, dir: dir };
+        }
+    }
+    draw(ctx, width, height) {
+        const paperPileWidth = width * PaperPile.widthRatio;
+        const paperPileHeight = width * this.heightRatio;
+        const paperPileFrontWidthRatio = 0.6;
+
+        ctx.save();
+        ctx.translate(width * this.posRatio.xRatio, height * this.posRatio.yRatio);
+        ctx.scale(this.scale * this.direction, this.scale);
+        ctx.globalCompositeOperation = 'source-over';
+
+        ctx.fillStyle = 'rgba(255,255,240,1)';
+        ctx.fillRect(-paperPileWidth / 2, -paperPileHeight / 2, paperPileWidth, paperPileHeight);
+
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillRect(
+            -paperPileWidth / 2 + paperPileWidth * paperPileFrontWidthRatio, -paperPileHeight / 2,
+            paperPileWidth * (1 - paperPileFrontWidthRatio), paperPileHeight
+        );
+
+        this.marks.forEach(mark => {
+            ctx.strokeStyle = '#7F7F7F';
+            ctx.lineWidth = height * 0.003;
+            ctx.lineCap = 'butt';
+            ctx.lineJoin = 'bevel';
+
+            ctx.beginPath();
+            if (mark.dir === 0) {
+                ctx.moveTo(paperPileWidth * (paperPileFrontWidthRatio - mark.length - 0.5), (mark.pos - 0.5) * paperPileHeight);
+                ctx.lineTo(paperPileWidth * (paperPileFrontWidthRatio + mark.length - 0.5), (mark.pos - 0.5) * paperPileHeight);
+            } else {
+                ctx.moveTo(mark.dir * paperPileWidth / 2, (mark.pos - 0.5) * paperPileHeight);
+                ctx.lineTo(mark.dir * (paperPileWidth / 2 - paperPileWidth * mark.length), (mark.pos - 0.5) * paperPileHeight);
+            }
+            ctx.closePath();
+            ctx.stroke();
+        });
+        ctx.restore();
+    }
+}
+
 class MouseChasingWord {
     constructor(word, x, y) {
         this.word = word;
@@ -139,7 +190,7 @@ class MouseChasingWord {
 }
 
 const mouseChasingWord = new MouseChasingWord('Workaholic');
-const temp = new ColorFile();
+const temp = new PaperPile();
 
 function AnimationW(ctx, width, height, movement) {
 
