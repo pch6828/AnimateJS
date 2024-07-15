@@ -189,8 +189,39 @@ class MouseChasingWord {
     }
 }
 
+class ObjectDropper {
+    static maxTimestamp = 50;
+    constructor() {
+        this.objects = [];
+        this.nextSpawn = 0;
+    }
+
+    move(movement, width, height) {
+        this.nextSpawn--;
+        if (this.nextSpawn <= 0) {
+            const randomCode = Math.random();
+
+            this.nextSpawn = Math.ceil(Math.random() * ObjectDropper.maxTimestamp);
+            this.objects.push(randomCode < 0.33 ? new ColorBox() : (randomCode > 0.66 ? new ColorFile() : new PaperPile()));
+        }
+
+        this.objects.forEach(obj => {
+            obj.move(movement, width, height);
+        });
+
+        this.objects = this.objects.filter(obj => {
+            return obj.posRatio.yRatio < 1.2;
+        });
+    }
+
+    draw(ctx, width, height) {
+        this.objects.forEach(obj => {
+            obj.draw(ctx, width, height);
+        });
+    }
+}
 const mouseChasingWord = new MouseChasingWord('Workaholic');
-const temp = new PaperPile();
+const objDropper = new ObjectDropper();
 
 function AnimationW(ctx, width, height, movement) {
 
@@ -199,8 +230,8 @@ function AnimationW(ctx, width, height, movement) {
     mouseChasingWord.move(movement, width, height);
     mouseChasingWord.draw(ctx, width, height);
 
-    temp.move(movement, width, height);
-    temp.draw(ctx, width, height);
+    objDropper.move(movement, width, height);
+    objDropper.draw(ctx, width, height);
 }
 
 export default AnimationW;
