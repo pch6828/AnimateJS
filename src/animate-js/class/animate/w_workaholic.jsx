@@ -6,12 +6,14 @@ class FallingObject {
         this.scale = Math.random() * 0.2 + 0.8;
         this.direction = Math.random() > 0.5 ? 1 : -1;
         this.bottomObj = null;
+        this.angle = 0;
     }
 
     move(movement, width, height) {
         if (this.bottomObj === null) {
             this.posRatio.yRatio += this.dyRatio;
             this.dyRatio += this.ddyRatio;
+            this.angle *= 1.01;
         }
     }
 
@@ -45,6 +47,7 @@ class ColorBox extends FallingObject {
         ctx.save();
         ctx.translate(width * this.posRatio.xRatio, height * this.posRatio.yRatio);
         ctx.scale(this.scale * this.direction, this.scale);
+        ctx.rotate(this.angle);
         ctx.globalCompositeOperation = 'source-over';
 
         ctx.fillStyle = this.color;
@@ -92,6 +95,7 @@ class ColorFile extends FallingObject {
         ctx.save();
         ctx.translate(width * this.posRatio.xRatio, height * this.posRatio.yRatio);
         ctx.scale(this.scale * this.direction, this.scale);
+        ctx.rotate(this.angle);
 
         ctx.globalCompositeOperation = 'source-over';
         ctx.fillStyle = this.color;
@@ -142,6 +146,7 @@ class PaperPile extends FallingObject {
         ctx.save();
         ctx.translate(width * this.posRatio.xRatio, height * this.posRatio.yRatio);
         ctx.scale(this.scale * this.direction, this.scale);
+        ctx.rotate(this.angle);
         ctx.globalCompositeOperation = 'source-over';
 
         ctx.fillStyle = 'rgba(255,255,240,1)';
@@ -187,6 +192,21 @@ class MouseChasingWord {
         this.angle *= 0.8;
         this.point.x = movement.mousePoint.x;
         this.point.y = movement.mousePoint.y;
+
+        this.stack.forEach(element => {
+            if (Math.abs(this.angle) > Math.PI / 36)
+                element.dxRatio += this.angle / (width * 0.01);
+
+            if (Math.abs(element.dxRatio) >= 0.2) {
+                element.obj.bottomObj = null;
+                element.obj.posRatio.xRatio = (this.point.x + element.dxRatio * width * Math.cos(Math.abs(this.angle))) / width;
+                element.obj.posRatio.yRatio = (this.point.y + element.dyRatio * height * Math.sin(Math.abs(this.angle))) / height;
+                element.obj.angle = this.angle;
+            }
+        });
+        this.stack = this.stack.filter(element => {
+            return element.obj.bottomObj;
+        })
     }
 
     stackObj(ctx, objDropper, width, height) {
@@ -210,6 +230,7 @@ class MouseChasingWord {
                 obj.bottomObj = this;
                 obj.posRatio.xRatio = 0;
                 obj.posRatio.yRatio = 0;
+                obj.angle = 0;
                 this.stack.push({ obj: obj, dxRatio: (objX - wordX) / width, dyRatio: (objY - wordY) / height });
             }
         });
