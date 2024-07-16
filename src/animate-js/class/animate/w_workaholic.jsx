@@ -175,13 +175,16 @@ class PaperPile extends FallingObject {
 }
 
 class MouseChasingWord {
-    constructor(word, x, y) {
+    constructor(word) {
         this.word = word;
-        this.point = { x: x, y: y };
+        this.point = { x: 0, y: 0 };
         this.stack = [];
+        this.angle = 0;
     }
 
     move(movement, width, height) {
+        this.angle += (movement.mousePoint.x - this.point.x) / width * Math.PI;
+        this.angle *= 0.8;
         this.point.x = movement.mousePoint.x;
         this.point.y = movement.mousePoint.y;
     }
@@ -210,14 +213,14 @@ class MouseChasingWord {
                 this.stack.push({ obj: obj, dxRatio: (objX - wordX) / width, dyRatio: (objY - wordY) / height });
             }
         });
-
-
     }
 
     draw(ctx, width, height) {
         const fontSize = height / 15;
         ctx.save();
         ctx.translate(this.point.x, this.point.y);
+        console.log(this.angle);
+        ctx.rotate(this.angle);
         ctx.font = fontSize + 'px Monoton';
         ctx.fillStyle = 'white';
         const textWidth = ctx.measureText(this.word).width;
@@ -272,7 +275,7 @@ const objDropper = new ObjectDropper();
 function AnimationW(ctx, width, height, movement) {
 
     // 일이 하늘에서 천천히 떨어지고 마우스 위에 Workaholic 글자가 따라다니도록
-    // 마우스가 움직임에 따라 글자 위에 쌓인 일들이 흔들리고, 일정 이상이 될 경우 다시 떨어지도록
+    // 마우스가 움직임에 따라 글자가 기울어지고, 이에 맞춰서 쌓인 오브젝트가 이리 저리 흔들리다가 떨어지도록
     mouseChasingWord.move(movement, width, height);
     objDropper.move(movement, width, height);
 
