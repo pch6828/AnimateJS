@@ -5,11 +5,14 @@ class FallingObject {
         this.ddyRatio = Math.random() * 0.0003;
         this.scale = Math.random() * 0.2 + 0.8;
         this.direction = Math.random() > 0.5 ? 1 : -1;
+        this.bottomObj = null;
     }
 
     move(movement, width, height) {
-        this.posRatio.yRatio += this.dyRatio;
-        this.dyRatio += this.ddyRatio;
+        if (this.bottomObj === null) {
+            this.posRatio.yRatio += this.dyRatio;
+            this.dyRatio += this.ddyRatio;
+        }
     }
 
     draw(ctx, width, height) {
@@ -29,11 +32,13 @@ class ColorBox extends FallingObject {
 
         const randomCode = Math.random();
         this.color = randomCode < 0.33 ? '#ED1D24' : (randomCode > 0.66 ? '#F08F00' : '#77DD77');
+        this.widthRatio = ColorBox.widthRatio;
+        this.heightRatio = ColorBox.heightRatio;
     }
 
     draw(ctx, width, height) {
-        const boxWidth = width * ColorBox.widthRatio;
-        const boxHeight = width * ColorBox.heightRatio;
+        const boxWidth = width * this.widthRatio;
+        const boxHeight = width * this.heightRatio;
         const boxFrontWidthRatio = 0.7;
         const boxHandleRatio = 0.3;
 
@@ -74,11 +79,12 @@ class ColorFile extends FallingObject {
         const randomCode = Math.random();
 
         this.color = randomCode < 0.33 ? '#DEA5A4' : (randomCode > 0.66 ? '#89CFF0' : '#FF8F6C');
+        this.widthRatio = ColorFile.widthRatio;
         this.heightRatio = (Math.random() * 0.2 + 0.8) * 0.04;
     }
 
     draw(ctx, width, height) {
-        const fileWidth = width * ColorFile.widthRatio;
+        const fileWidth = width * this.widthRatio;
         const fileHeight = width * this.heightRatio;
         const fileFrontWidthRatio = 0.8;
         const fileLabelHeightRatio = 0.4;
@@ -115,6 +121,7 @@ class PaperPile extends FallingObject {
     constructor() {
         super();
 
+        this.widthRatio = PaperPile.widthRatio;
         this.heightRatio = (Math.random() * 0.6 + 0.4) * 0.08;
 
         const markCount = Math.ceil(Math.random() * 5 + 3);
@@ -128,7 +135,7 @@ class PaperPile extends FallingObject {
         }
     }
     draw(ctx, width, height) {
-        const paperPileWidth = width * PaperPile.widthRatio;
+        const paperPileWidth = width * this.widthRatio;
         const paperPileHeight = width * this.heightRatio;
         const paperPileFrontWidthRatio = 0.6;
 
@@ -171,6 +178,7 @@ class MouseChasingWord {
     constructor(word, x, y) {
         this.word = word;
         this.point = { x: x, y: y };
+        this.stack = [];
     }
 
     move(movement, width, height) {
@@ -178,14 +186,51 @@ class MouseChasingWord {
         this.point.y = movement.mousePoint.y;
     }
 
+    stackObj(ctx, objDropper, width, height) {
+        const fontSize = height / 15;
+        ctx.font = fontSize + 'px Monoton';
+
+        const wordWidth = ctx.measureText(this.word).width;
+        const wordX = this.point.x;
+        const wordY = this.point.y;
+        const stackWidthRatio = 0.8;
+
+        objDropper.objects.forEach(obj => {
+            const objX = obj.posRatio.xRatio * width;
+            const objY = obj.posRatio.yRatio * height;
+            const objWidth = obj.widthRatio * width * obj.scale;
+            const objHeight = obj.heightRatio * width * obj.scale;
+
+            if (obj.bottomObj === null
+                && objX >= wordX - wordWidth * stackWidthRatio / 2 && objX <= wordX + wordWidth * stackWidthRatio / 2 &&
+                objY + objHeight / 2 >= wordY - fontSize / 2 && objY + objHeight / 2 <= wordY) {
+                obj.bottomObj = this;
+                obj.posRatio.xRatio = 0;
+                obj.posRatio.yRatio = 0;
+                this.stack.push({ obj: obj, dxRatio: (objX - wordX) / width, dyRatio: (objY - wordY) / height });
+            }
+        });
+
+
+    }
+
     draw(ctx, width, height) {
         const fontSize = height / 15;
-
+        ctx.save();
+        ctx.translate(this.point.x, this.point.y);
         ctx.font = fontSize + 'px Monoton';
         ctx.fillStyle = 'white';
         const textWidth = ctx.measureText(this.word).width;
 
-        ctx.fillText(this.word, this.point.x - textWidth / 2, this.point.y + fontSize / 2);
+        ctx.fillText(this.word, - textWidth / 2, fontSize / 2);
+
+        this.stack.forEach(element => {
+            ctx.save();
+            ctx.translate(element.dxRatio * width, element.dyRatio * height);
+            element.obj.draw(ctx, width, height);
+            ctx.restore();
+        });
+        ctx.restore();
     }
 }
 
@@ -216,7 +261,8 @@ class ObjectDropper {
 
     draw(ctx, width, height) {
         this.objects.forEach(obj => {
-            obj.draw(ctx, width, height);
+            if (obj.bottomObj === null)
+                obj.draw(ctx, width, height);
         });
     }
 }
@@ -228,9 +274,11 @@ function AnimationW(ctx, width, height, movement) {
     // 일이 하늘에서 천천히 떨어지고 마우스 위에 Workaholic 글자가 따라다니도록
     // 마우스가 움직임에 따라 글자 위에 쌓인 일들이 흔들리고, 일정 이상이 될 경우 다시 떨어지도록
     mouseChasingWord.move(movement, width, height);
-    mouseChasingWord.draw(ctx, width, height);
-
     objDropper.move(movement, width, height);
+
+    mouseChasingWord.stackObj(ctx, objDropper, width, height);
+
+    mouseChasingWord.draw(ctx, width, height);
     objDropper.draw(ctx, width, height);
 }
 
