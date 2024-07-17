@@ -66,9 +66,10 @@ function Content() {
     }, [ctx, animation, isDown, mousePoint, mouseButton]);
 
     function mouseDown({ nativeEvent }) {
-        const { button } = nativeEvent;
+        const { button, offsetX, offsetY } = nativeEvent;
         setIsDown(true);
         setMouseButton(button === 0 ? 'left' : 'right');
+        setMousePoint({ x: devicePixelRatio * offsetX, y: devicePixelRatio * offsetY });
     };
 
     function mouseUp() {

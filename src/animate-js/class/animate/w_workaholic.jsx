@@ -221,7 +221,6 @@ class MouseChasingWord {
         objDropper.objects.forEach(obj => {
             const objX = obj.posRatio.xRatio * width;
             const objY = obj.posRatio.yRatio * height;
-            const objWidth = obj.widthRatio * width * obj.scale;
             const objHeight = obj.heightRatio * width * obj.scale;
 
             if (obj.bottomObj === null
