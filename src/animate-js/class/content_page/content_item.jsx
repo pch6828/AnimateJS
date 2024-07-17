@@ -7,6 +7,7 @@ import AnimationH from "../animate/h_homebody";
 import AnimationJ from "../animate/j_judging";
 import AnimationK from "../animate/k_kidult";
 import AnimationP from "../animate/p_postgraduate";
+import AnimationT from "../animate/t_tracing";
 import AnimationV from "../animate/v_versatile";
 import AnimationW from "../animate/w_workaholic";
 
@@ -207,7 +208,24 @@ const items = new Map([
     ['Q', null],
     ['R', null],
     ['S', null],
-    ['T', null],
+    ['T', {
+        backgroundColor: '#261430',
+        toolTipColor: 'white',
+        toolTipTextColor: 'black',
+        animate: AnimationT,
+        title: 'Tracing',
+        text: ['모방을 많이 하는 편입니다.',
+            '처음 코딩을 배울 때도 잘하는 친구를 따라했고,',
+            '처음 연구실에 왔을 때도, 선배들의 PPT를 따라했었죠.',
+            '사실 이 프로젝트도 김종민 개발자님의 "fff"를',
+            '모티브로 해서 만들어졌어요.',
+            ' ',
+            '아직은 스스로 아이디어를 내는 건 어렵네요.',
+            '그래도 남들의 방식을 따라하면서,',
+            '한두가지 작은 아이디어를 덧붙이려고 해요.',
+            '언젠가는 저만의 아이디어가 나오지 않을까요?'],
+        toolTipText: []
+    }],
     ['U', null],
     ['V', {
         backgroundColor: '#D7D2CB',
