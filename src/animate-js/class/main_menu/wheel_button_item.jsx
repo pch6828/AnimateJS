@@ -107,7 +107,7 @@ const items = [
         key: 'T',
         title: 'Tracing',
         color: '#0762C8',
-        date: '2024-07-XX'
+        date: '2024-07-18'
     },
     {
         key: 'U',
