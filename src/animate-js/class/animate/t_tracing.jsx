@@ -97,11 +97,14 @@ class CopiedNeonLines {
     }
 }
 
-const copiedNeonLines = new CopiedNeonLines();
+var copiedNeonLines = null;
 
-function AnimationT(ctx, width, height, movement) {
+export function AnimationT(ctx, width, height, movement) {
     const centerx = width / 2;
     const fontSize = height / 10;
+
+    if (!copiedNeonLines)
+        copiedNeonLines = new CopiedNeonLines();
 
     copiedNeonLines.move(movement, width, height);
     copiedNeonLines.draw(ctx, width, height);
@@ -114,4 +117,6 @@ function AnimationT(ctx, width, height, movement) {
     ctx.fillText('Tracing - ' + copiedNeonLines.numCopy, centerx - textWidth / 2 - fontSize / 2, fontSize);
 }
 
-export default AnimationT;
+export function CleanT() {
+    copiedNeonLines = null;
+}

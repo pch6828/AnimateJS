@@ -353,9 +353,9 @@ class WineOpener extends Blade {
     }
 };
 
-const blades = [];
+var blades = [];
 
-function AnimationV(ctx, width, height, movement) {
+export function AnimationV(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const fontSize = height / 6;
@@ -417,4 +417,7 @@ function AnimationV(ctx, width, height, movement) {
 
 }
 
-export default AnimationV;
+export function CleanV() {
+    Blade.selected = null;
+    blades = [];
+}

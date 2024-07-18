@@ -45,13 +45,13 @@ class RevealingPath {
     }
 };
 
-const paths = [];
 const PATH_MAX_LIFE = 1000;
+var paths = [];
 var bgTextDict = null;
 var prevIsDown = false;
 var timestamp = 0;
 
-function AnimationD(ctx, width, height, movement) {
+export function AnimationD(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
 
@@ -128,4 +128,9 @@ function AnimationD(ctx, width, height, movement) {
     }
 }
 
-export default AnimationD;
+export function CleanD() {
+    paths = [];
+    bgTextDict = null;
+    prevIsDown = false;
+    timestamp = 0;
+}

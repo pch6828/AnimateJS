@@ -32,7 +32,7 @@ class BubbleSort {
 
 var sortbars = null;
 
-function AnimationA(ctx, width, height, movement) {
+export function AnimationA(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const strSize = Math.min(height, width) / 9;
@@ -90,7 +90,8 @@ function AnimationA(ctx, width, height, movement) {
     for (let i = 9 - sortbars.fixed; i < 9; i++) {
         ctx.fillRect(centerx - textwidth / 2 + textwidth / 9 * i, centery + strSize, textwidth / 9, -unitHeight * sortbars.arr[i]);
     }
-
 }
 
-export default AnimationA;
+export function CleanA() {
+    sortbars = null;
+}

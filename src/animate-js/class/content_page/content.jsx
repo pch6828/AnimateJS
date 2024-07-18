@@ -19,6 +19,12 @@ function Content() {
     const animation = items.get(id);
 
     useEffect(() => {
+        return () => {
+            animation.clean();
+        }
+    }, [animation]);
+
+    useEffect(() => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
         canvas.width = devicePixelRatio * window.innerWidth * 0.7;

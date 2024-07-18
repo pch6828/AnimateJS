@@ -238,7 +238,7 @@ const message = [
 
 var fortuneCookie = null;
 
-function AnimationF(ctx, width, height, movement) {
+export function AnimationF(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const cookieSize = width / 10;
@@ -274,4 +274,6 @@ function AnimationF(ctx, width, height, movement) {
         fortuneCookie = null;
 }
 
-export default AnimationF;
+export function CleanF() {
+    fortuneCookie = null;
+}

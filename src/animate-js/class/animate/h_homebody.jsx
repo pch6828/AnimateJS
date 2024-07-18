@@ -36,9 +36,9 @@ class HomingString {
     }
 }
 
-const movingLetters = [];
+var movingLetters = [];
 
-function AnimationH(ctx, width, height, movement) {
+export function AnimationH(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const fontSize = height / 7;
@@ -99,4 +99,6 @@ function AnimationH(ctx, width, height, movement) {
     }
 }
 
-export default AnimationH;
+export function CleanH() {
+    movingLetters = [];
+}

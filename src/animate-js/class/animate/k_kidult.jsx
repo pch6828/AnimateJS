@@ -345,8 +345,8 @@ class LegoBlock {
     }
 };
 
-const blocks = [];
-const basePlateStud = [];
+var blocks = [];
+var basePlateStud = [];
 
 function blockSetUp(basePlateStud, blocks) {
     var adultLength = 0;
@@ -399,7 +399,7 @@ function blockSetUp(basePlateStud, blocks) {
     }
 }
 
-function AnimationK(ctx, width, height, movement) {
+export function AnimationK(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const basePlateLength = 21; // max block length * # of letters
@@ -489,4 +489,7 @@ function AnimationK(ctx, width, height, movement) {
     }
 }
 
-export default AnimationK;
+export function CleanK() {
+    blocks = [];
+    basePlateStud = [];
+}

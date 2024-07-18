@@ -289,13 +289,18 @@ class ObjectDropper {
         });
     }
 }
-const mouseChasingWord = new MouseChasingWord('Workaholic');
-const objDropper = new ObjectDropper();
 
-function AnimationW(ctx, width, height, movement) {
+var mouseChasingWord = null;
+var objDropper = null;
 
-    // 일이 하늘에서 천천히 떨어지고 마우스 위에 Workaholic 글자가 따라다니도록
-    // 마우스가 움직임에 따라 글자가 기울어지고, 이에 맞춰서 쌓인 오브젝트가 이리 저리 흔들리다가 떨어지도록
+export function AnimationW(ctx, width, height, movement) {
+    if (!mouseChasingWord) {
+        mouseChasingWord = new MouseChasingWord('Workaholic');
+    }
+    if (!objDropper) {
+        objDropper = new ObjectDropper();
+    }
+
     mouseChasingWord.move(movement, width, height);
     objDropper.move(movement, width, height);
 
@@ -305,4 +310,7 @@ function AnimationW(ctx, width, height, movement) {
     objDropper.draw(ctx, width, height);
 }
 
-export default AnimationW;
+export function CleanW() {
+    mouseChasingWord = null;
+    objDropper = null;
+}

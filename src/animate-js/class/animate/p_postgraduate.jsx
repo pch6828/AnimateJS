@@ -126,7 +126,7 @@ class GraduationCap {
 
 var graudationCap = null;
 
-function AnimationP(ctx, width, height, movement) {
+export function AnimationP(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const fontSize = height / 6;
@@ -146,4 +146,6 @@ function AnimationP(ctx, width, height, movement) {
     graudationCap.draw(ctx, width, height);
 }
 
-export default AnimationP;
+export function CleanP() {
+    graudationCap = null;
+}

@@ -182,7 +182,7 @@ var drop = [];
 var now_drop = null;
 var noDown_cnt = 0;
 
-function AnimationC(ctx, width, height, movement) {
+export function AnimationC(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const coffeesize = height / 4;
@@ -275,4 +275,9 @@ function AnimationC(ctx, width, height, movement) {
     ctx.fillRect(0, centery + textwidth / 2, width, height);
 }
 
-export default AnimationC;
+export function CleanC() {
+    coffee = null;
+    drop = [];
+    now_drop = null;
+    noDown_cnt = 0;
+}

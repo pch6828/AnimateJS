@@ -270,7 +270,7 @@ class TrailLine {
 
 var seed = null;
 
-function AnimationJ(ctx, width, height, movement) {
+export function AnimationJ(ctx, width, height, movement) {
     const centerx = width / 2;
     const fontSize = height / 5;
 
@@ -295,4 +295,6 @@ function AnimationJ(ctx, width, height, movement) {
     seed.draw(ctx, width, height);
 }
 
-export default AnimationJ;
+export function CleanJ() {
+    seed = null;
+}

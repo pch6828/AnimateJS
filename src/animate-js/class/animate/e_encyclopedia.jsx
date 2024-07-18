@@ -281,7 +281,7 @@ class Book {
 
 var book = null;
 
-function AnimationE(ctx, width, height, movement) {
+export function AnimationE(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const fontSize = height / 8;
@@ -298,4 +298,6 @@ function AnimationE(ctx, width, height, movement) {
     ctx.fillText('Encyclopedia', centerx - textWidth / 2, centery + fontSize * 3);
 }
 
-export default AnimationE;
+export function CleanE() {
+    book = null;
+}

@@ -1,15 +1,15 @@
-import AnimationA from "../animate/a_algorithm";
-import AnimationC from "../animate/c_coffee";
-import AnimationD from "../animate/d_design_develop";
-import AnimationE from "../animate/e_encyclopedia";
-import AnimationF from "../animate/f_fortune";
-import AnimationH from "../animate/h_homebody";
-import AnimationJ from "../animate/j_judging";
-import AnimationK from "../animate/k_kidult";
-import AnimationP from "../animate/p_postgraduate";
-import AnimationT from "../animate/t_tracing";
-import AnimationV from "../animate/v_versatile";
-import AnimationW from "../animate/w_workaholic";
+import { AnimationA, CleanA } from "../animate/a_algorithm";
+import { AnimationC, CleanC } from "../animate/c_coffee";
+import { AnimationD, CleanD } from "../animate/d_design_develop";
+import { AnimationE, CleanE } from "../animate/e_encyclopedia";
+import { AnimationF, CleanF } from "../animate/f_fortune";
+import { AnimationH, CleanH } from "../animate/h_homebody";
+import { AnimationJ, CleanJ } from "../animate/j_judging";
+import { AnimationK, CleanK } from "../animate/k_kidult";
+import { AnimationP, CleanP } from "../animate/p_postgraduate";
+import { AnimationT, CleanT } from "../animate/t_tracing";
+import { AnimationV, CleanV } from "../animate/v_versatile";
+import { AnimationW, CleanW } from "../animate/w_workaholic";
 
 const items = new Map([
     ['A', {
@@ -17,6 +17,7 @@ const items = new Map([
         toolTipColor: 'black',
         toolTipTextColor: 'white',
         animate: AnimationA,
+        clean: CleanA,
         title: 'Algorithm',
         text: ['대학에서는 알고리즘 공부를 좀 했어요.',
             '나름 동아리 학술부장도 해보고,',
@@ -36,6 +37,7 @@ const items = new Map([
         toolTipColor: 'black',
         toolTipTextColor: 'white',
         animate: AnimationC,
+        clean: CleanC,
         title: 'Coffee',
         text: ['커피를 참 좋아합니다.',
             '믹스커피부터 드립커피까지 다양하게 좋아해요.',
@@ -55,6 +57,7 @@ const items = new Map([
         toolTipColor: 'white',
         toolTipTextColor: 'black',
         animate: AnimationD,
+        clean: CleanD,
         title: 'Design? Develop?',
         text: ['원래는 디자인과로 진학하려 했습니다.',
             '컴공에 오기로 결정한 건 고3이 되어서였어요.',
@@ -75,6 +78,7 @@ const items = new Map([
         toolTipColor: 'black',
         toolTipTextColor: 'white',
         animate: AnimationE,
+        clean: CleanE,
         title: 'Encyclopedia',
         text: ['잡학다식이라고 하나요?',
             '쓸데 없는 걸 좀 많이 아는 편입니다.',
@@ -90,13 +94,14 @@ const items = new Map([
         toolTipText: ['백과 사전을 여러번 클릭해보세요!',
             '말풍선이 나왔나요?',
             '이번에는 말풍선을 클릭해보세요!',
-            '말풍선이 몇 개까지 나올까요?']
+            '마치 제 잡지식처럼 계속 말풍선이 나오네요.']
     }],
     ['F', {
         backgroundColor: '#B34646',
         toolTipColor: 'white',
         toolTipTextColor: 'black',
         animate: AnimationF,
+        clean: CleanF,
         title: 'Fortune',
         text: ['\'운\'이 좋게 잘 풀린 일이 많습니다.',
             '수능 성적이 생각보다 잘 나와서 좋은 대학을 갔고,',
@@ -120,6 +125,7 @@ const items = new Map([
         toolTipColor: 'white',
         toolTipTextColor: 'black',
         animate: AnimationH,
+        clean: CleanH,
         title: 'Homebody',
         text: ['집돌이입니다.',
             '일주일동안 집에만 있던 적도 있어요.',
@@ -141,6 +147,7 @@ const items = new Map([
         toolTipColor: 'black',
         toolTipTextColor: 'white',
         animate: AnimationJ,
+        clean: CleanJ,
         title: 'mbti-J',
         text: ['흔히들 J에 대해 하는 말이 있죠.',
             '"J는 계획이 틀어지면 스트레스를 받는다."',
@@ -166,6 +173,7 @@ const items = new Map([
         toolTipColor: 'black',
         toolTipTextColor: 'white',
         animate: AnimationK,
+        clean: CleanK,
         title: 'Kidult',
         text: ['키덜트입니다.',
             '레고나 클레이 같은 취미에 관심이 많아요.',
@@ -193,6 +201,7 @@ const items = new Map([
         toolTipColor: 'black',
         toolTipTextColor: 'white',
         animate: AnimationP,
+        clean: CleanP,
         title: 'Postgraduate',
         text: ['대학원 졸업했습니다.',
             'KAIST에서 석사과정을 밟았어요.',
@@ -213,6 +222,7 @@ const items = new Map([
         toolTipColor: 'white',
         toolTipTextColor: 'black',
         animate: AnimationT,
+        clean: CleanT,
         title: 'Tracing',
         text: ['모방을 많이 하는 편입니다.',
             '처음 코딩을 배울 때도 잘하는 친구를 따라했고,',
@@ -234,6 +244,7 @@ const items = new Map([
         toolTipColor: 'black',
         toolTipTextColor: 'white',
         animate: AnimationV,
+        clean: CleanV,
         title: 'Versatile',
         text: ['제 입으로 말하긴 민망하지만,',
             '할 줄 아는 게 꽤 많습니다.',
@@ -255,6 +266,7 @@ const items = new Map([
         toolTipColor: 'white',
         toolTipTextColor: 'black',
         animate: AnimationW,
+        clean: CleanW,
         title: 'Workaholic',
         text: ['약간 워크홀릭 기질이 있어요.',
             '일이 생기면 가급적 당장 처리하려고 하고,',
