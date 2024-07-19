@@ -6,6 +6,7 @@ import { AnimationF, CleanF } from "../animate/f_fortune";
 import { AnimationH, CleanH } from "../animate/h_homebody";
 import { AnimationJ, CleanJ } from "../animate/j_judging";
 import { AnimationK, CleanK } from "../animate/k_kidult";
+import { AnimationM, CleanM } from "../animate/m_mentor";
 import { AnimationP, CleanP } from "../animate/p_postgraduate";
 import { AnimationT, CleanT } from "../animate/t_tracing";
 import { AnimationV, CleanV } from "../animate/v_versatile";
@@ -193,7 +194,16 @@ const items = new Map([
             '새로운 블록이 생길 겁니다.']
     }],
     ['L', null],
-    ['M', null],
+    ['M', {
+        backgroundColor: '#C3DC93',
+        toolTipColor: 'black',
+        toolTipTextColor: 'white',
+        animate: AnimationM,
+        clean: CleanM,
+        title: 'Mentor',
+        text: ['\'멘토\''],
+        toolTipText: []
+    }],
     ['N', null],
     ['O', null],
     ['P', {
