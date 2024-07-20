@@ -5,6 +5,22 @@
     width: 100vw;
 }
 
+.main-page.enter {
+    transform: translateX(0);
+}
+
+.main-page.enter-active {
+    transform: translateX(0);
+}
+
+.main-page.exit {
+    transform: translateX(0);
+}
+
+.main-page.exit-active {
+    transform: translateX(0);
+}
+
 .content-page.enter {
     .content-description {
         transform: translateX(100vw);

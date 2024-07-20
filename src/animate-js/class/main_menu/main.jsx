@@ -6,51 +6,65 @@ import '../../style/main.css'
 
 function Main({ deg, setDeg }) {
     const [pos, setPos] = useState(0);
+    const [isDrag, setIsDrag] = useState(false);
 
     function rotateWheelStart(e) {
-        e.dataTransfer.setDragImage(new Image(), 0, 0);
-        setPos(e.clientY);
+        console.log(e);
+        const { clientY } = e;
+        setPos(clientY);
+        setIsDrag(true);
     }
     function rotateWheel(e) {
-        if (e.clientX !== 0 && e.clientY !== 0) {
-            const delta = ((pos - e.clientY) % 360) / 3;
+        console.log(e)
+        const { clientY } = e;
+        if (isDrag) {
+            const delta = ((pos - clientY) % 360);
             setDeg((deg - delta) % 360);
-            setPos(e.clientY);
+            setPos(clientY);
         }
     }
     function rotateWheelEnd(e) {
+        console.log(e);
+        const { clientY } = e;
         const rounded_deg = Math.round(deg / (360 / 26)) * (360 / 26);
         setDeg(rounded_deg);
-        setPos(e.clientY);
+        setPos(clientY);
+        setIsDrag(false);
     }
+
     return (
-        <div className="wheel-menu"
+        <div className="main-page"
             draggable
-            onDragStart={rotateWheelStart}
-            onDrag={rotateWheel}
-            onDragEnd={rotateWheelEnd}
-            style={{ transform: 'rotate(' + deg + 'deg)' }}
+            onPointerDown={rotateWheelStart}
+            onPointerMove={rotateWheel}
+            onPointerUp={rotateWheelEnd}
+            onGotPointerCapture={() => { setIsDrag(true); }}
+            onLostPointerCapture={() => { setIsDrag(false); }}
         >
-            <div className="main-title"
-                style={{ transform: 'rotate(' + (-deg) + 'deg) translate(15vw, 0vw)' }}
+            <div className="wheel-menu"
+                style={{ transform: 'rotate(' + deg + 'deg)' }}
             >
-                26<br />
-                Animated<br />
-                TMI
+                <div className="main-title"
+                    style={{ transform: 'rotate(' + (-deg) + 'deg) translate(15vw, 0vw)' }}
+                >
+                    26<br />
+                    Animated<br />
+                    TMI
+                </div>
+                {items.map((item, i) => (
+                    <WheelSlot
+                        key={i}
+                        x={45 * Math.cos(2 * Math.PI / 26 * i)}
+                        y={45 * Math.sin(2 * Math.PI / 26 * i)}
+                        deg={-deg}
+                        alphabet={item.key}
+                        title={item.title}
+                        color={item.color}
+                        date={item.date}
+                        selected={(Math.round(-deg / (360 / 26)) + 26) % 26 === i}
+                    />
+                ))}
             </div>
-            {items.map((item, i) => (
-                <WheelSlot
-                    key={i}
-                    x={45 * Math.cos(2 * Math.PI / 26 * i)}
-                    y={45 * Math.sin(2 * Math.PI / 26 * i)}
-                    deg={-deg}
-                    alphabet={item.key}
-                    title={item.title}
-                    color={item.color}
-                    date={item.date}
-                    selected={(Math.round(-deg / (360 / 26)) + 26) % 26 === i}
-                />
-            ))}
         </div>
     );
 }

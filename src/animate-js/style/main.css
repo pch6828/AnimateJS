@@ -1,3 +1,14 @@
+.main-page {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+    z-index: 0;
+    touch-action: none;
+}
+
 .wheel-menu {
     position: absolute;
     width: 80vw;
