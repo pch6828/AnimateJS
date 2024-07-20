@@ -9,13 +9,11 @@ function Main({ deg, setDeg }) {
     const [isDrag, setIsDrag] = useState(false);
 
     function rotateWheelStart(e) {
-        console.log(e);
         const { clientY } = e;
         setPos(clientY);
         setIsDrag(true);
     }
     function rotateWheel(e) {
-        console.log(e)
         const { clientY } = e;
         if (isDrag) {
             const delta = ((pos - clientY) % 360);
@@ -24,7 +22,6 @@ function Main({ deg, setDeg }) {
         }
     }
     function rotateWheelEnd(e) {
-        console.log(e);
         const { clientY } = e;
         const rounded_deg = Math.round(deg / (360 / 26)) * (360 / 26);
         setDeg(rounded_deg);
@@ -34,7 +31,6 @@ function Main({ deg, setDeg }) {
 
     return (
         <div className="main-page"
-            draggable
             onPointerDown={rotateWheelStart}
             onPointerMove={rotateWheel}
             onPointerUp={rotateWheelEnd}
