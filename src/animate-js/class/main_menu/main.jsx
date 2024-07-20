@@ -33,6 +33,7 @@ function Main({ deg, setDeg }) {
         <div className="main-page"
             onPointerDown={rotateWheelStart}
             onPointerMove={rotateWheel}
+            onPointerLeave={rotateWheelEnd}
             onPointerUp={rotateWheelEnd}
             onGotPointerCapture={() => { setIsDrag(true); }}
             onLostPointerCapture={() => { setIsDrag(false); }}

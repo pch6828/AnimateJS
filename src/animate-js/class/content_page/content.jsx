@@ -116,10 +116,10 @@ function Content() {
             <div className='content-canvas-wrapper'>
                 <canvas className='content-canvas'
                     ref={canvasRef}
-                    onMouseDown={mouseDown}
-                    onMouseUp={mouseUp}
-                    onMouseLeave={mouseUp}
-                    onMouseMove={mouseMove}
+                    onPointerDown={mouseDown}
+                    onPointerUp={mouseUp}
+                    onPointerLeave={mouseUp}
+                    onPointerMove={mouseMove}
                     onContextMenu={(e) => { e.preventDefault(); }}
                 >
                 </canvas>
