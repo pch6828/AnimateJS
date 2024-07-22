@@ -1,6 +1,75 @@
+class ClimbingLetters {
+    static maxPillar = 5;
+    static pillarWidthRatio = 0.1;
+    static maxTimestamp = 100;
+    constructor(word) {
+        this.letters = [];
+        this.pillars = [];
+        this.startPoint = { xRatio: 0.05, yRatio: Math.random() * 0.2 + 0.3 };
+        this.endPoint = { xRatio: 1 - 0.05, yRatio: Math.random() * 0.2 + 0.6 };
+
+        for (const c of word) {
+            this.letters.push(c);
+        }
+        this.prevIsDown = false;
+    }
+
+    move(movement, width, height) {
+        if (!this.prevIsDown && movement.isDown) {
+            this.pillars.push({
+                xRatio: movement.mousePoint.x / width,
+                yRatio: 1 - movement.mousePoint.y / height,
+                timestamp: 0
+            });
+        }
+
+        for (let i = 0; i < this.pillars.length - ClimbingLetters.maxPillar; i++) {
+            const pillar = this.pillars[i];
+            pillar.timestamp--;
+        }
+
+        while (this.pillars.length > ClimbingLetters.maxPillar && this.pillars[0].timestamp <= 0) {
+            this.pillars.splice(0, 1);
+        }
+
+
+        for (let i = Math.max(0, this.pillars.length - ClimbingLetters.maxPillar); i < this.pillars.length; i++) {
+            const pillar = this.pillars[i];
+            pillar.timestamp++;
+            pillar.timestamp = Math.min(pillar.timestamp, ClimbingLetters.maxTimestamp);
+        }
+
+        this.prevIsDown = movement.isDown;
+    }
+
+    draw(ctx, width, height) {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = 'rgba(94,113,106,0.7)';
+
+        ctx.fillRect((this.startPoint.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height,
+            ClimbingLetters.pillarWidthRatio * width, -this.startPoint.yRatio * height);
+        ctx.fillRect((this.endPoint.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height,
+            ClimbingLetters.pillarWidthRatio * width, -this.endPoint.yRatio * height);
+
+        this.pillars.forEach((pillar) => {
+            ctx.fillRect((pillar.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height,
+                ClimbingLetters.pillarWidthRatio * width, -pillar.yRatio * height * pillar.timestamp / ClimbingLetters.maxTimestamp);
+        });
+    }
+}
+
+var climbingLetters = null;
+
 export function AnimationM(ctx, width, height, movement) {
     const centerx = width / 2;
     const fontSize = height / 10;
+
+    if (!climbingLetters) {
+        climbingLetters = new ClimbingLetters('MENTEE');
+    }
+
+    climbingLetters.move(movement, width, height);
+    climbingLetters.draw(ctx, width, height);
 
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = 'rgba(94,113,106,0.7)';
@@ -17,5 +86,5 @@ export function AnimationM(ctx, width, height, movement) {
 }
 
 export function CleanM() {
-
+    climbingLetters = null;
 }
