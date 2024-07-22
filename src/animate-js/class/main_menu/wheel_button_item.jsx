@@ -69,9 +69,9 @@ const items = [
     },
     {
         key: 'M',
-        title: 'Mentor',
+        title: '',//'Mentor',
         color: '#249E6B',
-        date: '2024-07-XX'
+        //date: '2024-07-XX'
     },
     {
         key: 'N',
