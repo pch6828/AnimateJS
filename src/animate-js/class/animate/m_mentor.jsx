@@ -3,6 +3,7 @@ class ClimbingLetters {
     static pillarWidthRatio = 0.15;
     static maxTimestamp = 100;
     static shadowStrength = 5;
+
     constructor(word) {
         this.letters = [];
         this.pillars = [];
@@ -10,36 +11,63 @@ class ClimbingLetters {
         this.endPoint = { xRatio: 1 - ClimbingLetters.pillarWidthRatio / 2, yRatio: Math.random() * 0.2 + 0.6, timestamp: ClimbingLetters.maxTimestamp };
 
         for (const c of word) {
-            this.letters.push(c);
+            this.letters.push({ letter: c, currentPoint: { xRatio: 0, yRatio: 0 }, nextPoint: { xRatio: 0, yRatio: 0 }, timestamp: 0 });
         }
         this.prevIsDown = false;
+        this.letterMoving = false;
+        this.transitioning = false;
     }
 
     move(movement, width, height) {
-        if (!this.prevIsDown && movement.isDown) {
-            this.pillars.push({
-                xRatio: movement.mousePoint.x / width,
-                yRatio: 1 - movement.mousePoint.y / height,
-                timestamp: 0
-            });
+        if (this.letterMoving) {
+
+        } else if (this.transitioning) {
+
+        } else {
+            if (!this.prevIsDown && movement.isDown) {
+                this.pillars.push({
+                    xRatio: movement.mousePoint.x / width,
+                    yRatio: 1 - movement.mousePoint.y / height,
+                    timestamp: 0
+                });
+            }
+
+            for (let i = 0; i < this.pillars.length - ClimbingLetters.maxPillar; i++) {
+                const pillar = this.pillars[i];
+                pillar.timestamp--;
+            }
+
+            while (this.pillars.length > ClimbingLetters.maxPillar && this.pillars[0].timestamp <= 0) {
+                this.pillars.splice(0, 1);
+            }
+
+
+            for (let i = Math.max(0, this.pillars.length - ClimbingLetters.maxPillar); i < this.pillars.length; i++) {
+                const pillar = this.pillars[i];
+                pillar.timestamp++;
+                pillar.timestamp = Math.min(pillar.timestamp, ClimbingLetters.maxTimestamp);
+            }
+
+            if (this.pillars.length === ClimbingLetters.maxPillar) {
+                const pillars = this.pillars.toSorted((a, b) => {
+                    return a.xRatio === b.xRatio ? 0 : (a.xRatio < b.xRatio ? -1 : 1);
+                });
+                var prevXRatio = this.startPoint.xRatio;
+                this.letterMoving = true;
+
+                pillars.forEach((pillar) => {
+                    console.log(pillar.xRatio - prevXRatio, ClimbingLetters.pillarWidthRatio);
+                    if (pillar.xRatio - prevXRatio > ClimbingLetters.pillarWidthRatio * 1.2 || pillar.timestamp < ClimbingLetters.maxTimestamp) {
+                        this.letterMoving = false;
+                    }
+                    prevXRatio = pillar.xRatio;
+                })
+
+                if (this.endPoint.xRatio - prevXRatio > ClimbingLetters.pillarWidthRatio * 1.2) {
+                    this.letterMoving = false;
+                }
+            }
         }
-
-        for (let i = 0; i < this.pillars.length - ClimbingLetters.maxPillar; i++) {
-            const pillar = this.pillars[i];
-            pillar.timestamp--;
-        }
-
-        while (this.pillars.length > ClimbingLetters.maxPillar && this.pillars[0].timestamp <= 0) {
-            this.pillars.splice(0, 1);
-        }
-
-
-        for (let i = Math.max(0, this.pillars.length - ClimbingLetters.maxPillar); i < this.pillars.length; i++) {
-            const pillar = this.pillars[i];
-            pillar.timestamp++;
-            pillar.timestamp = Math.min(pillar.timestamp, ClimbingLetters.maxTimestamp);
-        }
-
         this.prevIsDown = movement.isDown;
     }
 
@@ -66,7 +94,7 @@ class ClimbingLetters {
     draw(ctx, width, height) {
         const pillars = this.pillars.toSorted((a, b) => {
             return a.yRatio === b.yRatio ? 0 : (a.yRatio < b.yRatio ? 1 : -1);
-        })
+        });
 
         pillars.forEach((pillar) => {
             this.drawPillar(ctx, width, height, pillar);
