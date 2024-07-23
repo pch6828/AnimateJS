@@ -1,12 +1,12 @@
 class ClimbingLetters {
     static maxPillar = 5;
-    static pillarWidthRatio = 0.1;
+    static pillarWidthRatio = 0.15;
     static maxTimestamp = 100;
     constructor(word) {
         this.letters = [];
         this.pillars = [];
-        this.startPoint = { xRatio: 0.05, yRatio: Math.random() * 0.2 + 0.3 };
-        this.endPoint = { xRatio: 1 - 0.05, yRatio: Math.random() * 0.2 + 0.6 };
+        this.startPoint = { xRatio: ClimbingLetters.pillarWidthRatio / 2, yRatio: Math.random() * 0.2 + 0.3 };
+        this.endPoint = { xRatio: 1 - ClimbingLetters.pillarWidthRatio / 2, yRatio: Math.random() * 0.2 + 0.6 };
 
         for (const c of word) {
             this.letters.push(c);
@@ -44,16 +44,36 @@ class ClimbingLetters {
 
     draw(ctx, width, height) {
         ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = 'rgba(94,113,106,0.7)';
+        ctx.fillStyle = '#56944F';
+        ctx.strokeStyle = '#53665C';
+        ctx.lineWidth = height / 100;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
 
-        ctx.fillRect((this.startPoint.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height,
-            ClimbingLetters.pillarWidthRatio * width, -this.startPoint.yRatio * height);
-        ctx.fillRect((this.endPoint.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height,
-            ClimbingLetters.pillarWidthRatio * width, -this.endPoint.yRatio * height);
+        ctx.fillRect((this.startPoint.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height * 1.1,
+            ClimbingLetters.pillarWidthRatio * width, -(this.startPoint.yRatio + 0.1) * height);
+        ctx.beginPath();
+        ctx.rect((this.startPoint.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height * 1.1,
+            ClimbingLetters.pillarWidthRatio * width, -(this.startPoint.yRatio + 0.1) * height);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.fillRect((this.endPoint.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height * 1.1,
+            ClimbingLetters.pillarWidthRatio * width, -(this.endPoint.yRatio + 0.1) * height);
+        ctx.beginPath();
+        ctx.rect((this.endPoint.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height * 1.1,
+            ClimbingLetters.pillarWidthRatio * width, -(this.endPoint.yRatio + 0.1) * height);
+        ctx.closePath();
+        ctx.stroke();
 
         this.pillars.forEach((pillar) => {
-            ctx.fillRect((pillar.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height,
-                ClimbingLetters.pillarWidthRatio * width, -pillar.yRatio * height * pillar.timestamp / ClimbingLetters.maxTimestamp);
+            ctx.fillRect((pillar.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height * 1.1,
+                ClimbingLetters.pillarWidthRatio * width, -(pillar.yRatio + 0.1) * height * pillar.timestamp / ClimbingLetters.maxTimestamp);
+            ctx.beginPath();
+            ctx.rect((pillar.xRatio - ClimbingLetters.pillarWidthRatio / 2) * width, height * 1.1,
+                ClimbingLetters.pillarWidthRatio * width, -(pillar.yRatio + 0.1) * height * pillar.timestamp / ClimbingLetters.maxTimestamp);
+            ctx.closePath();
+            ctx.stroke();
         });
     }
 }
