@@ -7,11 +7,24 @@ class ClimbingLetters {
     constructor(word) {
         this.letters = [];
         this.pillars = [];
-        this.startPoint = { xRatio: ClimbingLetters.pillarWidthRatio / 2, yRatio: Math.random() * 0.2 + 0.3, timestamp: ClimbingLetters.maxTimestamp };
-        this.endPoint = { xRatio: 1 - ClimbingLetters.pillarWidthRatio / 2, yRatio: Math.random() * 0.2 + 0.6, timestamp: ClimbingLetters.maxTimestamp };
+        this.startPoint = {
+            xRatio: ClimbingLetters.pillarWidthRatio / 2,
+            yRatio: Math.random() * 0.2 + 0.3,
+            timestamp: ClimbingLetters.maxTimestamp
+        };
+        this.endPoint = {
+            xRatio: 1 - ClimbingLetters.pillarWidthRatio / 2,
+            yRatio: Math.random() * 0.2 + 0.6,
+            timestamp: ClimbingLetters.maxTimestamp
+        };
 
         for (const c of word) {
-            this.letters.push({ letter: c, currentPoint: { xRatio: 0, yRatio: 0 }, nextPoint: { xRatio: 0, yRatio: 0 }, timestamp: 0 });
+            this.letters.push({
+                value: c,
+                currentPoint: this.startPoint,
+                endPoint: this.endPoint,
+                timestamp: 0
+            });
         }
         this.prevIsDown = false;
         this.letterMoving = false;
@@ -24,7 +37,9 @@ class ClimbingLetters {
         } else if (this.transitioning) {
 
         } else {
-            if (!this.prevIsDown && movement.isDown) {
+            if (!this.prevIsDown && movement.isDown &&
+                movement.mousePoint.x / width > Math.min(this.startPoint.xRatio, this.endPoint.xRatio) + ClimbingLetters.pillarWidthRatio * 0.8 &&
+                movement.mousePoint.x / width < Math.max(this.startPoint.xRatio, this.endPoint.xRatio) - ClimbingLetters.pillarWidthRatio * 0.8) {
                 this.pillars.push({
                     xRatio: movement.mousePoint.x / width,
                     yRatio: 1 - movement.mousePoint.y / height,
@@ -57,13 +72,13 @@ class ClimbingLetters {
 
                 pillars.forEach((pillar) => {
                     console.log(pillar.xRatio - prevXRatio, ClimbingLetters.pillarWidthRatio);
-                    if (pillar.xRatio - prevXRatio > ClimbingLetters.pillarWidthRatio * 1.2 || pillar.timestamp < ClimbingLetters.maxTimestamp) {
+                    if (pillar.xRatio - prevXRatio > ClimbingLetters.pillarWidthRatio * 1.5 || pillar.timestamp < ClimbingLetters.maxTimestamp) {
                         this.letterMoving = false;
                     }
                     prevXRatio = pillar.xRatio;
                 })
 
-                if (this.endPoint.xRatio - prevXRatio > ClimbingLetters.pillarWidthRatio * 1.2) {
+                if (this.endPoint.xRatio - prevXRatio > ClimbingLetters.pillarWidthRatio * 1.5) {
                     this.letterMoving = false;
                 }
             }
@@ -102,6 +117,10 @@ class ClimbingLetters {
 
         this.drawPillar(ctx, width, height, this.startPoint);
         this.drawPillar(ctx, width, height, this.endPoint);
+
+        this.letters.forEach((letter) => {
+
+        });
     }
 }
 
