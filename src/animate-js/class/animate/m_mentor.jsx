@@ -22,7 +22,7 @@ class ClimbingLetters {
             this.letters.push({
                 value: c,
                 currentPoint: this.startPoint,
-                endPoint: this.endPoint,
+                nextPoint: null,
                 timestamp: 0
             });
         }
@@ -33,7 +33,33 @@ class ClimbingLetters {
 
     move(movement, width, height) {
         if (this.letterMoving) {
+            let cnt = 0;
+            const pillars = this.pillars.toSorted((a, b) => {
+                return (a.xRatio === b.xRatio ? 0 : (a.xRatio < b.xRatio ? -1 : 1)) * (this.startPoint.xRatio < this.endPoint.xRatio ? 1 : -1);
+            });
 
+            for (const letter of this.letters) {
+                letter.timestamp = Math.min(ClimbingLetters.maxTimestamp, letter.timestamp + 1);
+                if (!letter.nextPoint && letter.currentPoint !== this.endPoint) {
+                    letter.nextPoint = pillars[0];
+                } else if (letter.timestamp === ClimbingLetters.maxTimestamp) {
+                    if (letter.nextPoint) {
+                        letter.currentPoint = letter.nextPoint;
+                        if (letter.nextPoint === this.endPoint) {
+                            cnt++;
+                            letter.nextPoint = null;
+                        } else {
+                            const idx = pillars.findIndex((pillar) => { return pillar === letter.nextPoint });
+                            letter.nextPoint = idx === pillars.length - 1 ? this.endPoint : pillars[idx + 1];
+                            letter.timestamp = 0;
+                        }
+                    }
+                }
+            }
+            if (cnt === this.letters.length) {
+                this.letterMoving = false;
+                this.transitioning = true;
+            }
         } else if (this.transitioning) {
 
         } else {
@@ -56,7 +82,6 @@ class ClimbingLetters {
                 this.pillars.splice(0, 1);
             }
 
-
             for (let i = Math.max(0, this.pillars.length - ClimbingLetters.maxPillar); i < this.pillars.length; i++) {
                 const pillar = this.pillars[i];
                 pillar.timestamp++;
@@ -65,13 +90,12 @@ class ClimbingLetters {
 
             if (this.pillars.length === ClimbingLetters.maxPillar) {
                 const pillars = this.pillars.toSorted((a, b) => {
-                    return a.xRatio === b.xRatio ? 0 : (a.xRatio < b.xRatio ? -1 : 1);
+                    return (a.xRatio === b.xRatio ? 0 : (a.xRatio < b.xRatio ? -1 : 1)) * (this.startPoint.xRatio < this.endPoint.xRatio ? 1 : -1);
                 });
                 var prevXRatio = this.startPoint.xRatio;
                 this.letterMoving = true;
 
                 pillars.forEach((pillar) => {
-                    console.log(pillar.xRatio - prevXRatio, ClimbingLetters.pillarWidthRatio);
                     if (pillar.xRatio - prevXRatio > ClimbingLetters.pillarWidthRatio * 1.5 || pillar.timestamp < ClimbingLetters.maxTimestamp) {
                         this.letterMoving = false;
                     }
@@ -80,6 +104,12 @@ class ClimbingLetters {
 
                 if (this.endPoint.xRatio - prevXRatio > ClimbingLetters.pillarWidthRatio * 1.5) {
                     this.letterMoving = false;
+                }
+                if (this.letterMoving) {
+                    for (let i = 0; i < this.letters.length; i++) {
+                        const letter = this.letters[i];
+                        letter.timestamp = -10 * (this.startPoint.xRatio < this.endPoint.xRatio ? this.letters.length - i - 1 : i);
+                    }
                 }
             }
         }
@@ -106,6 +136,30 @@ class ClimbingLetters {
         ctx.restore();
     }
 
+    drawLetter(ctx, width, height, letter, idx) {
+        const fontSize = width / 30;
+
+        ctx.save();
+        ctx.fillStyle = '#314f40';
+        ctx.font = 'bold ' + fontSize + 'px Major Mono Display';
+        const letterWidth = ctx.measureText(letter.value).width;
+        const currentPointX = letter.currentPoint.xRatio * width -
+            (letter.currentPoint === this.startPoint || letter.currentPoint === this.endPoint ? letterWidth * (this.letters.length / 2 - idx) : 0);
+        const currentPointY = (1 - letter.currentPoint.yRatio) * height;
+
+        const nextPointX = letter.nextPoint ?
+            letter.nextPoint.xRatio * width - (letter.nextPoint === this.startPoint || letter.nextPoint === this.endPoint ? letterWidth * (this.letters.length / 2 - idx) : 0)
+            : currentPointX;
+        const nextPointY = letter.nextPoint ?
+            (1 - letter.nextPoint.yRatio) * height
+            : currentPointY;
+        const timestampRatio = Math.max(letter.timestamp, 0) / ClimbingLetters.maxTimestamp;
+
+        ctx.fillText(letter.value, currentPointX + (nextPointX - currentPointX) * timestampRatio, currentPointY + (nextPointY - currentPointY) * timestampRatio);
+
+        ctx.restore();
+    }
+
     draw(ctx, width, height) {
         const pillars = this.pillars.toSorted((a, b) => {
             return a.yRatio === b.yRatio ? 0 : (a.yRatio < b.yRatio ? 1 : -1);
@@ -118,9 +172,10 @@ class ClimbingLetters {
         this.drawPillar(ctx, width, height, this.startPoint);
         this.drawPillar(ctx, width, height, this.endPoint);
 
-        this.letters.forEach((letter) => {
-
-        });
+        for (let i = 0; i < this.letters.length; i++) {
+            const letter = this.letters[i];
+            this.drawLetter(ctx, width, height, letter, i);
+        }
     }
 }
 
