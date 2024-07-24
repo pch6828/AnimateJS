@@ -108,7 +108,7 @@ class ClimbingLetters {
                 if (this.letterMoving) {
                     for (let i = 0; i < this.letters.length; i++) {
                         const letter = this.letters[i];
-                        letter.timestamp = -10 * (this.startPoint.xRatio < this.endPoint.xRatio ? this.letters.length - i - 1 : i);
+                        letter.timestamp = -20 * (this.startPoint.xRatio < this.endPoint.xRatio ? this.letters.length - i - 1 : i);
                     }
                 }
             }
@@ -154,8 +154,13 @@ class ClimbingLetters {
             (1 - letter.nextPoint.yRatio) * height
             : currentPointY;
         const timestampRatio = Math.max(letter.timestamp, 0) / ClimbingLetters.maxTimestamp;
+        const xDistance = letter.nextPoint ? (letter.nextPoint.xRatio - letter.currentPoint.xRatio) * width : 0;
+        const yDistance = Math.abs(nextPointY - currentPointY);
+        const curveY = ((xDistance * (timestampRatio - 0.5)) * (xDistance * (timestampRatio - 0.5)) - (xDistance / 2) * (xDistance / 2)) * Math.max(Math.min(yDistance * 0.00005, 0.02), 0.01);
 
-        ctx.fillText(letter.value, currentPointX + (nextPointX - currentPointX) * timestampRatio, currentPointY + (nextPointY - currentPointY) * timestampRatio);
+        ctx.fillText(letter.value,
+            currentPointX + (nextPointX - currentPointX) * timestampRatio,
+            currentPointY + (nextPointY - currentPointY) * timestampRatio + curveY);
 
         ctx.restore();
     }
