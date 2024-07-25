@@ -29,6 +29,7 @@ class ClimbingLetters {
         this.prevIsDown = false;
         this.letterMoving = false;
         this.transitioning = false;
+        this.transitionTimestamp = 0;
     }
 
     move(movement, width, height) {
@@ -46,7 +47,6 @@ class ClimbingLetters {
                     if (letter.nextPoint) {
                         letter.currentPoint = letter.nextPoint;
                         if (letter.nextPoint === this.endPoint) {
-                            cnt++;
                             letter.nextPoint = null;
                         } else {
                             const idx = pillars.findIndex((pillar) => { return pillar === letter.nextPoint });
@@ -55,13 +55,22 @@ class ClimbingLetters {
                         }
                     }
                 }
+                if (letter.nextPoint === null && letter.currentPoint === this.endPoint) {
+                    cnt++;
+                }
             }
             if (cnt === this.letters.length) {
                 this.letterMoving = false;
                 this.transitioning = true;
+                this.transitionTimestamp = 0;
             }
         } else if (this.transitioning) {
-
+            this.transitionTimestamp = Math.min(ClimbingLetters.maxTimestamp, this.transitionTimestamp);
+            this.pillars.forEach((pillar) => {
+                pillar.timestamp = Math.max(pillar.timestamp - 1, 0);
+            });
+            this.endPoint.yRatio -= 0.3 / ClimbingLetters.maxTimestamp;
+            // this.endPoint.yRatio;
         } else {
             if (!this.prevIsDown && movement.isDown &&
                 movement.mousePoint.x / width > Math.min(this.startPoint.xRatio, this.endPoint.xRatio) + ClimbingLetters.pillarWidthRatio * 0.8 &&
@@ -156,7 +165,7 @@ class ClimbingLetters {
         const timestampRatio = Math.max(letter.timestamp, 0) / ClimbingLetters.maxTimestamp;
         const xDistance = letter.nextPoint ? (letter.nextPoint.xRatio - letter.currentPoint.xRatio) * width : 0;
         const yDistance = Math.abs(nextPointY - currentPointY);
-        const curveY = ((xDistance * (timestampRatio - 0.5)) * (xDistance * (timestampRatio - 0.5)) - (xDistance / 2) * (xDistance / 2)) * Math.max(Math.min(yDistance * 0.00005, 0.02), 0.01);
+        const curveY = ((xDistance * (timestampRatio - 0.5)) * (xDistance * (timestampRatio - 0.5)) - (xDistance / 2) * (xDistance / 2)) * Math.max(Math.min(yDistance * 0.00003, 0.015), 0.01);
 
         ctx.fillText(letter.value,
             currentPointX + (nextPointX - currentPointX) * timestampRatio,
