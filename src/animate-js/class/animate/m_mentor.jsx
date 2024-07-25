@@ -29,7 +29,8 @@ class ClimbingLetters {
         this.prevIsDown = false;
         this.letterMoving = false;
         this.transitioning = false;
-        this.transitionTimestamp = 0;
+        this.transitionTimestamp1 = 0;
+        this.transitionTimestamp2 = 0;
     }
 
     move(movement, width, height) {
@@ -62,15 +63,39 @@ class ClimbingLetters {
             if (cnt === this.letters.length) {
                 this.letterMoving = false;
                 this.transitioning = true;
-                this.transitionTimestamp = 0;
+                this.transitionTimestamp1 = 0;
+                this.transitionTimestamp2 = 0;
             }
         } else if (this.transitioning) {
-            if (this.transitionTimestamp < ClimbingLetters.maxTimestamp) {
-                this.transitionTimestamp = Math.min(ClimbingLetters.maxTimestamp, this.transitionTimestamp + 1);
+            if (this.transitionTimestamp1 < ClimbingLetters.maxTimestamp) {
+                this.transitionTimestamp1 = Math.min(ClimbingLetters.maxTimestamp, this.transitionTimestamp1 + 1);
                 this.pillars.forEach((pillar) => {
                     pillar.timestamp = Math.max(pillar.timestamp - 1, 0);
                 });
+                this.startPoint.timestamp = Math.max(this.startPoint.timestamp - 1, 0);
                 this.endPoint.yRatio -= 0.3 / ClimbingLetters.maxTimestamp;
+
+                if (this.startPoint.timestamp === 0) {
+                    this.startPoint = this.endPoint;
+                    this.endPoint = {
+                        xRatio: this.startPoint.xRatio > 0.5
+                            ? ClimbingLetters.pillarWidthRatio / 2
+                            : 1 - ClimbingLetters.pillarWidthRatio / 2,
+                        yRatio: Math.random() * 0.2 + 0.6,
+                        timestamp: 0
+                    };;
+                }
+                while (this.pillars.length > 0 && this.pillars[0].timestamp === 0) {
+                    this.pillars.splice(0, 1);
+                }
+            } else if (this.transitionTimestamp2 < ClimbingLetters.maxTimestamp) {
+                this.transitionTimestamp2 = Math.min(ClimbingLetters.maxTimestamp, this.transitionTimestamp2 + 1);
+
+
+
+                this.endPoint.timestamp = Math.min(ClimbingLetters.maxTimestamp, this.endPoint.timestamp + 1);
+            } else {
+                this.transitioning = false;
             }
 
         } else {
