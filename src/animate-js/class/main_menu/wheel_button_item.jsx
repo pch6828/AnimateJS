@@ -36,7 +36,7 @@ const items = [
     },
     {
         key: 'G',
-        title: '', //'Geek',
+        title: '',
         color: '#F4AF23'
     },
     {
@@ -134,7 +134,7 @@ const items = [
     },
     {
         key: 'Y',
-        title: '',
+        title: '',// 'YOLO',
         color: '#87189D'
     },
     {

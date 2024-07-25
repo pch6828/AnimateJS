@@ -191,8 +191,8 @@ class ClimbingLetters {
             : currentPointY;
         const timestampRatio = Math.max(letter.timestamp, 0) / ClimbingLetters.maxTimestamp;
         const xDistance = letter.nextPoint ? (letter.nextPoint.xRatio - letter.currentPoint.xRatio) * width : 0;
-        const yDistance = Math.abs(nextPointY - currentPointY);
-        const curveY = ((xDistance * (timestampRatio - 0.5)) * (xDistance * (timestampRatio - 0.5)) - (xDistance / 2) * (xDistance / 2)) * Math.min((yDistance * yDistance) * 0.000001, 0.01);
+        const yDistance = Math.max(Math.abs(nextPointY - currentPointY) / 50, height / 50);
+        const curveY = ((xDistance * (timestampRatio - 0.5)) * (xDistance * (timestampRatio - 0.5)) - (xDistance / 2) * (xDistance / 2)) * (yDistance * yDistance) * 0.00001;
 
         ctx.fillText(letter.value,
             currentPointX + (nextPointX - currentPointX) * timestampRatio,
