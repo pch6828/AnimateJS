@@ -8,6 +8,7 @@ import { AnimationJ, CleanJ } from "../animate/j_judging";
 import { AnimationK, CleanK } from "../animate/k_kidult";
 import { AnimationM, CleanM } from "../animate/m_mentor";
 import { AnimationP, CleanP } from "../animate/p_postgraduate";
+import { AnimationR, CleanR } from "../animate/r_rambler";
 import { AnimationT, CleanT } from "../animate/t_tracing";
 import { AnimationV, CleanV } from "../animate/v_versatile";
 import { AnimationW, CleanW } from "../animate/w_workaholic";
@@ -236,7 +237,16 @@ const items = new Map([
         toolTipText: ['졸업식을 떠올리며, 학사모를 잡고 던져보세요!']
     }],
     ['Q', null],
-    ['R', null],
+    ['R', {
+        backgroundColor: '#B6CADA',
+        toolTipColor: 'black',
+        toolTipTextColor: 'white',
+        animate: AnimationR,
+        clean: CleanR,
+        title: 'Rambler',
+        text: [],
+        toolTipText: []
+    }],
     ['S', null],
     ['T', {
         backgroundColor: '#261430',

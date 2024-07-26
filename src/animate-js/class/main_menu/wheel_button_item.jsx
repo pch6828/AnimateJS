@@ -36,7 +36,7 @@ const items = [
     },
     {
         key: 'G',
-        title: '',
+        title: '',//'Geek',
         color: '#F4AF23'
     },
     {
@@ -96,8 +96,9 @@ const items = [
     },
     {
         key: 'R',
-        title: '',
-        color: '#0092CB'
+        title: 'Rambler',
+        color: '#0092CB',
+        date: '2024-07-XX'
     },
     {
         key: 'S',
