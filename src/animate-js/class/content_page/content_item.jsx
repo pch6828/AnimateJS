@@ -238,9 +238,9 @@ const items = new Map([
     }],
     ['Q', null],
     ['R', {
-        backgroundColor: '#B6CADA',
-        toolTipColor: 'black',
-        toolTipTextColor: 'white',
+        backgroundColor: '#004953',
+        toolTipColor: 'white',
+        toolTipTextColor: 'black',
         animate: AnimationR,
         clean: CleanR,
         title: 'Rambler',
