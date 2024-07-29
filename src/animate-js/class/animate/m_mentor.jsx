@@ -90,9 +90,6 @@ class ClimbingLetters {
                 }
             } else if (this.transitionTimestamp2 < ClimbingLetters.maxTimestamp) {
                 this.transitionTimestamp2 = Math.min(ClimbingLetters.maxTimestamp, this.transitionTimestamp2 + 1);
-
-
-
                 this.endPoint.timestamp = Math.min(ClimbingLetters.maxTimestamp, this.endPoint.timestamp + 1);
             } else {
                 this.transitioning = false;
