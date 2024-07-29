@@ -1,5 +1,8 @@
-class WalkingLetter {
+import { get_random } from './util';
+
+class WalkingThing {
     static maxAngle = 20;
+    static colors = ['#F5F6EB', '#F7E0E3', '#C6E1F2', '#E1EFCA', '#E5D0E3']
     constructor() {
         this.headSizeRatio = 0.08;
         this.upperLegLengthRatio = 0.15;
@@ -18,6 +21,8 @@ class WalkingLetter {
         };
         this.prevIsDown = false;
         this.selectedPos = null;
+
+        this.color = get_random(WalkingThing.colors);
     }
 
     move(movement, width, height, ctx) {
@@ -43,7 +48,7 @@ class WalkingLetter {
         this.leftLeg.hipAngle += this.dAngle * (this.selectedPos ? 3 : 1);
         this.rightLeg.hipAngle = -this.leftLeg.hipAngle;
 
-        if (Math.abs(this.leftLeg.hipAngle) >= WalkingLetter.maxAngle) {
+        if (Math.abs(this.leftLeg.hipAngle) >= WalkingThing.maxAngle) {
             this.dAngle = -this.dAngle;
         }
 
@@ -99,8 +104,8 @@ class WalkingLetter {
         ctx.save();
         ctx.translate(this.pos.xRatio * width, this.pos.yRatio * height);
         ctx.scale(this.direction * this.scale, this.scale);
-        ctx.fillStyle = '#F5F6EB';
-        ctx.strokeStyle = '#F5F6EB';
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = this.color;
         ctx.lineWidth = height * 0.02;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -148,7 +153,7 @@ class Walkers {
     move(movement, width, height, ctx) {
         this.nextSpawn--;
         if (this.nextSpawn < 0 && this.crowd.length < Walkers.maxWalker) {
-            this.crowd.push(new WalkingLetter());
+            this.crowd.push(new WalkingThing());
             this.crowd.sort((a, b) => {
                 return a.pos.yRatio === b.pos.yRatio ? 0 : (a.pos.yRatio > b.pos.yRatio ? 1 : -1);
             })
