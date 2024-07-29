@@ -16,10 +16,31 @@ class WalkingLetter {
             xRatio: this.direction === 1 ? -0.1 : 1.1,
             yRatio: Math.random() * 0.6 + 0.2
         };
+        this.prevIsDown = false;
+        this.selectedPos = null;
     }
 
-    move(movement, width, height) {
-        this.leftLeg.hipAngle += this.dAngle;
+    move(movement, width, height, ctx) {
+        const area = new Path2D();
+        area.arc(this.pos.xRatio * width, this.pos.yRatio * height,
+            this.headSizeRatio * height * this.scale, 0, 2 * Math.PI);
+        area.closePath();
+
+        if (movement.isDown) {
+            if (!this.prevIsDown &&
+                ctx.isPointInPath(area, movement.mousePoint.x, movement.mousePoint.y)) {
+                this.selectedPos = { x: movement.mousePoint.x, y: movement.mousePoint.y };
+            } else if (this.selectedPos) {
+                const dx = movement.mousePoint.x - this.selectedPos.x;
+                const dy = movement.mousePoint.y - this.selectedPos.y;
+                this.pos.xRatio += dx / width;
+                this.pos.yRatio += dy / height;
+                this.selectedPos = { x: movement.mousePoint.x, y: movement.mousePoint.y };
+            }
+        } else {
+            this.selectedPos = null;
+        }
+        this.leftLeg.hipAngle += this.dAngle * (this.selectedPos ? 3 : 1);
         this.rightLeg.hipAngle = -this.leftLeg.hipAngle;
 
         if (Math.abs(this.leftLeg.hipAngle) >= WalkingLetter.maxAngle) {
@@ -32,7 +53,10 @@ class WalkingLetter {
         this.leftLeg.ankleAngle = -(this.leftLeg.hipAngle + this.leftLeg.kneeAngle) * 0.3;
         this.rightLeg.ankleAngle = -(this.rightLeg.hipAngle + this.rightLeg.kneeAngle) * 0.3;
 
-        this.pos.xRatio += this.direction * this.dxRatio;
+        if (!this.selectedPos) {
+            this.pos.xRatio += this.direction * this.dxRatio;
+        }
+        this.prevIsDown = movement.isDown;
     }
 
     drawLeg(ctx, width, height, leg, shadow) {
@@ -121,7 +145,7 @@ class Walkers {
         this.nextSpawn = 0;
     }
 
-    move(movement, width, height) {
+    move(movement, width, height, ctx) {
         this.nextSpawn--;
         if (this.nextSpawn < 0 && this.crowd.length < Walkers.maxWalker) {
             this.crowd.push(new WalkingLetter());
@@ -132,7 +156,7 @@ class Walkers {
         }
 
         this.crowd.forEach((walker) => {
-            walker.move(movement, width, height);
+            walker.move(movement, width, height, ctx);
         });
 
         console.log(this.crowd);
@@ -162,7 +186,7 @@ export function AnimationR(ctx, width, height, movement) {
         walkers = new Walkers();
     }
 
-    walkers.move(movement, width, height);
+    walkers.move(movement, width, height, ctx);
     walkers.draw(ctx, width, height);
 }
 
