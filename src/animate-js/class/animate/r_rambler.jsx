@@ -93,6 +93,22 @@ class WalkingLetter {
         ctx.closePath();
         ctx.fill();
 
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'black';
+
+        ctx.lineWidth = height * 0.01;
+        ctx.beginPath();
+        ctx.moveTo(this.headSizeRatio * height / 5, 0);
+        ctx.lineTo(this.headSizeRatio * height / 5, this.headSizeRatio * height / 5);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(this.headSizeRatio * height / 2, 0);
+        ctx.lineTo(this.headSizeRatio * height / 2, this.headSizeRatio * height / 5);
+        ctx.closePath();
+        ctx.stroke();
+
         ctx.restore();
     }
 }
