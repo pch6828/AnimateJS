@@ -98,7 +98,7 @@ const items = [
         key: 'R',
         title: 'Rambler',
         color: '#0092CB',
-        date: '2024-07-XX'
+        date: '2024-07-30'
     },
     {
         key: 'S',

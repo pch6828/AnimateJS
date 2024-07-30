@@ -2,7 +2,8 @@ import { get_random } from './util';
 
 class WalkingThing {
     static maxAngle = 20;
-    static colors = ['#F5F6EB', '#F7E0E3', '#C6E1F2', '#E1EFCA', '#E5D0E3']
+    static colors = ['#F5F6EB', '#F7E0E3', '#C6E1F2', '#E1EFCA', '#E5D0E3'];
+
     constructor() {
         this.headSizeRatio = 0.08;
         this.upperLegLengthRatio = 0.15;
@@ -23,6 +24,7 @@ class WalkingThing {
         this.selectedPos = null;
 
         this.color = get_random(WalkingThing.colors);
+        this.hasBalloon = Math.random() > 0.5;
     }
 
     move(movement, width, height, ctx) {
@@ -117,10 +119,54 @@ class WalkingThing {
 
         ctx.shadowBlur = 20;
         ctx.shadowColor = "black";
+
         ctx.beginPath();
         ctx.arc(0, 0, this.headSizeRatio * height, 0, 2 * Math.PI);
         ctx.closePath();
         ctx.fill();
+
+        if (this.hasBalloon) {
+            const balloonWidth = this.headSizeRatio * height * 1.8;
+            const balloonHeight = this.headSizeRatio * height;
+
+            ctx.fillStyle = 'white';
+
+            ctx.beginPath();
+            ctx.roundRect(-balloonWidth * 0.8, -balloonHeight * 2.2, balloonWidth, balloonHeight, balloonHeight / 4);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(balloonWidth * 0.2 - balloonHeight / 4, -balloonHeight * 1.2 - 1);
+            ctx.lineTo(balloonWidth * 0.2 - balloonHeight / 4, -balloonHeight * 1.05);
+            ctx.lineTo(-balloonWidth * 0.2, -balloonHeight * 1.2 - 1)
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+
+            ctx.beginPath();
+            ctx.roundRect(-balloonWidth * 0.8, -balloonHeight * 2.2, balloonWidth, balloonHeight, balloonHeight / 4);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(balloonWidth * 0.2 - balloonHeight / 4, -balloonHeight * 1.2 - 1);
+            ctx.lineTo(balloonWidth * 0.2 - balloonHeight / 4, -balloonHeight * 1.05);
+            ctx.lineTo(-balloonWidth * 0.2, -balloonHeight * 1.2 - 1)
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.save();
+            ctx.translate(-balloonWidth * 0.3, -balloonHeight * 1.5);
+            ctx.scale(this.direction, 1);
+            const fontSize = height / 40;
+            ctx.font = fontSize + 'px VT323';
+            const textWidth = ctx.measureText('Rambling...').width;
+            ctx.fillStyle = 'black';
+            ctx.fillText('Rambling...', -textWidth / 2, -fontSize / 5);
+            ctx.restore();
+        }
 
         ctx.shadowBlur = 0;
         ctx.strokeStyle = 'black';
@@ -144,7 +190,7 @@ class WalkingThing {
 
 class Walkers {
     static maxTimestamp = 300;
-    static maxWalker = 10;
+    static maxWalker = 8;
     constructor() {
         this.crowd = [];
         this.nextSpawn = 0;
@@ -155,7 +201,9 @@ class Walkers {
         if (this.nextSpawn < 0 && this.crowd.length < Walkers.maxWalker) {
             this.crowd.push(new WalkingThing());
             this.crowd.sort((a, b) => {
-                return a.pos.yRatio === b.pos.yRatio ? 0 : (a.pos.yRatio > b.pos.yRatio ? 1 : -1);
+                const aBottomYRatio = a.pos.yRatio + (a.upperLegLengthRatio + a.lowerLegLengthRatio) * a.scale;
+                const bBottomYRatio = b.pos.yRatio + (b.upperLegLengthRatio + b.lowerLegLengthRatio) * b.scale;
+                return aBottomYRatio === bBottomYRatio ? 0 : (aBottomYRatio > bBottomYRatio ? 1 : -1);
             })
             this.nextSpawn = Math.random() * Walkers.maxTimestamp;
         }
