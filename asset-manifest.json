@@ -1,15 +1,17 @@
 {
   "files": {
-    "main.css": "/AnimateJS/static/css/main.cbede43c.css",
-    "main.js": "/AnimateJS/static/js/main.2005adce.js",
+    "main.css": "/AnimateJS/static/css/main.79ddda1c.css",
+    "main.js": "/AnimateJS/static/js/main.79a7916a.js",
     "static/js/453.9a92a2e9.chunk.js": "/AnimateJS/static/js/453.9a92a2e9.chunk.js",
+    "static/media/laptop_icon.svg": "/AnimateJS/static/media/laptop_icon.2c277af9ed7c8363f933f964960db7c2.svg",
+    "static/media/mobile_icon.svg": "/AnimateJS/static/media/mobile_icon.aab74238797fb1e1b60eeeee6207758d.svg",
     "index.html": "/AnimateJS/index.html",
-    "main.cbede43c.css.map": "/AnimateJS/static/css/main.cbede43c.css.map",
-    "main.2005adce.js.map": "/AnimateJS/static/js/main.2005adce.js.map",
+    "main.79ddda1c.css.map": "/AnimateJS/static/css/main.79ddda1c.css.map",
+    "main.79a7916a.js.map": "/AnimateJS/static/js/main.79a7916a.js.map",
     "453.9a92a2e9.chunk.js.map": "/AnimateJS/static/js/453.9a92a2e9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.cbede43c.css",
-    "static/js/main.2005adce.js"
+    "static/css/main.79ddda1c.css",
+    "static/js/main.79a7916a.js"
   ]
 }
