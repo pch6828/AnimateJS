@@ -10,7 +10,6 @@ class WordBalloon {
         this.dt = 1;
         this.prevIsDown = false;
         this.word = word;
-        console.log(word);
     }
     move(movement, x, y, balloonWidth, balloonHeight, ctx) {
         this.timestamp += this.dt;

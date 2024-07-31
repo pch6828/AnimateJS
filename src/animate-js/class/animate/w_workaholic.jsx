@@ -239,7 +239,6 @@ class MouseChasingWord {
         const fontSize = height / 15;
         ctx.save();
         ctx.translate(this.point.x, this.point.y);
-        console.log(this.angle);
         ctx.rotate(this.angle);
         ctx.font = fontSize + 'px Monoton';
         ctx.fillStyle = 'white';

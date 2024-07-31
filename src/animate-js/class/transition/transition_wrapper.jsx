@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
@@ -11,6 +11,16 @@ function TransitionWrapper() {
     const [deg, setDeg] = useState(0);
 
     const location = useLocation();
+
+    useEffect(() => {
+        const pathname = location.pathname;
+        if (pathname === '/') {
+            document.title = 'AnimateJS';
+        } else {
+            const id = pathname.substring(9);
+            document.title = 'AnimateJS | ' + id;
+        }
+    }, [location]);
 
     function updateDeg(newDeg) {
         setDeg(newDeg);
