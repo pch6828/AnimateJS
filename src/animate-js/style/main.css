@@ -82,12 +82,13 @@
     justify-content: left;
     color: darkgray;
     z-index: inherit;
+    margin-top: 0.5vw;
 }
 
 .wheel-slot-title {
     display: flex;
     width: max-content;
-    height: 4vw;
+    height: 2vw;
     font-size: 2vw;
     text-align: center;
     align-items: end;
@@ -111,6 +112,7 @@
 .selected-description {
     height: 6vw;
     z-index: inherit;
+    margin-top: -2vw;
 }
 
 .selected-label {
@@ -127,6 +129,26 @@
 
 .selected-date {
     height: 2vw;
+    font-size: 1.5vw;
+    color: black;
+    z-index: inherit;
+}
+
+.wheel-slot-device {
+    display: flex;
+    width: max-content;
+    height: 1.5vw;
+    min-height: 1.5vw;
+    font-size: 1vw;
+    text-align: center;
+    justify-content: left;
+    color: darkgray;
+    z-index: inherit;
+}
+
+.selected-device {
+    height: 2vw;
+    min-height: 2vw;
     font-size: 1.5vw;
     color: black;
     z-index: inherit;

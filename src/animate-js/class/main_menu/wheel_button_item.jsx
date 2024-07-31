@@ -3,7 +3,9 @@ const items = [
         key: 'A',
         title: 'Algorithm',
         color: '#E10600',
-        date: '2024-05-22'
+        date: '2024-05-22',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'B',
@@ -14,25 +16,33 @@ const items = [
         key: 'C',
         title: 'Coffee',
         color: '#EB3300',
-        date: '2024-05-21'
+        date: '2024-05-21',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'D',
         title: 'Design? Develop?',
         color: '#FF6900',
-        date: '2024-06-03'
+        date: '2024-06-03',
+        supportPC: true,
+        supportMobile: false
     },
     {
         key: 'E',
         title: 'Encyclopedia',
         color: '#FF7500',
-        date: '2024-06-25'
+        date: '2024-06-25',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'F',
         title: 'Fortune',
         color: '#FF8200',
-        date: '2024-06-12'
+        date: '2024-06-12',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'G',
@@ -43,7 +53,9 @@ const items = [
         key: 'H',
         title: 'Homebody',
         color: '#F6B700',
-        date: '2024-05-24'
+        date: '2024-05-24',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'I',
@@ -54,13 +66,17 @@ const items = [
         key: 'J',
         title: 'mbti-J',
         color: '#5BC500',
-        date: '2024-07-11'
+        date: '2024-07-11',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'K',
         title: 'Kidult',
         color: '#30B700',
-        date: '2024-06-14'
+        date: '2024-06-14',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'L',
@@ -71,7 +87,9 @@ const items = [
         key: 'M',
         title: 'Mentor',
         color: '#249E6B',
-        date: '2024-07-25'
+        date: '2024-07-25',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'N',
@@ -87,7 +105,9 @@ const items = [
         key: 'P',
         title: 'Postgraduate',
         color: '#2AD2C9',
-        date: '2024-05-30'
+        date: '2024-05-30',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'Q',
@@ -98,7 +118,9 @@ const items = [
         key: 'R',
         title: 'Rambler',
         color: '#0092CB',
-        date: '2024-07-30'
+        date: '2024-07-30',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'S',
@@ -109,7 +131,9 @@ const items = [
         key: 'T',
         title: 'Tracing',
         color: '#0762C8',
-        date: '2024-07-18'
+        date: '2024-07-18',
+        supportPC: true,
+        supportMobile: false
     },
     {
         key: 'U',
@@ -120,13 +144,17 @@ const items = [
         key: 'V',
         title: 'Versatile',
         color: '#33058D',
-        date: '2024-06-01'
+        date: '2024-06-01',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'W',
         title: 'Workaholic',
         color: '#4A25AA',
-        date: '2024-07-16'
+        date: '2024-07-16',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'X',

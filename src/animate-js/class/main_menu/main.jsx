@@ -59,6 +59,8 @@ function Main({ deg, setDeg }) {
                         color={item.color}
                         date={item.date}
                         selected={(Math.round(-deg / (360 / 26)) + 26) % 26 === i}
+                        supportPC={item.supportPC}
+                        supportMobile={item.supportMobile}
                     />
                 ))}
             </div>

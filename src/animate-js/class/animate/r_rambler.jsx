@@ -212,12 +212,9 @@ class Walkers {
             walker.move(movement, width, height, ctx);
         });
 
-        console.log(this.crowd);
         this.crowd = this.crowd.filter((walker) => {
             return walker.pos.xRatio >= -0.2 && walker.pos.xRatio <= 1.2;
         });
-
-        console.log(this.crowd);
     }
 
     draw(ctx, width, height) {

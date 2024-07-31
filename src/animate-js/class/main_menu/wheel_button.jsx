@@ -1,7 +1,9 @@
 import '../../style/main.css'
 import { Link } from 'react-router-dom'
+import laptopLogo from '../../asset/laptop_icon.svg'
+import mobileLogo from '../../asset/mobile_icon.svg'
 
-function WheelSlot({ x, y, deg, alphabet, title, color, date, selected }) {
+function WheelSlot({ x, y, deg, alphabet, title, color, date, selected, supportPC, supportMobile }) {
     return (
         <div className='wheel-slot'
             style={{ transform: 'translate(' + x + 'vw,' + y + 'vw) rotate(' + deg + 'deg)' }}
@@ -11,6 +13,18 @@ function WheelSlot({ x, y, deg, alphabet, title, color, date, selected }) {
                 {alphabet + alphabet.toLowerCase()}
             </div>
             <div className={'wheel-slot-description ' + (selected ? 'selected-description' : '')}>
+                < div className={'wheel-slot-device ' + (selected ? 'selected-device' : '')}>
+                    {
+                        title ? (
+                            <>
+                                {supportPC ? <img src={laptopLogo} alt='support PC' /> : ''}
+                                {supportMobile ? <img src={mobileLogo} alt='support Mobile' /> : ''}
+                            </>
+                        ) : (
+                            ''
+                        )
+                    }
+                </div>
                 {
                     selected && title ? (
                         <Link className='wheel-slot-title selected-title'
