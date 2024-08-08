@@ -155,7 +155,6 @@
     user-select: none;
 }
 
-
 @media all and (max-aspect-ratio:2/3) {
     .content-page {
         flex-direction: column;
