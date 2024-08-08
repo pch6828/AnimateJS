@@ -9,8 +9,21 @@ import Content from '../content_page/content.jsx';
 
 function TransitionWrapper() {
     const [deg, setDeg] = useState(0);
+    const [aspectRatio, setAspectRatio] = useState(window.innerWidth / window.innerHeight);
 
     const location = useLocation();
+
+    useEffect(() => {
+        function onResize() {
+            setAspectRatio(window.innerWidth / window.innerHeight);
+        }
+
+        window.addEventListener('resize', onResize);
+
+        return () => {
+            window.removeEventListener('resize', onResize);
+        };
+    }, []);
 
     useEffect(() => {
         const pathname = location.pathname;
@@ -34,8 +47,8 @@ function TransitionWrapper() {
                 className="page-transition"
             >
                 <Routes location={location}>
-                    <Route path='/' element={<Main deg={deg} setDeg={updateDeg} />} />
-                    <Route path='/Content/:id' element={<Content />} />
+                    <Route path='/' element={<Main deg={deg} setDeg={updateDeg} aspectRatio={aspectRatio} />} />
+                    <Route path='/Content/:id' element={<Content aspectRatio={aspectRatio} />} />
                 </Routes>
             </CSSTransition>
         </TransitionGroup>
