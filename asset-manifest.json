@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/AnimateJS/static/css/main.79ddda1c.css",
-    "main.js": "/AnimateJS/static/js/main.974d9a03.js",
+    "main.css": "/AnimateJS/static/css/main.d229d603.css",
+    "main.js": "/AnimateJS/static/js/main.9d6e3642.js",
     "static/js/453.9a92a2e9.chunk.js": "/AnimateJS/static/js/453.9a92a2e9.chunk.js",
     "static/media/laptop_icon.svg": "/AnimateJS/static/media/laptop_icon.2c277af9ed7c8363f933f964960db7c2.svg",
     "static/media/mobile_icon.svg": "/AnimateJS/static/media/mobile_icon.aab74238797fb1e1b60eeeee6207758d.svg",
     "index.html": "/AnimateJS/index.html",
-    "main.79ddda1c.css.map": "/AnimateJS/static/css/main.79ddda1c.css.map",
-    "main.974d9a03.js.map": "/AnimateJS/static/js/main.974d9a03.js.map",
+    "main.d229d603.css.map": "/AnimateJS/static/css/main.d229d603.css.map",
+    "main.9d6e3642.js.map": "/AnimateJS/static/js/main.9d6e3642.js.map",
     "453.9a92a2e9.chunk.js.map": "/AnimateJS/static/js/453.9a92a2e9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.79ddda1c.css",
-    "static/js/main.974d9a03.js"
+    "static/css/main.d229d603.css",
+    "static/js/main.9d6e3642.js"
   ]
 }
