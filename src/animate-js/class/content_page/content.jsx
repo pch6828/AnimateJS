@@ -4,8 +4,9 @@ import { Link, useParams } from 'react-router-dom';
 import '../../style/content.css';
 
 import items from './content_item';
+import { VerticalScreenCriteria } from '../constants';
 
-function Content() {
+function Content({ aspectRatio }) {
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
     const { id } = useParams();
@@ -27,8 +28,30 @@ function Content() {
     useEffect(() => {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
-        canvas.width = devicePixelRatio * window.innerWidth * 0.7;
-        canvas.height = devicePixelRatio * window.innerHeight;
+
+        if (aspectRatio < VerticalScreenCriteria) {
+            canvas.width = devicePixelRatio * window.innerWidth;
+            canvas.height = devicePixelRatio * window.innerHeight * 0.6;
+        } else {
+            canvas.width = devicePixelRatio * window.innerWidth * 0.7;
+            canvas.height = devicePixelRatio * window.innerHeight;
+        }
+
+        function resizeCanvas() {
+            const canvas = canvasRef.current;
+            if (canvas) {
+                if (aspectRatio < VerticalScreenCriteria) {
+                    canvas.width = devicePixelRatio * window.innerWidth;
+                    canvas.height = devicePixelRatio * window.innerHeight * 0.6;
+                } else {
+                    canvas.width = devicePixelRatio * window.innerWidth * 0.7;
+                    canvas.height = devicePixelRatio * window.innerHeight;
+                }
+            }
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
         canvas.style.backgroundColor = animation ? animation.backgroundColor : 'bisque';
 
         context.strokeStyle = 'black';
@@ -36,16 +59,6 @@ function Content() {
         contextRef.current = context;
 
         let requestId;
-
-        function resizeCanvas() {
-            const canvas = canvasRef.current;
-            if (canvas) {
-                canvas.width = devicePixelRatio * window.innerWidth * 0.7;
-                canvas.height = devicePixelRatio * window.innerHeight;
-            }
-        }
-
-        window.addEventListener('resize', resizeCanvas)
 
         const requestAnimation = () => {
             requestId = window.requestAnimationFrame(requestAnimation);
@@ -69,7 +82,7 @@ function Content() {
         return () => {
             window.cancelAnimationFrame(requestId);
         };
-    }, [ctx, animation, isDown, mousePoint, mouseButton]);
+    }, [ctx, animation, isDown, mousePoint, mouseButton, aspectRatio]);
 
     function mouseDown({ nativeEvent }) {
         const { button, offsetX, offsetY } = nativeEvent;
