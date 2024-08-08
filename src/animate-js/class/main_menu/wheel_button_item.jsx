@@ -124,7 +124,7 @@ const items = [
     },
     {
         key: 'S',
-        title: '',
+        title: '',//'Steady'
         color: '#0086D6'
     },
     {
