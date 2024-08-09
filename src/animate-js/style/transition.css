@@ -67,7 +67,6 @@
 }
 
 @media all and (max-aspect-ratio:2/3) {
-
     .content-page.enter {
         .content-description {
             transform: translateY(100vh);

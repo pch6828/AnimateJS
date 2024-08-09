@@ -9,6 +9,7 @@ import { AnimationK, CleanK } from "../animate/k_kidult";
 import { AnimationM, CleanM } from "../animate/m_mentor";
 import { AnimationP, CleanP } from "../animate/p_postgraduate";
 import { AnimationR, CleanR } from "../animate/r_rambler";
+import { AnimationS, CleanS } from "../animate/s_steady";
 import { AnimationT, CleanT } from "../animate/t_tracing";
 import { AnimationV, CleanV } from "../animate/v_versatile";
 import { AnimationW, CleanW } from "../animate/w_workaholic";
@@ -164,7 +165,6 @@ const items = new Map([
             '이렇게 여러가지 플랜을 만들어두거든요.',
             '',
             '피곤하게 산다구요? 뭐, 사람마다 생각은 다른 거니까요.'],
-
         toolTipText: ['계획이 점점 가지를 치고 있군요?',
             '당신의 마우스를 따라서 계획이 진행될 겁니다.',
             '계획의 끝에 도달했나요?',
@@ -258,7 +258,16 @@ const items = new Map([
             '마우스로 잡아서 끌면 맘대로 끌고 다닐 수 있어요.',
             '걱정 마세요, 놓으면 다시 가던 길 갈 겁니다.']
     }],
-    ['S', null],
+    ['S', {
+        backgroundColor: '#261430',
+        toolTipColor: 'white',
+        toolTipTextColor: 'black',
+        animate: AnimationS,
+        clean: CleanS,
+        title: 'Steady',
+        text: [],
+        toolTipText: []
+    }],
     ['T', {
         backgroundColor: '#261430',
         toolTipColor: 'white',

@@ -124,8 +124,11 @@ const items = [
     },
     {
         key: 'S',
-        title: '',//'Steady'
-        color: '#0086D6'
+        title: 'Steady',
+        color: '#0086D6',
+        date: '2024-08-XX',
+        supportPC: true,
+        supportMobile: true
     },
     {
         key: 'T',
