@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import items from './wheel_button_item.jsx';
 import WheelSlot from './wheel_button.jsx';
 
@@ -9,6 +10,10 @@ function Main({ deg, setDeg, aspectRatio }) {
     const [pos, setPos] = useState(0);
     const [isDrag, setIsDrag] = useState(false);
     const angleStep = 360 / 26;
+    const dialConfig = aspectRatio < VerticalScreenCriteria
+        ? { radius: 66.666, radiusCss: '66.666vh', slotOrbitRatio: 0.81 }
+        : { radius: 150, radiusCss: '150vh', slotOrbitRatio: 0.81 };
+    const slotOrbitRadius = dialConfig.radius * dialConfig.slotOrbitRatio;
     const startOffset = aspectRatio < VerticalScreenCriteria ? 90 : 0;
     const selectedIndex = ((Math.round((-25 - deg + startOffset) / angleStep) % 26) + 26) % 26;
     const selectedItem = items[selectedIndex];
@@ -79,6 +84,7 @@ function Main({ deg, setDeg, aspectRatio }) {
             <div className="main-shell">
                 <section
                     className="main-stage"
+                    style={{ '--dial-radius': dialConfig.radiusCss }}
                     onPointerDown={rotateWheelStart}
                     onPointerMove={rotateWheel}
                     onPointerLeave={rotateWheelEnd}
@@ -86,34 +92,41 @@ function Main({ deg, setDeg, aspectRatio }) {
                     onGotPointerCapture={() => { setIsDrag(true); }}
                     onLostPointerCapture={() => { setIsDrag(false); }}
                 >
-                    <div className="stage-summary" aria-label="Current selection">
-                        <p className="stage-site-title">26 Animated TMI</p>
-                        {hasSelectedDetail ? (
+                    <div className="stage-hint" aria-hidden="true">
+                        <span className="stage-hint-arrow">↺</span>
+                        <span className="stage-hint-text">Rotate to select content</span>
+                    </div>
+
+                    {hasSelectedDetail ? (
+                        <Link
+                            className="stage-summary stage-summary-link"
+                            aria-label={'Open ' + (selectedItem.title || selectedItem.key)}
+                            to={'/Content/' + selectedItem.key}
+                        >
+                            <p className="stage-site-title">26 Animated TMI</p>
                             <div className="stage-copy">
                                 <strong>{selectedItem.title || 'Reserved for a future column'}</strong>
                                 <span>{formatIssueDate(selectedItem.date)}</span>
                             </div>
-                        ) : null}
-                    </div>
+                        </Link>
+                    ) : (
+                        <div className="stage-summary" aria-label="Current selection">
+                            <p className="stage-site-title">26 Animated TMI</p>
+                        </div>
+                    )}
 
                     <div
                         className="wheel-menu"
-                        style={{ transform: 'rotate(' + deg + 'deg)' }}
+                        style={{
+                            transform: 'rotate(' + deg + 'deg)',
+                        }}
                     >
-                        <div className="main-title"
-                            style={{
-                                transform: 'rotate(' + (-deg) + 'deg) translate('
-                                    + (aspectRatio < VerticalScreenCriteria ? '0vh, -15vh' : '15vw, 0vw')
-                                    + ')'
-                            }}
-                        >
-
-                        </div>
+                        <div className="main-title" />
                         {items.map((item, i) => (
                             <WheelSlot
                                 key={i}
-                                x={52 * Math.cos(2 * Math.PI / 26 * i - (aspectRatio < VerticalScreenCriteria ? Math.PI / 2 : 0))}
-                                y={52 * Math.sin(2 * Math.PI / 26 * i - (aspectRatio < VerticalScreenCriteria ? Math.PI / 2 : 0))}
+                                x={slotOrbitRadius * Math.cos(2 * Math.PI / 26 * i - (aspectRatio < VerticalScreenCriteria ? Math.PI / 2 : 0))}
+                                y={slotOrbitRadius * Math.sin(2 * Math.PI / 26 * i - (aspectRatio < VerticalScreenCriteria ? Math.PI / 2 : 0))}
                                 deg={-deg}
                                 aspectRatio={aspectRatio}
                                 alphabet={item.key}
