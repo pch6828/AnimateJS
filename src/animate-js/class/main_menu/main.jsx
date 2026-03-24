@@ -66,8 +66,8 @@ function Main({ deg, setDeg, aspectRatio }) {
                 setPos(clientY);
             }
         }
-
     }
+
     function rotateWheelEnd(e) {
         if (isCompactStage) {
             const { clientX } = e;
@@ -77,8 +77,8 @@ function Main({ deg, setDeg, aspectRatio }) {
             setPos(clientY);
         }
 
-        const rounded_deg = Math.round(deg / (360 / 26)) * (360 / 26);
-        setDeg(rounded_deg);
+        const roundedDeg = Math.round(deg / angleStep) * angleStep;
+        setDeg(roundedDeg);
         setIsDrag(false);
     }
 
@@ -95,17 +95,16 @@ function Main({ deg, setDeg, aspectRatio }) {
                     onGotPointerCapture={() => { setIsDrag(true); }}
                     onLostPointerCapture={() => { setIsDrag(false); }}
                 >
-                    <div className="stage-hint" aria-hidden="true">
-                        <span className="stage-hint-arrow">↺</span>
-                        <span className="stage-hint-text">Rotate dial to select content</span>
-                    </div>
-
                     {hasSelectedDetail ? (
                         <Link
                             className="stage-summary stage-summary-link"
                             aria-label={'Open ' + (selectedItem.title || selectedItem.key)}
                             to={'/Content/' + selectedItem.key}
                         >
+                            <div className="stage-hint" aria-hidden="true">
+                                <span className="stage-hint-arrow">↺</span>
+                                <span className="stage-hint-text">Rotate dial to select</span>
+                            </div>
                             <p className="stage-site-title">26 Animated TMI</p>
                             <div className="stage-copy">
                                 <strong>{selectedItem.title || 'Reserved for a future column'}</strong>
@@ -114,7 +113,12 @@ function Main({ deg, setDeg, aspectRatio }) {
                         </Link>
                     ) : (
                         <div className="stage-summary" aria-label="Current selection">
+                            <div className="stage-hint" aria-hidden="true">
+                                <span className="stage-hint-arrow">↺</span>
+                                <span className="stage-hint-text">Rotate dial to select</span>
+                            </div>
                             <p className="stage-site-title">26 Animated TMI</p>
+                            <div className="stage-copy" />
                         </div>
                     )}
 
