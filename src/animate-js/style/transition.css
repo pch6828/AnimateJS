@@ -1,113 +1,82 @@
-.page-transition {
-    position: relative;
+.page-stage {
+    position: fixed;
+    inset: 0;
     overflow: hidden;
-    height: calc(var(--vh, 1vh) * 100);
     width: 100vw;
+    height: 100vh;
 }
 
-.main-page.enter {
+.page-stage-main {
+    z-index: 1;
+}
+
+.page-stage-content {
+    z-index: 2;
+}
+
+.page-transition-enter.page-stage-main,
+.page-transition-enter-active.page-stage-main,
+.page-transition-exit.page-stage-main,
+.page-transition-exit-active.page-stage-main {
     transform: translateX(0);
 }
 
-.main-page.enter-active {
+.page-transition-enter.page-stage-content .content-description {
+    transform: translateX(100vw);
+}
+
+.page-transition-enter.page-stage-content .content-canvas-wrapper {
+    transform: translateX(100%);
+}
+
+.page-transition-enter-active.page-stage-content .content-description,
+.page-transition-enter-active.page-stage-content .content-canvas-wrapper {
+    transform: translateX(0);
+    transition: transform 1000ms ease;
+}
+
+.page-transition-exit.page-stage-content .content-description,
+.page-transition-exit.page-stage-content .content-canvas-wrapper {
     transform: translateX(0);
 }
 
-.main-page.exit {
-    transform: translateX(0);
+.page-transition-exit-active.page-stage-content .content-description {
+    transform: translateX(100vw);
+    transition: transform 1000ms ease;
 }
 
-.main-page.exit-active {
-    transform: translateX(0);
+.page-transition-exit-active.page-stage-content .content-canvas-wrapper {
+    transform: translateX(100%);
+    transition: transform 1000ms ease;
 }
 
-
-.content-page.enter {
-    .content-description {
-        transform: translateX(100vw);
+@media all and (max-aspect-ratio: 6/5) {
+    .page-transition-enter.page-stage-content .content-description.is-compact,
+    .page-transition-enter-active.page-stage-content .content-description.is-compact,
+    .page-transition-exit.page-stage-content .content-description.is-compact,
+    .page-transition-exit-active.page-stage-content .content-description.is-compact {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: none;
+        transition: none;
     }
 
-    .content-canvas-wrapper {
-        transform: translateX(70vw);
-    }
-}
-
-.content-page.enter-active {
-    .content-description {
-        transform: translateX(0);
-        transition: transform 1000ms;
+    .page-transition-enter.page-stage-content .content-canvas-wrapper {
+        transform: translateY(100vh);
     }
 
-    .content-canvas-wrapper {
-        transform: translateX(0);
-        transition: transform 1000ms;
-    }
-}
-
-.content-page.exit {
-    .content-description {
-        transform: translateX(0);
+    .page-transition-enter-active.page-stage-content .content-canvas-wrapper {
+        transform: translateY(0);
+        transition: transform 1000ms ease;
     }
 
-    .content-canvas-wrapper {
-        transform: translateX(0);
-    }
-}
-
-.content-page.exit-active {
-    .content-description {
-        transform: translateX(100vw);
-        transition: transform 1000ms;
+    .page-transition-exit.page-stage-content .content-canvas-wrapper {
+        transform: translateY(0);
     }
 
-    .content-canvas-wrapper {
-        transform: translateX(70vw);
-        transition: transform 1000ms;
-    }
-}
-
-@media all and (max-aspect-ratio:2/3) {
-    .content-page.enter {
-        .content-description {
-            transform: translateY(100vh);
-        }
-
-        .content-canvas-wrapper {
-            transform: translateY(60vh);
-        }
-    }
-
-    .content-page.enter-active {
-        .content-description {
-            transform: translateY(0);
-            transition: transform 1000ms;
-        }
-
-        .content-canvas-wrapper {
-            transform: translateY(0);
-            transition: transform 1000ms;
-        }
-    }
-
-    .content-page.exit {
-        .content-description {
-            transform: translateY(0);
-        }
-
-        .content-canvas-wrapper {
-            transform: translateY(0);
-        }
-    }
-
-    .content-page.exit-active {
-        .content-description {
-            transform: translateY(100vh);
-            transition: transform 1000ms;
-        }
-
-        .content-canvas-wrapper {
-            transform: translateY(60vh);
-            transition: transform 1000ms;
-        }
+    .page-transition-exit-active.page-stage-content .content-canvas-wrapper {
+        transform: translateY(100vh);
+        transition: transform 1000ms ease;
     }
 }
