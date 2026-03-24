@@ -94,7 +94,7 @@ function Main({ deg, setDeg, aspectRatio }) {
                 >
                     <div className="stage-hint" aria-hidden="true">
                         <span className="stage-hint-arrow">↺</span>
-                        <span className="stage-hint-text">Rotate to select content</span>
+                        <span className="stage-hint-text">Rotate dial to select content</span>
                     </div>
 
                     {hasSelectedDetail ? (
