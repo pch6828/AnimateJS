@@ -53,9 +53,9 @@ function Content({ aspectRatio }) {
 
             if (aspectRatio < CompactScreenCriteria) {
                 canvas.width = pixelRatio * window.innerWidth;
-                canvas.height = pixelRatio * window.innerHeight * 0.56;
+                canvas.height = pixelRatio * window.innerHeight;
             } else {
-                canvas.width = pixelRatio * window.innerWidth * 0.72;
+                canvas.width = pixelRatio * window.innerWidth * 0.6;
                 canvas.height = pixelRatio * window.innerHeight;
             }
         }
