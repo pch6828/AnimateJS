@@ -8,7 +8,7 @@
     --dial-radius: 140vh;
     --slot-orbit-ratio: 0.9;
     --slot-size: calc(var(--dial-radius) * 0.0667);
-    --dial-center-shift-x: calc(210vh - 100vw);
+    --dial-center-shift-x: calc(130vh - 40vw);
 }
 
 .main-page {
@@ -56,12 +56,12 @@
     justify-content: center;
     width: 2.2rem;
     height: 2.2rem;
-    font-size: 3.5vh;
+    font-size: 4vh;
     line-height: 1;
 }
 
 .stage-hint-text {
-    font-size: 2vh;
+    font-size: 3vh;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
@@ -96,7 +96,7 @@
 
 .stage-site-title {
     margin: 0;
-    font-size: 3vh;
+    font-size: 4vh;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--ink-muted);
@@ -104,13 +104,13 @@
 
 .stage-copy strong {
     font-family: 'Times New Roman', Times, serif;
-    font-size: 8vh;
+    font-size: 10vh;
     font-weight: 700;
     line-height: 1.05;
 }
 
 .stage-copy span {
-    font-size: 3vh;
+    font-size: 3.5vh;
     letter-spacing: 0.03em;
     color: var(--ink-muted);
 }
