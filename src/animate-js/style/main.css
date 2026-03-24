@@ -126,8 +126,8 @@
     border-radius: 50%;
     border: none;
     box-shadow:
-        0 0 28px rgba(31, 26, 20, 0.14),
-        0 0 72px rgba(31, 26, 20, 0.1);
+        0 0 28px rgba(31, 26, 20, 0.3),
+        0 0 72px rgba(31, 26, 20, 0.15);
     z-index: 0;
 }
 
