@@ -11,11 +11,11 @@ function Main({ deg, setDeg, aspectRatio }) {
     const [isDrag, setIsDrag] = useState(false);
     const angleStep = 360 / 26;
     const isCompactStage = aspectRatio < CompactScreenCriteria;
-    const dialConfig = aspectRatio < CompactScreenCriteria
+    const dialConfig = isCompactStage
         ? { radius: 66.666, radiusCss: '66.666vh', slotOrbitRatio: 0.81 }
         : { radius: 150, radiusCss: '150vh', slotOrbitRatio: 0.81 };
     const slotOrbitRadius = dialConfig.radius * dialConfig.slotOrbitRatio;
-    const startOffset = aspectRatio < CompactScreenCriteria ? 90 : 0;
+    const startOffset = isCompactStage ? 90 : 0;
     const selectionAngle = isCompactStage ? -90 : -25;
     const selectedIndex = ((Math.round((selectionAngle - deg + startOffset) / angleStep) % 26) + 26) % 26;
     const selectedItem = items[selectedIndex];
@@ -40,7 +40,7 @@ function Main({ deg, setDeg, aspectRatio }) {
     }
 
     function rotateWheelStart(e) {
-        if (aspectRatio < CompactScreenCriteria) {
+        if (isCompactStage) {
             const { clientX } = e;
             setPos(clientX);
         } else {
@@ -51,7 +51,7 @@ function Main({ deg, setDeg, aspectRatio }) {
     }
 
     function rotateWheel(e) {
-        if (aspectRatio < CompactScreenCriteria) {
+        if (isCompactStage) {
             const { clientX } = e;
             if (isDrag) {
                 const delta = ((pos - clientX) % 360);
@@ -69,7 +69,7 @@ function Main({ deg, setDeg, aspectRatio }) {
 
     }
     function rotateWheelEnd(e) {
-        if (aspectRatio < CompactScreenCriteria) {
+        if (isCompactStage) {
             const { clientX } = e;
             setPos(clientX);
         } else {
@@ -128,8 +128,8 @@ function Main({ deg, setDeg, aspectRatio }) {
                         {items.map((item, i) => (
                             <WheelSlot
                                 key={i}
-                                x={slotOrbitRadius * Math.cos(2 * Math.PI / 26 * i - (aspectRatio < CompactScreenCriteria ? Math.PI / 2 : 0))}
-                                y={slotOrbitRadius * Math.sin(2 * Math.PI / 26 * i - (aspectRatio < CompactScreenCriteria ? Math.PI / 2 : 0))}
+                                x={slotOrbitRadius * Math.cos(2 * Math.PI / 26 * i - (isCompactStage ? Math.PI / 2 : 0))}
+                                y={slotOrbitRadius * Math.sin(2 * Math.PI / 26 * i - (isCompactStage ? Math.PI / 2 : 0))}
                                 deg={-deg}
                                 aspectRatio={aspectRatio}
                                 alphabet={item.key}
