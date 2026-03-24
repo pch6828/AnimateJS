@@ -8,7 +8,7 @@ import Main from '../main_menu/main.jsx'
 import Content from '../content_page/content.jsx';
 
 function TransitionWrapper() {
-    const [deg, setDeg] = useState(0);
+    const [deg, setDeg] = useState(-25);
     const [aspectRatio, setAspectRatio] = useState(window.innerWidth / window.innerHeight);
 
     const location = useLocation();
