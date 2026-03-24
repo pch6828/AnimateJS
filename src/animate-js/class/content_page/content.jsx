@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import '../../style/content.css';
 
 import items from './content_item';
-import { VerticalScreenCriteria } from '../constants';
+import { CompactScreenCriteria } from '../constants';
 
 function Content({ aspectRatio }) {
     const canvasRef = useRef(null);
@@ -29,7 +29,7 @@ function Content({ aspectRatio }) {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
 
-        if (aspectRatio < VerticalScreenCriteria) {
+        if (aspectRatio < CompactScreenCriteria) {
             canvas.width = devicePixelRatio * window.innerWidth;
             canvas.height = devicePixelRatio * window.innerHeight * 0.6;
         } else {
@@ -40,7 +40,7 @@ function Content({ aspectRatio }) {
         function resizeCanvas() {
             const canvas = canvasRef.current;
             if (canvas) {
-                if (aspectRatio < VerticalScreenCriteria) {
+                if (aspectRatio < CompactScreenCriteria) {
                     canvas.width = devicePixelRatio * window.innerWidth;
                     canvas.height = devicePixelRatio * window.innerHeight * 0.6;
                 } else {

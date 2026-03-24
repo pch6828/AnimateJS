@@ -241,9 +241,9 @@
     }
 }
 
-@media all and (max-aspect-ratio: 2/3) {
+@media all and (max-aspect-ratio: 6/5) {
     .stage-hint {
-        top: calc(50% - 140px);
+        top: 36px;
         left: 50%;
         right: auto;
         transform: translateX(-50%);
@@ -251,43 +251,16 @@
     }
 
     .stage-summary {
-        top: 50%;
+        top: 110px;
         left: 50%;
         right: auto;
-        transform: translate(-50%, -50%);
+        transform: translateX(-50%);
         align-content: start;
         text-align: center;
         justify-content: center;
-        min-height: 160px;
-        min-width: min(78vw, 420px);
-        padding: 0 16px;
-    }
-
-    .main-title {
-        width: 4.5vh;
-        height: 4.5vh;
-        margin-left: -2.25vh;
-        margin-top: -2.25vh;
-    }
-
-    .wheel-menu {
-        width: calc((var(--dial-radius) * var(--slot-orbit-ratio) * 2) + var(--slot-size));
-        height: calc((var(--dial-radius) * var(--slot-orbit-ratio) * 2) + var(--slot-size));
-        left: calc((((var(--dial-radius) * var(--slot-orbit-ratio) * 2) + var(--slot-size)) / -2) - var(--dial-center-shift-x));
-        bottom: calc(((var(--dial-radius) * var(--slot-orbit-ratio) * 2) + var(--slot-size)) / -2);
-    }
-
-    .wheel-slot {
-        margin-left: -3vh;
-        margin-top: -3vh;
-        width: 6vh;
-        height: 6vh;
-    }
-
-    .wheel-slot-label {
-        width: 6vh;
-        height: 6vh;
-        font-size: 4.5vh;
+        min-height: 0;
+        min-width: min(78vw, 640px);
+        padding: 0 24px;
     }
 
     .stage-copy {
@@ -295,14 +268,28 @@
     }
 
     .stage-site-title {
-        font-size: clamp(0.95rem, 1.8vh, 1.15rem);
+        font-size: 2.4vh;
     }
 
     .stage-copy strong {
-        font-size: clamp(2.4rem, 5.2vh, 3.4rem);
+        font-size: 6.6vh;
     }
 
     .stage-copy span {
-        font-size: clamp(1.1rem, 2.2vh, 1.35rem);
+        font-size: 2.5vh;
+    }
+
+    .wheel-menu {
+        left: 50%;
+        bottom: calc((((var(--dial-radius) * var(--slot-orbit-ratio) * 2) + var(--slot-size)) / -1.5));
+        transform: translateX(-50%);
+    }
+
+    .wheel-slot-label {
+        font-size: 5vh;
+    }
+
+    .selected-label {
+        font-size: 9vh;
     }
 }

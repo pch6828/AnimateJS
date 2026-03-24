@@ -1,1 +1,1 @@
-export const VerticalScreenCriteria = 2 / 3;
+export const CompactScreenCriteria = 6 / 5;

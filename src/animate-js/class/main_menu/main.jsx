@@ -4,20 +4,23 @@ import items from './wheel_button_item.jsx';
 import WheelSlot from './wheel_button.jsx';
 
 import '../../style/main.css'
-import { VerticalScreenCriteria } from '../constants.jsx';
+import { CompactScreenCriteria } from '../constants.jsx';
 
 function Main({ deg, setDeg, aspectRatio }) {
     const [pos, setPos] = useState(0);
     const [isDrag, setIsDrag] = useState(false);
     const angleStep = 360 / 26;
-    const dialConfig = aspectRatio < VerticalScreenCriteria
+    const isCompactStage = aspectRatio < CompactScreenCriteria;
+    const dialConfig = aspectRatio < CompactScreenCriteria
         ? { radius: 66.666, radiusCss: '66.666vh', slotOrbitRatio: 0.81 }
         : { radius: 150, radiusCss: '150vh', slotOrbitRatio: 0.81 };
     const slotOrbitRadius = dialConfig.radius * dialConfig.slotOrbitRatio;
-    const startOffset = aspectRatio < VerticalScreenCriteria ? 90 : 0;
-    const selectedIndex = ((Math.round((-25 - deg + startOffset) / angleStep) % 26) + 26) % 26;
+    const startOffset = aspectRatio < CompactScreenCriteria ? 90 : 0;
+    const selectionAngle = isCompactStage ? -90 : -25;
+    const selectedIndex = ((Math.round((selectionAngle - deg + startOffset) / angleStep) % 26) + 26) % 26;
     const selectedItem = items[selectedIndex];
     const hasSelectedDetail = Boolean(selectedItem?.hasDetailPage);
+    const wheelTransform = (isCompactStage ? 'translateX(-50%) ' : '') + 'rotate(' + deg + 'deg)';
 
     function formatIssueDate(date) {
         if (!date) {
@@ -37,7 +40,7 @@ function Main({ deg, setDeg, aspectRatio }) {
     }
 
     function rotateWheelStart(e) {
-        if (aspectRatio < VerticalScreenCriteria) {
+        if (aspectRatio < CompactScreenCriteria) {
             const { clientX } = e;
             setPos(clientX);
         } else {
@@ -48,7 +51,7 @@ function Main({ deg, setDeg, aspectRatio }) {
     }
 
     function rotateWheel(e) {
-        if (aspectRatio < VerticalScreenCriteria) {
+        if (aspectRatio < CompactScreenCriteria) {
             const { clientX } = e;
             if (isDrag) {
                 const delta = ((pos - clientX) % 360);
@@ -66,7 +69,7 @@ function Main({ deg, setDeg, aspectRatio }) {
 
     }
     function rotateWheelEnd(e) {
-        if (aspectRatio < VerticalScreenCriteria) {
+        if (aspectRatio < CompactScreenCriteria) {
             const { clientX } = e;
             setPos(clientX);
         } else {
@@ -118,15 +121,15 @@ function Main({ deg, setDeg, aspectRatio }) {
                     <div
                         className="wheel-menu"
                         style={{
-                            transform: 'rotate(' + deg + 'deg)',
+                            transform: wheelTransform,
                         }}
                     >
                         <div className="main-title" />
                         {items.map((item, i) => (
                             <WheelSlot
                                 key={i}
-                                x={slotOrbitRadius * Math.cos(2 * Math.PI / 26 * i - (aspectRatio < VerticalScreenCriteria ? Math.PI / 2 : 0))}
-                                y={slotOrbitRadius * Math.sin(2 * Math.PI / 26 * i - (aspectRatio < VerticalScreenCriteria ? Math.PI / 2 : 0))}
+                                x={slotOrbitRadius * Math.cos(2 * Math.PI / 26 * i - (aspectRatio < CompactScreenCriteria ? Math.PI / 2 : 0))}
+                                y={slotOrbitRadius * Math.sin(2 * Math.PI / 26 * i - (aspectRatio < CompactScreenCriteria ? Math.PI / 2 : 0))}
                                 deg={-deg}
                                 aspectRatio={aspectRatio}
                                 alphabet={item.key}
