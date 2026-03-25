@@ -1,5 +1,6 @@
 const COFFEE_TEXT = 'COFFEE';
-const FONT_FAMILY = '"Big Shoulders Display", "Times New Roman", serif';
+const FONT_FAMILY = '"Vina Sans", "Times New Roman", serif';
+const CUP_BODY_RECT_RATIO = 0.1;
 const RETRO_COLORS = {
     backgroundTop: '#74b7a6',
     backgroundBottom: '#4f8b7d',
@@ -64,7 +65,7 @@ function getMetrics(ctx, width, height) {
         textBaselineY: centery + fontSize * 0.09,
         cupTopY: centery - fontSize * 0.84,
         cupBottomY: centery + fontSize * 0.88,
-        handleCenterX: mugRight + fontSize * 0.12,
+        handleCenterX: mugRight + fontSize * 0.02,
         handleCenterY: centery - fontSize * 0.22,
         handleRadius: fontSize * 0.36,
         handleHoleRadius: fontSize * 0.2,
@@ -182,54 +183,72 @@ function drawSaucer(ctx, metrics) {
     }
 }
 
+function traceCupLowerBody(ctx, metrics, inset = 0) {
+    const bowlRadius = metrics.textWidth / 2 - inset;
+    const rectHeight = bowlRadius * CUP_BODY_RECT_RATIO;
+    const centerY = metrics.textBaselineY;
+    const left = metrics.centerx - bowlRadius;
+    const right = metrics.centerx + bowlRadius;
+    const rectTopY = centerY - rectHeight;
+
+    ctx.beginPath();
+    ctx.moveTo(left, rectTopY);
+    ctx.lineTo(left, centerY);
+    ctx.arc(metrics.centerx, centerY, bowlRadius, Math.PI, 0, true);
+    ctx.lineTo(right, rectTopY);
+    ctx.closePath();
+}
+
+function traceCupLowerBodyOutline(ctx, metrics, inset = 0) {
+    const bowlRadius = metrics.textWidth / 2 - inset;
+    const rectHeight = bowlRadius * CUP_BODY_RECT_RATIO;
+    const centerY = metrics.textBaselineY;
+    const left = metrics.centerx - bowlRadius;
+    const right = metrics.centerx + bowlRadius;
+    const rectTopY = centerY - rectHeight;
+
+    ctx.beginPath();
+    ctx.moveTo(left, rectTopY);
+    ctx.lineTo(left, centerY);
+    ctx.arc(metrics.centerx, centerY, bowlRadius, Math.PI, 0, true);
+    ctx.lineTo(right, rectTopY);
+}
+
 function drawMugSilhouette(ctx, metrics) {
-    ctx.fillStyle = RETRO_COLORS.mugShade;
-    ctx.beginPath();
-    ctx.arc(
-        metrics.handleCenterX,
-        metrics.handleCenterY,
-        metrics.handleRadius,
-        Math.PI / 2,
-        -Math.PI / 2,
-        true
-    );
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = RETRO_COLORS.mug;
-    ctx.beginPath();
-    ctx.arc(
-        metrics.handleCenterX,
-        metrics.handleCenterY,
-        metrics.handleRadius * 0.9,
-        Math.PI / 2,
-        -Math.PI / 2,
-        true
-    );
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(metrics.handleCenterX, metrics.handleCenterY, metrics.handleHoleRadius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalCompositeOperation = 'source-over';
-
     ctx.fillStyle = RETRO_COLORS.mug;
     ctx.font = `${metrics.fontSize}px ${FONT_FAMILY}`;
     ctx.fillText(COFFEE_TEXT, metrics.mugLeft, metrics.textBaselineY);
 
+    ctx.strokeStyle = RETRO_COLORS.mugShade;
+    ctx.lineWidth = metrics.handleRadius * 0.42;
     ctx.beginPath();
-    ctx.arc(metrics.centerx, metrics.textBaselineY, metrics.textWidth / 2, 0, Math.PI);
-    ctx.closePath();
+    ctx.arc(
+        metrics.handleCenterX + metrics.fontSize * 0.015,
+        metrics.handleCenterY,
+        metrics.handleRadius * 0.78,
+        Math.PI / 2,
+        -Math.PI / 2,
+        true
+    );
+    ctx.stroke();
+
+    ctx.strokeStyle = RETRO_COLORS.mug;
+    ctx.lineWidth = metrics.handleRadius * 0.3;
+    ctx.beginPath();
+    ctx.arc(
+        metrics.handleCenterX,
+        metrics.handleCenterY,
+        metrics.handleRadius * 0.76,
+        Math.PI / 2,
+        -Math.PI / 2,
+        true
+    );
+    ctx.stroke();
+
+    traceCupLowerBody(ctx, metrics);
     ctx.fill();
 
-    ctx.fillRect(
-        metrics.mugRight - metrics.fontSize * 0.02,
-        metrics.textBaselineY - metrics.fontSize * 0.7,
-        metrics.fontSize * 0.18,
-        metrics.fontSize * 0.78
-    );
+
 }
 
 function drawCoffeeFill(ctx, metrics, state) {
@@ -240,6 +259,8 @@ function drawCoffeeFill(ctx, metrics, state) {
     const innerRight = metrics.mugRight - metrics.fontSize * 0.08;
     const bowlRadius = metrics.textWidth / 2 - metrics.fontSize * 0.08;
     const bowlCenterY = metrics.textBaselineY;
+    const rectHeight = bowlRadius * CUP_BODY_RECT_RATIO;
+    const rectTopY = bowlCenterY - rectHeight;
     const bottomY = bowlCenterY + bowlRadius;
     const liquidGradient = ctx.createLinearGradient(0, liquidY, 0, metrics.cupBottomY);
     liquidGradient.addColorStop(0, RETRO_COLORS.coffeeLight);
@@ -266,6 +287,7 @@ function drawCoffeeFill(ctx, metrics, state) {
         ctx.arc(metrics.centerx, bowlCenterY, bowlRadius, theta, Math.PI - theta, false);
     } else {
         ctx.moveTo(innerLeft, bottomY);
+        ctx.lineTo(innerLeft, rectTopY);
         ctx.lineTo(innerLeft, liquidY);
 
         for (let step = 0; step <= 6; step++) {
@@ -296,13 +318,29 @@ function drawCoffeeFill(ctx, metrics, state) {
 }
 
 function drawMugOutline(ctx, metrics) {
+    const lowerStrokeMaskY = metrics.textBaselineY - metrics.fontSize * 0.04;
+    const outlineWidth = Math.max(2.5, metrics.fontSize * 0.03);
+    const textClipTop = metrics.textBaselineY - metrics.fontSize * 1.05;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(
+        metrics.mugLeft - metrics.fontSize * 0.12,
+        textClipTop,
+        metrics.textWidth + metrics.fontSize * 0.24,
+        lowerStrokeMaskY - textClipTop
+    );
+    ctx.clip();
     ctx.strokeStyle = RETRO_COLORS.mugOutline;
-    ctx.lineWidth = Math.max(2.5, metrics.fontSize * 0.03);
+    ctx.lineWidth = outlineWidth;
     ctx.font = `${metrics.fontSize}px ${FONT_FAMILY}`;
     ctx.strokeText(COFFEE_TEXT, metrics.mugLeft, metrics.textBaselineY);
+    ctx.restore();
 
-    ctx.beginPath();
-    ctx.arc(metrics.centerx, metrics.textBaselineY, metrics.textWidth / 2, 0, Math.PI);
+    ctx.strokeStyle = RETRO_COLORS.mugOutline;
+    ctx.lineWidth = outlineWidth;
+
+    traceCupLowerBodyOutline(ctx, metrics);
     ctx.stroke();
 
     ctx.beginPath();
@@ -316,16 +354,16 @@ function drawMugOutline(ctx, metrics) {
     );
     ctx.stroke();
 
-    ctx.strokeStyle = RETRO_COLORS.highlight;
-    ctx.lineWidth = Math.max(1.5, metrics.fontSize * 0.014);
+    ctx.strokeStyle = 'rgba(255, 249, 234, 0.45)';
+    ctx.lineWidth = Math.max(1.15, metrics.fontSize * 0.012);
     ctx.beginPath();
-    ctx.moveTo(metrics.mugLeft + metrics.fontSize * 0.1, metrics.cupTopY + metrics.fontSize * 0.18);
-    ctx.lineTo(metrics.mugLeft + metrics.textWidth * 0.26, metrics.cupTopY + metrics.fontSize * 0.08);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(metrics.mugLeft + metrics.fontSize * 0.22, metrics.textBaselineY + metrics.fontSize * 0.5);
-    ctx.lineTo(metrics.mugLeft + metrics.textWidth * 0.18, metrics.textBaselineY + metrics.fontSize * 0.72);
+    ctx.moveTo(metrics.centerx - metrics.textWidth * 0.28, metrics.textBaselineY + metrics.fontSize * 0.69);
+    ctx.quadraticCurveTo(
+        metrics.centerx - metrics.textWidth * 0.18,
+        metrics.textBaselineY + metrics.fontSize * 0.84,
+        metrics.centerx - metrics.textWidth * 0.04,
+        metrics.textBaselineY + metrics.fontSize * 0.88
+    );
     ctx.stroke();
 }
 
@@ -442,21 +480,6 @@ function drawStream(ctx, metrics, state) {
     );
     ctx.stroke();
     ctx.restore();
-
-    // if (state.pressStrength > 0.2) {
-    //     ctx.fillStyle = `rgba(255, 240, 214, ${0.14 + state.ripple * 0.1})`;
-    //     ctx.beginPath();
-    //     ctx.ellipse(
-    //         metrics.centerx,
-    //         liquidY + metrics.fontSize * 0.01,
-    //         metrics.fontSize * (0.06 + state.ripple * 0.018),
-    //         metrics.fontSize * 0.018,
-    //         0,
-    //         0,
-    //         Math.PI * 2
-    //     );
-    //     ctx.fill();
-    // }
 }
 
 let coffeeState = null;
