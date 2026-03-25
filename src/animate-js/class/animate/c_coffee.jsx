@@ -382,6 +382,30 @@ function drawStream(ctx, metrics, state) {
     );
     ctx.stroke();
 
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(
+        metrics.mugLeft + metrics.fontSize * 0.08,
+        metrics.cupTopY + metrics.fontSize * 0.08,
+        metrics.textWidth - metrics.fontSize * 0.16,
+        metrics.cupBottomY - metrics.cupTopY
+    );
+    ctx.clip();
+
+    ctx.strokeStyle = RETRO_COLORS.stream;
+    ctx.lineWidth = streamWidth;
+    ctx.beginPath();
+    ctx.moveTo(tipX, entryY - metrics.fontSize * 0.02);
+    ctx.quadraticCurveTo(
+        metrics.centerx + Math.sin(state.frame * 0.06) * metrics.fontSize * 0.025,
+        (entryY + innerEndY) / 2,
+        metrics.centerx,
+        innerEndY
+    );
+    ctx.stroke();
+
+    ctx.restore();
+
     ctx.strokeStyle = RETRO_COLORS.streamHighlight;
     ctx.lineWidth = streamWidth * 0.22;
     ctx.beginPath();
@@ -406,20 +430,8 @@ function drawStream(ctx, metrics, state) {
     );
     ctx.clip();
 
-    ctx.strokeStyle = RETRO_COLORS.stream;
-    ctx.lineWidth = streamWidth * 0.72;
-    ctx.beginPath();
-    ctx.moveTo(tipX, entryY - metrics.fontSize * 0.02);
-    ctx.quadraticCurveTo(
-        metrics.centerx + Math.sin(state.frame * 0.06) * metrics.fontSize * 0.025,
-        (entryY + innerEndY) / 2,
-        metrics.centerx,
-        innerEndY
-    );
-    ctx.stroke();
-
     ctx.strokeStyle = RETRO_COLORS.streamHighlight;
-    ctx.lineWidth = streamWidth * 0.16;
+    ctx.lineWidth = streamWidth * 0.22;
     ctx.beginPath();
     ctx.moveTo(tipX - streamWidth * 0.04, entryY);
     ctx.quadraticCurveTo(
@@ -431,20 +443,20 @@ function drawStream(ctx, metrics, state) {
     ctx.stroke();
     ctx.restore();
 
-    if (state.pressStrength > 0.2) {
-        ctx.fillStyle = `rgba(255, 240, 214, ${0.14 + state.ripple * 0.1})`;
-        ctx.beginPath();
-        ctx.ellipse(
-            metrics.centerx,
-            liquidY + metrics.fontSize * 0.01,
-            metrics.fontSize * (0.06 + state.ripple * 0.018),
-            metrics.fontSize * 0.018,
-            0,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
-    }
+    // if (state.pressStrength > 0.2) {
+    //     ctx.fillStyle = `rgba(255, 240, 214, ${0.14 + state.ripple * 0.1})`;
+    //     ctx.beginPath();
+    //     ctx.ellipse(
+    //         metrics.centerx,
+    //         liquidY + metrics.fontSize * 0.01,
+    //         metrics.fontSize * (0.06 + state.ripple * 0.018),
+    //         metrics.fontSize * 0.018,
+    //         0,
+    //         0,
+    //         Math.PI * 2
+    //     );
+    //     ctx.fill();
+    // }
 }
 
 let coffeeState = null;
@@ -477,10 +489,10 @@ export function AnimationC(ctx, width, height, movement) {
     ctx.fill();
 
     drawMugSilhouette(ctx, metrics);
+    drawStream(ctx, metrics, state);
     drawCoffeeFill(ctx, metrics, state);
     drawMugOutline(ctx, metrics);
     drawSteam(ctx, metrics, state);
-    drawStream(ctx, metrics, state);
 
     ctx.restore();
 }
