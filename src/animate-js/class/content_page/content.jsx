@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import '../../style/content.css';
@@ -8,169 +8,196 @@ import { CompactScreenCriteria } from '../constants';
 
 function Content({ aspectRatio }) {
     const canvasRef = useRef(null);
-    const contextRef = useRef(null);
+    const interactionRef = useRef({
+        isDown: false,
+        mousePoint: { x: 0, y: 0 },
+        mouseButton: null,
+    });
     const { id } = useParams();
-
-    const [ctx, setCtx] = useState();
-    const [isDown, setIsDown] = useState(false);
-    const [mousePoint, setMousePoint] = useState({ x: 0, y: 0 });
-    const [mouseButton, setMouseButton] = useState(null);
     const [isToolTipOn, setIsToolTipOn] = useState(false);
+    const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 
-    const animation = items.get(id);
+    const isCompactScreen = aspectRatio < CompactScreenCriteria;
+    const articleCode = id ? id.toUpperCase() : '?';
+    const animation = items.get(articleCode);
+    const articleNumber = id ? String(articleCode.charCodeAt(0) - 64).padStart(2, '0') : '--';
+    const title = animation ? animation.title : 'Pending Column';
+    const bodyLines = animation && animation.text.length
+        ? animation.text
+        : ['This entry is being prepared.'];
+    const toolTipLines = animation ? animation.toolTipText : [];
+    const canvasBackground = animation ? animation.backgroundColor : '#f4ead7';
 
     useEffect(() => {
         return () => {
-            animation.clean();
-        }
+            animation?.clean?.();
+        };
     }, [animation]);
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
+        if (!isCompactScreen) {
+            setIsDescriptionOpen(false);
+        }
+    }, [isCompactScreen]);
 
-        if (aspectRatio < CompactScreenCriteria) {
-            canvas.width = devicePixelRatio * window.innerWidth;
-            canvas.height = devicePixelRatio * window.innerHeight * 0.6;
-        } else {
-            canvas.width = devicePixelRatio * window.innerWidth * 0.7;
-            canvas.height = devicePixelRatio * window.innerHeight;
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas || !animation) {
+            return undefined;
         }
 
+        const context = canvas.getContext('2d');
+
         function resizeCanvas() {
-            const canvas = canvasRef.current;
-            if (canvas) {
-                if (aspectRatio < CompactScreenCriteria) {
-                    canvas.width = devicePixelRatio * window.innerWidth;
-                    canvas.height = devicePixelRatio * window.innerHeight * 0.6;
-                } else {
-                    canvas.width = devicePixelRatio * window.innerWidth * 0.7;
-                    canvas.height = devicePixelRatio * window.innerHeight;
-                }
+            const pixelRatio = window.devicePixelRatio || 1;
+
+            if (aspectRatio < CompactScreenCriteria) {
+                canvas.width = pixelRatio * window.innerWidth;
+                canvas.height = pixelRatio * window.innerHeight;
+            } else {
+                canvas.width = pixelRatio * window.innerWidth * 0.6;
+                canvas.height = pixelRatio * window.innerHeight;
             }
         }
 
+        resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        canvas.style.backgroundColor = animation ? animation.backgroundColor : 'bisque';
-
-        context.strokeStyle = 'black';
+        canvas.style.backgroundColor = canvasBackground;
+        context.strokeStyle = '#1f1a14';
         context.lineWidth = 2.5;
-        contextRef.current = context;
 
         let requestId;
 
-        const requestAnimation = () => {
-            requestId = window.requestAnimationFrame(requestAnimation);
-
-            if (ctx) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                if (animation)
-                    animation.animate(ctx, canvas.width, canvas.height,
-                        {
-                            isDown: isDown,
-                            mousePoint: mousePoint,
-                            mouseButton: mouseButton
-                        });
-            }
+        const draw = () => {
+            requestId = window.requestAnimationFrame(draw);
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            animation.animate(
+                context,
+                canvas.width,
+                canvas.height,
+                interactionRef.current,
+            );
         };
 
-        requestAnimation();
-
-        setCtx(context);
+        draw();
 
         return () => {
             window.cancelAnimationFrame(requestId);
+            window.removeEventListener('resize', resizeCanvas);
         };
-    }, [ctx, animation, isDown, mousePoint, mouseButton, aspectRatio]);
+    }, [animation, aspectRatio, canvasBackground]);
 
-    function mouseDown({ nativeEvent }) {
+    function updatePointerState(nativeEvent, isDown) {
+        const pixelRatio = window.devicePixelRatio || 1;
         const { button, offsetX, offsetY } = nativeEvent;
-        setIsDown(true);
-        setMouseButton(button === 0 ? 'left' : 'right');
-        setMousePoint({ x: devicePixelRatio * offsetX, y: devicePixelRatio * offsetY });
-    };
 
-    function mouseUp() {
-        setIsDown(false);
-        setMouseButton(null);
-    };
+        interactionRef.current = {
+            isDown,
+            mouseButton: isDown ? (button === 2 ? 'right' : 'left') : null,
+            mousePoint: {
+                x: pixelRatio * offsetX,
+                y: pixelRatio * offsetY,
+            },
+        };
+    }
 
-    function mouseMove({ nativeEvent }) {
-        const { offsetX, offsetY } = nativeEvent;
-        setMousePoint({ x: devicePixelRatio * offsetX, y: devicePixelRatio * offsetY });
-    };
+    function pointerDown(event) {
+        updatePointerState(event.nativeEvent, true);
+        event.currentTarget.setPointerCapture(event.pointerId);
+    }
 
-    function toolTipClick() {
-        setIsToolTipOn(!isToolTipOn);
+    function pointerUp(event) {
+        updatePointerState(event.nativeEvent, false);
+
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+        }
+    }
+
+    function pointerMove({ nativeEvent }) {
+        const pixelRatio = window.devicePixelRatio || 1;
+        interactionRef.current = {
+            ...interactionRef.current,
+            mousePoint: {
+                x: pixelRatio * nativeEvent.offsetX,
+                y: pixelRatio * nativeEvent.offsetY,
+            },
+        };
     }
 
     return (
         <div className='content-page'>
-            <div className='content-description'>
-                <Link className='content-close' to={'/'} />
-                <div className='content-alphabet'>
-                    {id + id.toLowerCase()}
-                </div>
-                <div className='content-title'>
-                    {animation ? animation.title : ''}
-                </div>
-                <div className='content-text'>
-                    {animation ?
-                        animation.text.map((line, i) => (
-                            <div className='content-text-line'
-                                key={i}>
-                                {line}
-                            </div>
-                        ))
-                        : ''}
-                </div>
-            </div>
-            <div className='content-canvas-wrapper'>
-                <canvas className='content-canvas'
-                    ref={canvasRef}
-                    onPointerDown={mouseDown}
-                    onPointerUp={mouseUp}
-                    onPointerLeave={mouseUp}
-                    onPointerMove={mouseMove}
-                    onContextMenu={(e) => { e.preventDefault(); }}
-                >
-                </canvas>
-                {
-                    isToolTipOn && animation ?
-                        (<div
-                            className='content-canvas-info'
-                            style={{
-                                backgroundColor: animation.toolTipColor,
-                                borderColor: animation.toolTipColor,
-                                color: animation.toolTipTextColor
-                            }}
-                        >
-                            {animation ?
-                                animation.toolTipText.map((line, i) => (
-                                    <div className='content-canvas-info-line'
-                                        key={i}>
-                                        {line}
-                                    </div>
-                                ))
-                                : ''}
-                        </div>)
-                        :
-                        null
-                }
+            <div className='content-layout'>
+                <aside className={'content-description' + (isCompactScreen ? ' is-compact' : '') + (isDescriptionOpen ? ' is-open' : '')}>
+                    {!isCompactScreen ? (
+                        <Link className='content-close' to={'/'}>
+                            Back to Index
+                        </Link>
+                    ) : null}
 
-                <div
-                    className='content-canvas-info-button'
-                    style={{
-                        borderColor: animation ? animation.toolTipColor : 'black',
-                        color: animation ? animation.toolTipColor : 'black'
-                    }}
-                    onClick={toolTipClick}
+                    <div className='content-meta'>Letter {articleCode} / No. {articleNumber}</div>
+                    <div className='content-alphabet'>{articleCode + articleCode.toLowerCase()}</div>
+                    <h1 className='content-title'>{title}</h1>
+
+                    <div className='content-text'>
+                        {bodyLines.map((line, index) => (
+                            <p className='content-text-line' key={index}>
+                                {line}
+                            </p>
+                        ))}
+                    </div>
+
+                    {toolTipLines.length ? (
+                        <button
+                            className='content-note-toggle'
+                            onClick={() => { setIsToolTipOn(!isToolTipOn); }}
+                            type='button'
+                        >
+                            {isToolTipOn ? 'Hide Interaction Note' : 'Show Interaction Note'}
+                        </button>
+                    ) : null}
+
+                    {isToolTipOn && toolTipLines.length ? (
+                        <div className='content-note'>
+                            {toolTipLines.map((line, index) => (
+                                <p className='content-note-line' key={index}>
+                                    {line}
+                                </p>
+                            ))}
+                        </div>
+                    ) : null}
+                </aside>
+                <section
+                    className='content-canvas-wrapper'
+                    style={{ '--content-canvas-paper': canvasBackground }}
                 >
-                    {isToolTipOn ? '!' : '?'}
-                </div>
+                    {isCompactScreen ? (
+                        <div className='content-canvas-controls'>
+                            <Link className='content-canvas-close' to={'/'}>
+                                Back to Index
+                            </Link>
+                            <button
+                                className='content-panel-toggle'
+                                onClick={() => { setIsDescriptionOpen(!isDescriptionOpen); }}
+                                type='button'
+                            >
+                                {isDescriptionOpen ? 'Hide Description' : 'Show Description'}
+                            </button>
+                        </div>
+                    ) : null}
+                    <canvas
+                        className='content-canvas'
+                        ref={canvasRef}
+                        onPointerDown={pointerDown}
+                        onPointerUp={pointerUp}
+                        onPointerLeave={pointerUp}
+                        onPointerMove={pointerMove}
+                        onContextMenu={(event) => { event.preventDefault(); }}
+                    />
+                </section>
             </div>
-        </div >
+        </div>
     );
 }
 

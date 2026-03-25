@@ -12,6 +12,7 @@ function TransitionWrapper() {
     const [aspectRatio, setAspectRatio] = useState(window.innerWidth / window.innerHeight);
 
     const location = useLocation();
+    const isContentRoute = location.pathname.startsWith('/Content/');
 
     useEffect(() => {
         function onResize() {
@@ -40,16 +41,19 @@ function TransitionWrapper() {
     }
 
     return (
-        <TransitionGroup>
+        <TransitionGroup component={null}>
             <CSSTransition
                 key={location.pathname}
                 timeout={1000}
-                className="page-transition"
+                classNames="page-transition"
+                unmountOnExit
             >
-                <Routes location={location}>
-                    <Route path='/' element={<Main deg={deg} setDeg={updateDeg} aspectRatio={aspectRatio} />} />
-                    <Route path='/Content/:id' element={<Content aspectRatio={aspectRatio} />} />
-                </Routes>
+                <div className={isContentRoute ? 'page-stage page-stage-content' : 'page-stage page-stage-main'}>
+                    <Routes location={location}>
+                        <Route path='/' element={<Main deg={deg} setDeg={updateDeg} aspectRatio={aspectRatio} />} />
+                        <Route path='/Content/:id' element={<Content aspectRatio={aspectRatio} />} />
+                    </Routes>
+                </div>
             </CSSTransition>
         </TransitionGroup>
     );
