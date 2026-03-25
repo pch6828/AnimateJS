@@ -1,5 +1,5 @@
+import { AnimationC, CleanC } from "../animate/c_coffee";
 // import { AnimationA, CleanA } from "../animate/a_algorithm";
-// import { AnimationC, CleanC } from "../animate/c_coffee";
 // import { AnimationD, CleanD } from "../animate/d_design_develop";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
@@ -17,7 +17,14 @@
 const items = new Map([
     ['A', null],
     ['B', null],
-    ['C', null],
+    ['C', {
+        backgroundColor: '#00CFB4',
+        animate: AnimationC,
+        clean: CleanC,
+        title: 'Coffee',
+        text: [],
+        toolTipText: []
+    }],
     ['D', null],
     ['E', null],
     ['F', null],

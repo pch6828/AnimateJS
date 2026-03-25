@@ -1,7 +1,7 @@
 const items = [
     { key: 'A', title: '', hasDetailPage: false },
     { key: 'B', title: '', hasDetailPage: false },
-    { key: 'C', title: '', hasDetailPage: false },
+    { key: 'C', title: 'Coffee', hasDetailPage: true, date: '2026-03-XX' },
     { key: 'D', title: '', hasDetailPage: false },
     { key: 'E', title: '', hasDetailPage: false },
     { key: 'F', title: '', hasDetailPage: false },
