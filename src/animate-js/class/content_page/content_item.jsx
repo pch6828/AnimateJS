@@ -7,7 +7,7 @@ import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee"
 // import { AnimationJ, CleanJ } from "../animate/j_judging";
 // import { AnimationK, CleanK } from "../animate/k_kidult";
 // import { AnimationM, CleanM } from "../animate/m_mentor";
-// import { AnimationP, CleanP } from "../animate/p_postgraduate";
+import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 // import { AnimationR, CleanR } from "../animate/r_rambler";
 // import { AnimationS, CleanS } from "../animate/s_steady";
 // import { AnimationT, CleanT } from "../animate/t_tracing";
@@ -36,7 +36,13 @@ const items = new Map([
     ['M', null],
     ['N', null],
     ['O', null],
-    ['P', null],
+    ['P', {
+        animate: AnimationP,
+        clean: CleanP,
+        title: 'Postgraduate',
+        text: descriptionP,
+        toolTipText: toolTipP
+    }],
     ['Q', null],
     ['R', null],
     ['S', null],
