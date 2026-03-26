@@ -14,7 +14,7 @@ const items = [
     { key: 'M', title: '', hasDetailPage: false },
     { key: 'N', title: '', hasDetailPage: false },
     { key: 'O', title: '', hasDetailPage: false },
-    { key: 'P', title: 'Postgraduate', hasDetailPage: true, date: '2026-03-XX' },
+    { key: 'P', title: 'Postgraduate', hasDetailPage: true, date: '2026-03-26' },
     { key: 'Q', title: '', hasDetailPage: false },
     { key: 'R', title: '', hasDetailPage: false },
     { key: 'S', title: '', hasDetailPage: false },
