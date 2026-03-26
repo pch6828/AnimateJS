@@ -523,3 +523,13 @@ export function AnimationC(ctx, width, height, movement) {
 export function CleanC() {
     coffeeState = null;
 }
+
+export const descriptionC = [
+
+]
+
+export const toolTipC = [
+    '화면을 누르고 있으면 위에서 커피를 머그잔으로 따를 수 있습니다.',
+    '잔 안의 커피는 바로 꽉 차지 않고, 물결치듯 천천히 차오릅니다.',
+    '손을 떼고 조금 기다리면 커피가 다시 서서히 줄어듭니다.'
+];

@@ -1,4 +1,4 @@
-import { AnimationC, CleanC } from "../animate/c_coffee";
+import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee";
 // import { AnimationA, CleanA } from "../animate/a_algorithm";
 // import { AnimationD, CleanD } from "../animate/d_design_develop";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
@@ -21,16 +21,8 @@ const items = new Map([
         animate: AnimationC,
         clean: CleanC,
         title: 'Coffee',
-        text: ['커피를 참 좋아합니다.',
-            '믹스커피부터 드립커피까지, 그날 기분에 맞는 한 잔을 고르는 재미가 있어요.',
-            '요즘은 진한 에스프레소보다는 천천히 마실 수 있는 커피를 더 찾게 됩니다.',
-            ' ',
-            '이번 C 페이지는 머그잔처럼 보이는 COFFEE 텍스트 위에',
-            '커피가 천천히 차오르고 다시 잦아드는 장면을 담아봤습니다.',
-            '가만히 보고 있으면 오래된 카페 포스터 같은 분위기가 나길 바랐어요.'],
-        toolTipText: ['마우스를 누르고 있으면 위에서 커피가 머그잔으로 따라집니다.',
-            '잔 안의 커피는 바로 꽉 차지 않고, 물결치듯 천천히 차오릅니다.',
-            '손을 떼고 조금 기다리면 커피 수위가 다시 서서히 내려갑니다.']
+        text: descriptionC,
+        toolTipText: toolTipC
     }],
     ['D', null],
     ['E', null],
@@ -78,26 +70,6 @@ const items = new Map([
 //             '섞인 막대가 정렬되는 것을 지켜보세요!']
 //     }],
 //     ['B', null],
-//     ['C', {
-//         backgroundColor: '#00CFB4',
-//         toolTipColor: 'black',
-//         toolTipTextColor: 'white',
-//         animate: AnimationC,
-//         clean: CleanC,
-//         title: 'Coffee',
-//         text: ['커피를 참 좋아합니다.',
-//             '믹스커피부터 드립커피까지 다양하게 좋아해요.',
-//             '다만 프랜차이즈 커피는 아.아나 달달한 것만 마십니다.',
-//             ' ',
-//             '대학생 때는 하루에 3잔도 넘게 마실 때도 있었어요.',
-//             '불면증이 생기면서 3년 정도 끊었지만요.',
-//             ' ',
-//             '요새는 가끔 한잔씩 마시고 있습니다.',
-//             '점심 식사 후에 커피를 마시는 게 참 좋더라구요.'],
-//         toolTipText: ['마우스를 꾹 누르면 커피가 잔으로 떨어집니다.',
-//             '커피가 넘치지는 않을테니 걱정 마세요!',
-//             '시간이 지나면 커피는 다시 줄어듭니다.']
-//     }],
 //     ['D', {
 //         backgroundColor: '#32363F',
 //         toolTipColor: 'white',
