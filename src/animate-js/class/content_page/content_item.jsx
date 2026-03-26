@@ -240,12 +240,6 @@ const items = new Map([
 //     ['N', null],
 //     ['O', null],
 //     ['P', {
-//         backgroundColor: '#B6CADA',
-//         toolTipColor: 'black',
-//         toolTipTextColor: 'white',
-//         animate: AnimationP,
-//         clean: CleanP,
-//         title: 'Postgraduate',
 //         text: ['대학원 졸업했습니다.',
 //             'KAIST에서 석사과정을 밟았어요.',
 //             '학부 때 DB에 흥미가 생겨서 진학하게 되었죠.',
@@ -255,7 +249,6 @@ const items = new Map([
 //             '전 연구 쪽으로는 잘 안 맞더라구요.',
 //             '그럼에도 연구실 생활은 행복했습니다.',
 //             '오죽하면 졸업하고도 교수님 회사에 입사했을까요.'],
-//         toolTipText: ['졸업식을 떠올리며, 학사모를 잡고 던져보세요!']
 //     }],
 //     ['Q', null],
 //     ['R', {
