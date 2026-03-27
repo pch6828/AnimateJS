@@ -1,5 +1,6 @@
+import { AnimationA, CleanA, descriptionA, toolTipA } from "../animate/a_algorithm";
 import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee";
-// import { AnimationA, CleanA } from "../animate/a_algorithm";
+import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 // import { AnimationD, CleanD } from "../animate/d_design_develop";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
@@ -7,7 +8,6 @@ import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee"
 // import { AnimationJ, CleanJ } from "../animate/j_judging";
 // import { AnimationK, CleanK } from "../animate/k_kidult";
 // import { AnimationM, CleanM } from "../animate/m_mentor";
-import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 // import { AnimationR, CleanR } from "../animate/r_rambler";
 // import { AnimationS, CleanS } from "../animate/s_steady";
 // import { AnimationT, CleanT } from "../animate/t_tracing";
@@ -15,7 +15,13 @@ import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgra
 // import { AnimationW, CleanW } from "../animate/w_workaholic";
 
 const items = new Map([
-    ['A', null],
+    ['A', {
+        animate: AnimationA,
+        clean: CleanA,
+        title: 'Algorithm',
+        text: descriptionA,
+        toolTipText: toolTipA
+    }],
     ['B', null],
     ['C', {
         animate: AnimationC,
@@ -239,17 +245,6 @@ const items = new Map([
 //     }],
 //     ['N', null],
 //     ['O', null],
-//     ['P', {
-//         text: ['대학원 졸업했습니다.',
-//             'KAIST에서 석사과정을 밟았어요.',
-//             '학부 때 DB에 흥미가 생겨서 진학하게 되었죠.',
-//             '석사 하면서 많이 배웠고, 좋은 경험도 많이 했습니다.',
-//             ' ',
-//             '왜 박사 안 갔냐구요?',
-//             '전 연구 쪽으로는 잘 안 맞더라구요.',
-//             '그럼에도 연구실 생활은 행복했습니다.',
-//             '오죽하면 졸업하고도 교수님 회사에 입사했을까요.'],
-//     }],
 //     ['Q', null],
 //     ['R', {
 //         backgroundColor: '#004953',
