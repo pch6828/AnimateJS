@@ -232,33 +232,70 @@ class Saw extends Blade {
         ctx.globalCompositeOperation = 'source-over';
         ctx.lineCap = 'square';
         ctx.lineJoin = 'miter';
-        ctx.lineWidth = width / 20;
-        ctx.strokeStyle = 'rgba(152,160,165,1)';
+        const bodyWidth = width / 20;
+        const bodyLength = width / 5;
+        const toothStartY = bodyLength * 0.5;
+        const toothDepth = bodyWidth * 0.18;
+        const toothOuterX = bodyWidth * 0.5;
+        const toothInnerX = toothOuterX - toothDepth;
+        const toothStep = width / 100;
+        const toothCount = 8;
+        const metalGradient = ctx.createLinearGradient(0, 0, 0, bodyLength + bodyWidth * 0.58);
+        metalGradient.addColorStop(0, '#ece7de');
+        metalGradient.addColorStop(0.44, '#b2b8bc');
+        metalGradient.addColorStop(1, '#6a737a');
+
+        ctx.fillStyle = metalGradient;
+        ctx.shadowColor = 'rgba(29, 22, 18, 0.1)';
+        ctx.shadowBlur = width / 80;
+        ctx.shadowOffsetY = width / 120;
 
         ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, width / 5);
+        ctx.moveTo(-bodyWidth * 0.5, 0);
+        ctx.lineTo(toothOuterX, 0);
+        ctx.lineTo(toothOuterX, toothStartY);
+        for (let i = 0; i < toothCount; i++) {
+            const valleyY = toothStartY + toothStep * (i * 2 + 0.8);
+            const peakY = toothStartY + toothStep * (i * 2 + 1.6);
+            ctx.lineTo(toothInnerX, valleyY);
+            ctx.lineTo(toothOuterX, peakY);
+        }
+        ctx.lineTo(-bodyWidth * 0.18, toothStartY + toothStep * (toothCount * 2 - 0.2));
+        ctx.lineTo(-bodyWidth * 0.5, bodyLength * 0.8);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.shadowColor = 'transparent';
+        ctx.strokeStyle = 'rgba(81, 86, 90, 0.5)';
+        ctx.lineWidth = Math.max(1.1, width / 145);
+        ctx.beginPath();
+        ctx.moveTo(-bodyWidth * 0.5, 0);
+        ctx.lineTo(toothOuterX, 0);
+        ctx.lineTo(toothOuterX, toothStartY);
+        for (let i = 0; i < toothCount; i++) {
+            const valleyY = toothStartY + toothStep * (i * 2 + 0.8);
+            const peakY = toothStartY + toothStep * (i * 2 + 1.6);
+            ctx.lineTo(toothInnerX, valleyY);
+            ctx.lineTo(toothOuterX, peakY);
+        }
+        ctx.lineTo(-bodyWidth * 0.18, toothStartY + toothStep * (toothCount * 2 - 0.2));
+        ctx.lineTo(-bodyWidth * 0.5, bodyLength * 0.8);
         ctx.closePath();
         ctx.stroke();
 
-        ctx.fillStyle = 'rgba(152,160,165,1)';
+        ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+        ctx.lineWidth = Math.max(1, width / 180);
         ctx.beginPath();
-        ctx.moveTo(-ctx.lineWidth / 2, width / 5 - 1);
-        ctx.arcTo(-ctx.lineWidth / 2, width / 5 + ctx.lineWidth, ctx.lineWidth / 2, width / 5 + ctx.lineWidth, ctx.lineWidth);
-        ctx.lineTo(ctx.lineWidth / 2, width / 5 - 1);
-        ctx.closePath();
-        ctx.fill();
+        ctx.moveTo(bodyWidth * 0.12, bodyWidth * 0.12);
+        ctx.lineTo(bodyWidth * 0.12, bodyLength * 0.82);
+        ctx.stroke();
 
-        ctx.globalCompositeOperation = 'destination-out';
-
+        ctx.strokeStyle = 'rgba(104, 116, 126, 0.32)';
+        ctx.lineWidth = Math.max(1, width / 175);
         ctx.beginPath();
-        ctx.moveTo(ctx.lineWidth / 2 + 1, width / 5 + ctx.lineWidth * 0.8);
-        for (let i = 0; i < 8; i++) {
-            ctx.lineTo(ctx.lineWidth / 4, width / 5 + ctx.lineWidth * 0.8 - width / 100 * (i * 2 + 1));
-            ctx.lineTo(ctx.lineWidth / 2 + 1, width / 5 + ctx.lineWidth * 0.8 - width / 100 * (i * 2 + 2));
-        }
-        ctx.closePath();
-        ctx.fill();
+        ctx.moveTo(0, bodyWidth * 0.22);
+        ctx.lineTo(0, bodyLength * 0.86);
+        ctx.stroke();
         ctx.restore();
     }
 };
