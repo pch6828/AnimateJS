@@ -1,7 +1,9 @@
 const ALGORITHM_TEXT = 'ALGORITHM';
 const BAR_COUNT = ALGORITHM_TEXT.length;
 const FONT_FAMILY = '"VT323", monospace';
-const SORT_SPEED = 0.1;
+const SORT_SPEED = 0.075;
+const STEP_PAUSE_FRAMES = 10;
+const PRE_SWAP_PAUSE_FRAMES = 10;
 const RETRO_COLORS = {
     backgroundTop: '#efe2bf',
     backgroundBottom: '#cbb88f',
@@ -64,25 +66,31 @@ function createState(width, height) {
         frame: 0,
         values: createShuffledValues(),
         compareIndex: 0,
+        activeCompareIndex: 0,
         sortedTail: 0,
         swapping: false,
+        preSwapPauseFrames: 0,
         swapProgress: 0,
         swapIndex: -1,
         prevIsDown: false,
         shuffleFlash: 1,
         settleFrames: 0,
+        pauseFrames: 0,
     };
 }
 
 function resetState(state) {
     state.values = createShuffledValues();
     state.compareIndex = 0;
+    state.activeCompareIndex = 0;
     state.sortedTail = 0;
     state.swapping = false;
+    state.preSwapPauseFrames = 0;
     state.swapProgress = 0;
     state.swapIndex = -1;
     state.shuffleFlash = 1;
     state.settleFrames = 0;
+    state.pauseFrames = 0;
 }
 
 function ensureState(width, height) {
@@ -96,6 +104,22 @@ function ensureState(width, height) {
 function updateBubbleSort(state) {
     state.frame += 1;
     state.shuffleFlash *= 0.94;
+
+    if (state.pauseFrames > 0) {
+        state.pauseFrames -= 1;
+        return;
+    }
+
+    if (state.preSwapPauseFrames > 0) {
+        state.preSwapPauseFrames -= 1;
+
+        if (state.preSwapPauseFrames === 0) {
+            state.swapping = true;
+            state.swapProgress = 0;
+        }
+
+        return;
+    }
 
     if (state.swapping) {
         state.swapProgress = clamp(state.swapProgress + SORT_SPEED, 0, 1);
@@ -111,6 +135,7 @@ function updateBubbleSort(state) {
             state.swapProgress = 0;
             state.compareIndex += 1;
             state.swapIndex = -1;
+            state.pauseFrames = STEP_PAUSE_FRAMES;
         }
 
         return;
@@ -124,19 +149,23 @@ function updateBubbleSort(state) {
     const lastComparableIndex = BAR_COUNT - 1 - state.sortedTail;
 
     if (state.compareIndex >= lastComparableIndex) {
+        state.activeCompareIndex = -1;
         state.sortedTail += 1;
         state.compareIndex = 0;
+        state.pauseFrames = STEP_PAUSE_FRAMES;
         return;
     }
 
+    state.activeCompareIndex = state.compareIndex;
+
     if (state.values[state.compareIndex] > state.values[state.compareIndex + 1]) {
-        state.swapping = true;
         state.swapIndex = state.compareIndex;
-        state.swapProgress = 0;
+        state.preSwapPauseFrames = PRE_SWAP_PAUSE_FRAMES;
         return;
     }
 
     state.compareIndex += 1;
+    state.pauseFrames = STEP_PAUSE_FRAMES;
 }
 
 function updateInteraction(state, movement) {
@@ -263,6 +292,19 @@ function getBarX(metrics, state, index) {
     return metrics.slotCenters[index];
 }
 
+function getBarLift(metrics, state, index) {
+    if (!state.swapping) {
+        return 0;
+    }
+
+    if (index !== state.swapIndex && index !== state.swapIndex + 1) {
+        return 0;
+    }
+
+    const easedProgress = easeInOut(state.swapProgress);
+    return Math.sin(easedProgress * Math.PI) * metrics.fontSize * 0.08;
+}
+
 function drawBar(ctx, x, baseY, width, height, fillColor, shadeColor) {
     ctx.fillStyle = shadeColor;
     ctx.fillRect(x - width / 2 + width * 0.08, baseY - height, width, height);
@@ -284,23 +326,24 @@ function drawBars(ctx, metrics, state) {
         ? -1
         : state.swapping
             ? state.swapIndex
-            : state.compareIndex;
+            : state.activeCompareIndex;
 
     for (let index = 0; index < BAR_COUNT; index += 1) {
         const value = state.values[index];
         const x = getBarX(metrics, state, index);
+        const lift = getBarLift(metrics, state, index);
         const height = value * unitHeight;
         const isSorted = isFullySorted || index >= BAR_COUNT - state.sortedTail;
         const isActive = compareIndex >= 0 && (index === compareIndex || index === compareIndex + 1);
         const fillColor = isSorted ? RETRO_COLORS.barSorted : isActive ? RETRO_COLORS.barActive : RETRO_COLORS.barFill;
         const shadeColor = isSorted ? RETRO_COLORS.barSortedShade : RETRO_COLORS.barShade;
 
-        drawBar(ctx, x, metrics.barBaseY, metrics.barWidth, height, fillColor, shadeColor);
+        drawBar(ctx, x, metrics.barBaseY - lift, metrics.barWidth, height, fillColor, shadeColor);
 
         if (isActive) {
             ctx.strokeStyle = 'rgba(24, 57, 47, 0.8)';
             ctx.lineWidth = Math.max(1.5, metrics.barWidth * 0.08);
-            ctx.strokeRect(x - metrics.barWidth / 2, metrics.barBaseY - height, metrics.barWidth, height);
+            ctx.strokeRect(x - metrics.barWidth / 2, metrics.barBaseY - lift - height, metrics.barWidth, height);
         }
     }
 }
@@ -332,13 +375,16 @@ export function CleanA() {
 }
 
 export const descriptionA = [
-    `I enjoy the moment when a scrambled structure slowly reveals its rule.
-    Bubble sort may be simple, but watching each local comparison accumulate into order still feels satisfying.`,
-    `This scene places a bar above every letter in ALGORITHM, starts from a shuffled order,
-    and lets the bars settle into place one swap at a time.`
+    `대학에서는 알고리즘 공부를 좀 했습니다.
+    새내기 때 알고리즘 동아리에 들어간 게 계기였는데, 덕분에 나름 특이한 경험도 많이 했습니다.
+    동아리 학술부장도 해보고, 알고리즘 대회 출제도 해보고, 동아리 연합 세미나에서 수업도 해봤어요.
+    4학년쯤 됐을 때는 코딩테스트 외주도 두 번 정도 뛰었어요.`,
+    `인생 첫 코딩 공부였는데, 나름 적성에 맞았었던 것 같아요.
+    덕분에 CS에 재미를 붙여서, 전공 수업도 잘 따라갈 수 있었습니다.
+    `
 ];
 
 export const toolTipA = [
-    'Click once to reshuffle the bars.',
-    'The bars sort themselves again with bubble sort.'
+    '화면을 눌렀다 떼면 막대가 섞입니다.',
+    '섞인 막대는 버블 정렬 알고리즘에 따라 하나씩 정렬됩니다.'
 ];

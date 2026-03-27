@@ -1,5 +1,5 @@
 const items = [
-    { key: 'A', title: 'Algorithm', hasDetailPage: true, date: '2026-03-XX' },
+    { key: 'A', title: 'Algorithm', hasDetailPage: true, date: '2026-03-27' },
     { key: 'B', title: '', hasDetailPage: false },
     { key: 'C', title: 'Coffee', hasDetailPage: true, date: '2026-03-26' },
     { key: 'D', title: '', hasDetailPage: false },
