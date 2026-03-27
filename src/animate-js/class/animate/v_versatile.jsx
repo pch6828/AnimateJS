@@ -309,25 +309,64 @@ class Driver extends Blade {
         ctx.globalCompositeOperation = 'source-over';
         ctx.lineCap = 'square';
         ctx.lineJoin = 'miter';
-        ctx.lineWidth = width / 50;
-        ctx.strokeStyle = 'rgba(152,160,165,1)';
+        const shaftWidth = width / 50;
+        const shaftLength = width / 5;
+        const shaftGradient = ctx.createLinearGradient(0, 0, 0, shaftLength);
+        shaftGradient.addColorStop(0, '#ece7de');
+        shaftGradient.addColorStop(0.42, '#b2b8bc');
+        shaftGradient.addColorStop(1, '#6d7780');
+        ctx.lineWidth = shaftWidth;
+        ctx.strokeStyle = shaftGradient;
+        ctx.shadowColor = 'rgba(29, 22, 18, 0.08)';
+        ctx.shadowBlur = width / 110;
+        ctx.shadowOffsetY = width / 130;
 
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(0, width / 5);
+        ctx.lineTo(0, shaftLength);
         ctx.closePath();
         ctx.stroke();
 
-        ctx.fillStyle = 'rgba(116,139,151,1)';
+        ctx.shadowColor = 'transparent';
+        ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+        ctx.lineWidth = Math.max(1, width / 190);
         ctx.beginPath();
-        ctx.moveTo(-ctx.lineWidth / 2, width / 5);
-        ctx.lineTo(-ctx.lineWidth / 4 * 3, width / 5 + ctx.lineWidth / 4);
-        ctx.lineTo(-ctx.lineWidth / 4 * 3, width / 5 + ctx.lineWidth * 1.5);
-        ctx.lineTo(ctx.lineWidth / 4 * 3, width / 5 + ctx.lineWidth * 1.5);
-        ctx.lineTo(ctx.lineWidth / 4 * 3, width / 5 + ctx.lineWidth / 4);
-        ctx.lineTo(ctx.lineWidth / 2, width / 5);
+        ctx.moveTo(shaftWidth * 0.12, shaftWidth * 0.2);
+        ctx.lineTo(shaftWidth * 0.12, shaftLength * 0.9);
+        ctx.stroke();
+
+        const headTopY = shaftLength;
+        const headShoulderY = headTopY + shaftWidth * 0.18;
+        const headBottomY = headTopY + shaftWidth * 1.28;
+        const headHalfTop = shaftWidth * 0.36;
+        const headHalfMid = shaftWidth * 0.88;
+        const headHalfBottom = shaftWidth * 0.76;
+        const headGradient = ctx.createLinearGradient(0, headTopY, 0, headBottomY);
+        headGradient.addColorStop(0, '#8ca0ab');
+        headGradient.addColorStop(0.5, '#6f8793');
+        headGradient.addColorStop(1, '#556a75');
+
+        ctx.fillStyle = headGradient;
+        ctx.beginPath();
+        ctx.moveTo(-headHalfTop, headTopY);
+        ctx.lineTo(headHalfTop, headTopY);
+        ctx.lineTo(headHalfMid, headShoulderY);
+        ctx.lineTo(headHalfBottom, headBottomY);
+        ctx.lineTo(-headHalfBottom, headBottomY);
+        ctx.lineTo(-headHalfMid, headShoulderY);
         ctx.closePath();
         ctx.fill();
+
+        ctx.strokeStyle = 'rgba(76, 89, 98, 0.56)';
+        ctx.lineWidth = Math.max(1.1, width / 150);
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+        ctx.lineWidth = Math.max(1, width / 190);
+        ctx.beginPath();
+        ctx.moveTo(-headHalfTop * 0.2, headTopY + shaftWidth * 0.18);
+        ctx.lineTo(-headHalfBottom * 0.1, headBottomY - shaftWidth * 0.22);
+        ctx.stroke();
 
         ctx.restore();
     }
