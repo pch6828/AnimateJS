@@ -421,3 +421,11 @@ export function CleanV() {
     Blade.selected = null;
     blades = [];
 }
+
+export const descriptionV = [
+    ``,
+];
+
+export const toolTipV = [
+    ''
+];
