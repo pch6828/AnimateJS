@@ -4,6 +4,94 @@ const BladeStatus = {
     close: 'close'
 };
 
+const HANDLE_COLORS = {
+    bodyTop: '#99332c',
+    bodyBottom: '#742320',
+    outline: '#4a1714',
+    highlight: 'rgba(255, 231, 208, 0.12)',
+    shadow: 'rgba(32, 16, 12, 0.12)',
+    rivetLight: '#d4bb8b',
+    rivetDark: '#8a6635',
+    ring: '#6e8a97',
+    ink: '#16100f'
+};
+
+function drawRivet(ctx, x, y, radius) {
+    const gradient = ctx.createRadialGradient(
+        x - radius * 0.3,
+        y - radius * 0.3,
+        radius * 0.15,
+        x,
+        y,
+        radius
+    );
+    gradient.addColorStop(0, HANDLE_COLORS.rivetLight);
+    gradient.addColorStop(1, HANDLE_COLORS.rivetDark);
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(55, 31, 16, 0.32)';
+    ctx.lineWidth = Math.max(1, radius * 0.18);
+    ctx.stroke();
+}
+
+function drawHandleRing(ctx, centerx, centery, width) {
+    const ringX = centerx + width / 8 + width / 30;
+    const ringY = centery + width / 15;
+    const ringRadius = width / 40;
+    const connectorWidth = Math.max(1.5, width / 140);
+
+    ctx.save();
+
+    ctx.strokeStyle = 'rgba(63, 72, 80, 0.26)';
+    ctx.lineWidth = Math.max(2, width / 85);
+    ctx.beginPath();
+    ctx.arc(ringX, ringY + ringRadius * 0.14, ringRadius * 0.98, 0, Math.PI * 2);
+    ctx.stroke();
+
+    const ringGradient = ctx.createLinearGradient(
+        ringX,
+        ringY - ringRadius,
+        ringX,
+        ringY + ringRadius
+    );
+    ringGradient.addColorStop(0, '#bfcacf');
+    ringGradient.addColorStop(0.45, HANDLE_COLORS.ring);
+    ringGradient.addColorStop(1, '#647c89');
+
+    ctx.strokeStyle = ringGradient;
+    ctx.lineWidth = Math.max(1.8, width / 110);
+    ctx.beginPath();
+    ctx.arc(ringX, ringY, ringRadius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(255, 248, 239, 0.28)';
+    ctx.lineWidth = Math.max(1, width / 180);
+    ctx.beginPath();
+    ctx.arc(ringX - ringRadius * 0.08, ringY - ringRadius * 0.06, ringRadius * 0.82, Math.PI * 1.05, Math.PI * 1.68);
+    ctx.stroke();
+
+    ctx.strokeStyle = HANDLE_COLORS.handleEdge;
+    ctx.lineWidth = connectorWidth;
+    ctx.beginPath();
+    ctx.moveTo(centerx + width / 8 - width / 140, centery + width / 35);
+    ctx.lineTo(ringX - ringRadius * 0.88, ringY - ringRadius * 0.5);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(255, 236, 214, 0.1)';
+    ctx.lineWidth = Math.max(1, connectorWidth * 0.7);
+    ctx.beginPath();
+    ctx.moveTo(centerx + width / 8 - width / 160, centery + width / 38);
+    ctx.lineTo(ringX - ringRadius * 0.74, ringY - ringRadius * 0.58);
+    ctx.stroke();
+
+    ctx.restore();
+}
+
 class Blade {
     static selected = null;
     static EPSILON = 0.000001;
@@ -95,53 +183,41 @@ class Dagger extends Blade {
         ctx.globalCompositeOperation = 'source-over';
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.lineWidth = width / 20;
-        ctx.strokeStyle = 'rgba(152,160,165,1)';
+        const bladeLength = width / 4;
+        const bladeWidth = width / 22;
+        const bladeGradient = ctx.createLinearGradient(0, 0, 0, bladeLength);
+        bladeGradient.addColorStop(0, '#f0ece4');
+        bladeGradient.addColorStop(0.38, '#b9c0c4');
+        bladeGradient.addColorStop(1, '#6f7a82');
 
+        ctx.fillStyle = bladeGradient;
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(0, width / 4);
+        ctx.lineTo(bladeWidth / 2, bladeLength * 0.12);
+        ctx.lineTo(bladeWidth / 2, bladeLength * 0.78);
+        ctx.quadraticCurveTo(bladeWidth * 0.22, bladeLength * 0.96, 0, bladeLength);
+        ctx.quadraticCurveTo(-bladeWidth * 0.22, bladeLength * 0.96, -bladeWidth / 2, bladeLength * 0.78);
+        ctx.lineTo(-bladeWidth / 2, bladeLength * 0.12);
         ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(81, 86, 90, 0.55)';
+        ctx.lineWidth = Math.max(1.1, width / 140);
         ctx.stroke();
 
-        ctx.globalCompositeOperation = 'source-atop';
-        ctx.save();
-        ctx.translate(ctx.lineWidth / 4, 0);
-        ctx.strokeStyle = 'rgba(116,139,151,1)';
-        ctx.lineWidth = ctx.lineWidth / 2;
-
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = Math.max(1, width / 180);
         ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, width / 4);
-        ctx.closePath();
+        ctx.moveTo(bladeWidth * 0.18, bladeLength * 0.08);
+        ctx.lineTo(bladeWidth * 0.18, bladeLength * 0.76);
         ctx.stroke();
 
-        ctx.restore();
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.lineCap = 'square';
-        ctx.lineJoin = 'miter';
-
-        ctx.translate(0, width / 6 * 1.8);
-        ctx.save();
-        ctx.rotate(Math.PI / 9);
-
+        ctx.strokeStyle = 'rgba(108, 123, 133, 0.45)';
+        ctx.lineWidth = Math.max(1, width / 170);
         ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, -width / 7);
-        ctx.closePath();
+        ctx.moveTo(0, bladeLength * 0.16);
+        ctx.lineTo(0, bladeLength * 0.86);
         ctx.stroke();
-
-        ctx.restore();
-        ctx.save();
-        ctx.rotate(-Math.PI / 9);
-
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, -width / 7);
-        ctx.closePath();
-        ctx.stroke();
-
-        ctx.restore();
 
         ctx.restore();
     }
@@ -359,6 +435,11 @@ export function AnimationV(ctx, width, height, movement) {
     const centerx = width / 2;
     const centery = height / 2;
     const fontSize = height / 6;
+    const handleLeft = centerx - width / 8;
+    const handleRight = centerx + width / 8;
+    const handleLineWidth = width / 10;
+    const handleTop = centery - handleLineWidth / 2;
+    const handleBottom = centery + handleLineWidth / 2;
 
     if (blades.length === 0) {
         blades[0] = new Dagger(0.375, 0.5, Math.PI * 13 / 12);
@@ -373,46 +454,60 @@ export function AnimationV(ctx, width, height, movement) {
         blades[i].move(movement, width, height, ctx);
     }
 
+    ctx.fillStyle = HANDLE_COLORS.shadow;
+    ctx.beginPath();
+    ctx.ellipse(centerx, centery + width / 18, width / 4.7, width / 30, 0, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
+
+    const handleGradient = ctx.createLinearGradient(0, handleTop, 0, handleBottom);
+    handleGradient.addColorStop(0, HANDLE_COLORS.bodyTop);
+    handleGradient.addColorStop(1, HANDLE_COLORS.bodyBottom);
+
     ctx.globalCompositeOperation = 'source-over';
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.strokeStyle = 'rgba(128,0,32,1)';
-    ctx.lineWidth = width / 10;
+    ctx.strokeStyle = handleGradient;
+    ctx.lineWidth = handleLineWidth;
+    ctx.shadowColor = 'rgba(27, 14, 11, 0.14)';
+    ctx.shadowBlur = width / 55;
+    ctx.shadowOffsetY = width / 110;
 
     ctx.beginPath();
-    ctx.moveTo(centerx - width / 8, centery);
-    ctx.lineTo(centerx + width / 8, centery);
+    ctx.moveTo(handleLeft, centery);
+    ctx.lineTo(handleRight, centery);
     ctx.closePath();
 
     ctx.stroke();
 
-    ctx.fillStyle = 'rgba(116,139,151,1)';
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = HANDLE_COLORS.outline;
+    ctx.lineWidth = Math.max(1.5, width / 125);
     ctx.beginPath();
-    ctx.arc(centerx - width / 8, centery, width / 60, 0, Math.PI * 2);
-    ctx.closePath();
-
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(centerx + width / 8, centery, width / 60, 0, Math.PI * 2);
-    ctx.closePath();
-
-    ctx.fill();
-
-    ctx.lineWidth = width / 100;
-    ctx.strokeStyle = 'rgba(116,139,151,1)';
-    ctx.beginPath();
-    ctx.arc(centerx + width / 8 + width / 30, centery + width / 15, width / 40, 0, Math.PI * 2);
-    ctx.closePath();
-
+    ctx.moveTo(handleLeft, handleTop);
+    ctx.lineTo(handleRight, handleTop);
+    ctx.moveTo(handleLeft, handleBottom);
+    ctx.lineTo(handleRight, handleBottom);
     ctx.stroke();
 
-    ctx.fillStyle = 'rgba(0,0,0,1)';
+    ctx.strokeStyle = HANDLE_COLORS.highlight;
+    ctx.lineWidth = Math.max(1, width / 150);
+    ctx.beginPath();
+    ctx.moveTo(handleLeft + width / 60, centery - handleLineWidth * 0.18);
+    ctx.lineTo(handleRight - width / 40, centery - handleLineWidth * 0.18);
+    ctx.stroke();
+
+    drawRivet(ctx, handleLeft, centery, width / 60);
+    drawRivet(ctx, handleRight, centery, width / 60);
+
+    drawHandleRing(ctx, centerx, centery, width);
+
+    ctx.fillStyle = HANDLE_COLORS.ink;
     ctx.font = 'italic ' + fontSize + 'px Georgia';
     const textwidth = ctx.measureText('Versatile').width;
 
     ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = 'rgba(0,0,0,1)';
+    ctx.fillStyle = HANDLE_COLORS.ink;
     ctx.fillText('Versatile', centerx - textwidth / 2, centery + fontSize * 1.7);
 
 }
