@@ -1,119 +1,344 @@
-const SWAP_SPEED = 50;
+const ALGORITHM_TEXT = 'ALGORITHM';
+const BAR_COUNT = ALGORITHM_TEXT.length;
+const FONT_FAMILY = '"VT323", monospace';
+const SORT_SPEED = 0.1;
+const RETRO_COLORS = {
+    backgroundTop: '#efe2bf',
+    backgroundBottom: '#cbb88f',
+    panelFill: 'rgba(247, 239, 216, 0.2)',
+    panelBorder: 'rgba(24, 57, 47, 0.72)',
+    panelInnerBorder: 'rgba(243, 191, 120, 0.65)',
+    vignette: 'rgba(58, 34, 20, 0.2)',
+    titleShadow: '#b35c2e',
+    titleFill: '#18392f',
+    titleStroke: '#f8f0d8',
+    titleHighlight: 'rgba(255, 250, 232, 0.5)',
+    barFill: '#d46236',
+    barShade: '#a14222',
+    barHighlight: '#f3bf78',
+    barSorted: '#295948',
+    barSortedShade: '#17372d',
+    barActive: '#8d2f24',
+    barCap: '#fff1cb',
+    accent: '#18392f',
+};
 
-class BubbleSort {
-    constructor() {
-        this.arr = [];
-        this.swapidx = 0;
-        this.nowidx = 0;
-        this.isSwapping = false;
-        this.swapload = 0;
-        this.changeamount = 0;
-        this.fixed = 0;
-        for (let i = 0; i < 9; i++) {
-            this.arr[i] = i + 1;
-        }
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+function lerp(start, end, factor) {
+    return start + (end - start) * factor;
+}
+
+function easeInOut(value) {
+    return value < 0.5
+        ? 2 * value * value
+        : 1 - Math.pow(-2 * value + 2, 2) / 2;
+}
+
+function createShuffledValues() {
+    const values = Array.from({ length: BAR_COUNT }, (_, index) => index + 1);
+
+    for (let index = values.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        const temporary = values[index];
+        values[index] = values[randomIndex];
+        values[randomIndex] = temporary;
     }
 
-    shuffle() {
-        let currentIndex = this.arr.length, temporaryValue, randomIndex;
-        for (let i = 0; i < 9; i++) {
-            this.arr[i] = i + 1;
-        }
-        while (0 !== currentIndex) {
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex -= 1;
+    const isAlreadySorted = values.every((value, index) => value === index + 1);
+    if (isAlreadySorted) {
+        const temporary = values[0];
+        values[0] = values[1];
+        values[1] = temporary;
+    }
 
-            temporaryValue = this.arr[currentIndex];
-            this.arr[currentIndex] = this.arr[randomIndex];
-            this.arr[randomIndex] = temporaryValue;
+    return values;
+}
+
+function createState(width, height) {
+    return {
+        width,
+        height,
+        frame: 0,
+        values: createShuffledValues(),
+        compareIndex: 0,
+        sortedTail: 0,
+        swapping: false,
+        swapProgress: 0,
+        swapIndex: -1,
+        prevIsDown: false,
+        shuffleFlash: 1,
+        settleFrames: 0,
+    };
+}
+
+function resetState(state) {
+    state.values = createShuffledValues();
+    state.compareIndex = 0;
+    state.sortedTail = 0;
+    state.swapping = false;
+    state.swapProgress = 0;
+    state.swapIndex = -1;
+    state.shuffleFlash = 1;
+    state.settleFrames = 0;
+}
+
+function ensureState(width, height) {
+    if (!algorithmState || algorithmState.width !== width || algorithmState.height !== height) {
+        algorithmState = createState(width, height);
+    }
+
+    return algorithmState;
+}
+
+function updateBubbleSort(state) {
+    state.frame += 1;
+    state.shuffleFlash *= 0.94;
+
+    if (state.swapping) {
+        state.swapProgress = clamp(state.swapProgress + SORT_SPEED, 0, 1);
+
+        if (state.swapProgress >= 1) {
+            const leftIndex = state.swapIndex;
+            const rightIndex = leftIndex + 1;
+            const temporary = state.values[leftIndex];
+
+            state.values[leftIndex] = state.values[rightIndex];
+            state.values[rightIndex] = temporary;
+            state.swapping = false;
+            state.swapProgress = 0;
+            state.compareIndex += 1;
+            state.swapIndex = -1;
+        }
+
+        return;
+    }
+
+    if (state.sortedTail >= BAR_COUNT - 1) {
+        state.settleFrames += 1;
+        return;
+    }
+
+    const lastComparableIndex = BAR_COUNT - 1 - state.sortedTail;
+
+    if (state.compareIndex >= lastComparableIndex) {
+        state.sortedTail += 1;
+        state.compareIndex = 0;
+        return;
+    }
+
+    if (state.values[state.compareIndex] > state.values[state.compareIndex + 1]) {
+        state.swapping = true;
+        state.swapIndex = state.compareIndex;
+        state.swapProgress = 0;
+        return;
+    }
+
+    state.compareIndex += 1;
+}
+
+function updateInteraction(state, movement) {
+    if (!state.prevIsDown && movement.isDown) {
+        resetState(state);
+    }
+
+    state.prevIsDown = movement.isDown;
+}
+
+function getMetrics(ctx, width, height) {
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const scale = Math.min(width, height);
+    const fontSize = clamp(scale * 0.195, 58, 148);
+    const baselineY = centerY + fontSize * 0.92;
+    const titleTopY = baselineY - fontSize * 0.96;
+
+    ctx.font = `700 ${fontSize}px ${FONT_FAMILY}`;
+    const textWidth = ctx.measureText(ALGORITHM_TEXT).width;
+    const textStartX = centerX - textWidth / 2;
+
+    const slotCenters = [];
+    for (let index = 0; index < BAR_COUNT; index += 1) {
+        const leftWidth = ctx.measureText(ALGORITHM_TEXT.slice(0, index)).width;
+        const rightWidth = ctx.measureText(ALGORITHM_TEXT.slice(0, index + 1)).width;
+        slotCenters.push(textStartX + (leftWidth + rightWidth) / 2);
+    }
+
+    const slotGap = BAR_COUNT > 1 ? slotCenters[1] - slotCenters[0] : textWidth;
+
+    return {
+        centerX,
+        centerY,
+        fontSize,
+        baselineY,
+        titleTopY,
+        textWidth,
+        textStartX,
+        slotCenters,
+        slotGap,
+        barBaseY: titleTopY - fontSize * 0.12,
+        barWidth: Math.max(12, slotGap * 0.54),
+        maxBarHeight: fontSize * 1.28,
+        captionY: baselineY + fontSize * 0.3,
+    };
+}
+
+function drawBackground(ctx, width, height, metrics, frame, flash) {
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, RETRO_COLORS.backgroundTop);
+    gradient.addColorStop(1, RETRO_COLORS.backgroundBottom);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    const panelX = metrics.centerX - metrics.textWidth * 0.67;
+    const panelY = metrics.centerY - metrics.fontSize * 1.66;
+    const panelWidth = metrics.textWidth * 1.34;
+    const panelHeight = metrics.fontSize * 2.88;
+    const inset = Math.max(10, metrics.fontSize * 0.1);
+
+    ctx.fillStyle = RETRO_COLORS.panelFill;
+    ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
+
+    ctx.strokeStyle = RETRO_COLORS.panelBorder;
+    ctx.lineWidth = Math.max(3, metrics.fontSize * 0.028);
+    ctx.strokeRect(panelX, panelY, panelWidth, panelHeight);
+
+    ctx.strokeStyle = RETRO_COLORS.panelInnerBorder;
+    ctx.lineWidth = Math.max(2, metrics.fontSize * 0.018);
+    ctx.strokeRect(panelX + inset, panelY + inset, panelWidth - inset * 2, panelHeight - inset * 2);
+
+    ctx.fillStyle = `rgba(248, 238, 211, ${flash * 0.14})`;
+    ctx.fillRect(0, 0, width, height);
+
+    const vignette = ctx.createRadialGradient(
+        metrics.centerX,
+        metrics.centerY,
+        Math.min(width, height) * 0.24,
+        metrics.centerX,
+        metrics.centerY,
+        Math.max(width, height) * 0.72
+    );
+    vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    vignette.addColorStop(1, RETRO_COLORS.vignette);
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, width, height);
+}
+
+function drawTitle(ctx, metrics, frame) {
+    ctx.save();
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = `700 ${metrics.fontSize}px ${FONT_FAMILY}`;
+
+    const drift = Math.sin(frame * 0.03) * metrics.fontSize * 0.012;
+    ctx.lineWidth = Math.max(1.5, metrics.fontSize * 0.016);
+
+    ctx.fillStyle = RETRO_COLORS.titleShadow;
+    ctx.fillText(ALGORITHM_TEXT, metrics.textStartX + metrics.fontSize * 0.035, metrics.baselineY + drift);
+
+    ctx.fillStyle = RETRO_COLORS.titleFill;
+    ctx.strokeStyle = RETRO_COLORS.titleStroke;
+    ctx.strokeText(ALGORITHM_TEXT, metrics.textStartX, metrics.baselineY);
+    ctx.fillText(ALGORITHM_TEXT, metrics.textStartX, metrics.baselineY);
+
+    ctx.restore();
+}
+
+function getBarX(metrics, state, index) {
+    if (!state.swapping) {
+        return metrics.slotCenters[index];
+    }
+
+    const easedProgress = easeInOut(state.swapProgress);
+    if (index === state.swapIndex) {
+        return lerp(metrics.slotCenters[index], metrics.slotCenters[index + 1], easedProgress);
+    }
+
+    if (index === state.swapIndex + 1) {
+        return lerp(metrics.slotCenters[index + 1], metrics.slotCenters[index], easedProgress);
+    }
+
+    return metrics.slotCenters[index];
+}
+
+function drawBar(ctx, x, baseY, width, height, fillColor, shadeColor) {
+    ctx.fillStyle = shadeColor;
+    ctx.fillRect(x - width / 2 + width * 0.08, baseY - height, width, height);
+
+    ctx.fillStyle = fillColor;
+    ctx.fillRect(x - width / 2, baseY - height, width, height);
+
+    ctx.fillStyle = RETRO_COLORS.barHighlight;
+    ctx.fillRect(x - width / 2 + width * 0.12, baseY - height + width * 0.08, width * 0.18, Math.max(4, height - width * 0.16));
+
+    ctx.fillStyle = RETRO_COLORS.barCap;
+    ctx.fillRect(x - width / 2, baseY - height, width, Math.max(3, width * 0.12));
+}
+
+function drawBars(ctx, metrics, state) {
+    const unitHeight = metrics.maxBarHeight / (BAR_COUNT + 1);
+    const isFullySorted = state.sortedTail >= BAR_COUNT - 1;
+    const compareIndex = state.sortedTail >= BAR_COUNT - 1
+        ? -1
+        : state.swapping
+            ? state.swapIndex
+            : state.compareIndex;
+
+    for (let index = 0; index < BAR_COUNT; index += 1) {
+        const value = state.values[index];
+        const x = getBarX(metrics, state, index);
+        const height = value * unitHeight;
+        const isSorted = isFullySorted || index >= BAR_COUNT - state.sortedTail;
+        const isActive = compareIndex >= 0 && (index === compareIndex || index === compareIndex + 1);
+        const fillColor = isSorted ? RETRO_COLORS.barSorted : isActive ? RETRO_COLORS.barActive : RETRO_COLORS.barFill;
+        const shadeColor = isSorted ? RETRO_COLORS.barSortedShade : RETRO_COLORS.barShade;
+
+        drawBar(ctx, x, metrics.barBaseY, metrics.barWidth, height, fillColor, shadeColor);
+
+        if (isActive) {
+            ctx.strokeStyle = 'rgba(24, 57, 47, 0.8)';
+            ctx.lineWidth = Math.max(1.5, metrics.barWidth * 0.08);
+            ctx.strokeRect(x - metrics.barWidth / 2, metrics.barBaseY - height, metrics.barWidth, height);
         }
     }
 }
 
-var sortbars = null;
+let algorithmState = null;
 
 export function AnimationA(ctx, width, height, movement) {
-    const centerx = width / 2;
-    const centery = height / 2;
-    const strSize = Math.min(height, width) / 9;
-    const unitHeight = height / 20;
+    const state = ensureState(width, height);
 
-    if (sortbars === null) {
-        sortbars = new BubbleSort();
-        sortbars.shuffle();
-    }
+    updateInteraction(state, movement);
+    updateBubbleSort(state);
 
-    if (movement.isDown) {
-        sortbars.shuffle();
-        sortbars.fixed = 0;
-        sortbars.isSwapping = false;
-        sortbars.nowidx = 0;
-        sortbars.swapload = 0;
-        sortbars.swapidx = 0;
-    }
-
+    ctx.save();
     ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = "rgba(255,255,255,1)";
-    ctx.font = strSize + 'px Major Mono Display';
-    const textwidth = ctx.measureText('ALGORIThM').width;
-    ctx.fillText('ALGORIThM', centerx - textwidth / 2, centery + strSize * 2);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
 
-    if (sortbars.isSwapping) {
-        if (sortbars.swapload < SWAP_SPEED) {
-            sortbars.swapload++;
-            sortbars.arr[sortbars.swapidx] -= sortbars.changeamount;
-            sortbars.arr[sortbars.swapidx + 1] += sortbars.changeamount;
-        } else {
-            sortbars.isSwapping = false;
-            sortbars.nowidx++;
-        }
-    }
-    else if (sortbars.fixed < 9) {
-        if (sortbars.arr[sortbars.nowidx] > sortbars.arr[sortbars.nowidx + 1]) {
-            sortbars.swapidx = sortbars.nowidx;
-            sortbars.isSwapping = true;
-            sortbars.swapload = 0;
-            sortbars.changeamount = (sortbars.arr[sortbars.nowidx] - sortbars.arr[sortbars.nowidx + 1]) / SWAP_SPEED;
-        } else {
-            sortbars.nowidx++;
-        }
-    }
+    const metrics = getMetrics(ctx, width, height);
 
-    if (sortbars.nowidx === 9 - sortbars.fixed) {
-        sortbars.fixed++;
-        sortbars.nowidx = 0;
-    }
-    for (let i = 0; i < 9 - sortbars.fixed; i++) {
-        ctx.fillRect(centerx - textwidth / 2 + textwidth / 9 * i, centery + strSize, textwidth / 9, -unitHeight * sortbars.arr[i]);
-    }
-    ctx.fillStyle = "rgba(0,0,0,1)";
-    for (let i = 9 - sortbars.fixed; i < 9; i++) {
-        ctx.fillRect(centerx - textwidth / 2 + textwidth / 9 * i, centery + strSize, textwidth / 9, -unitHeight * sortbars.arr[i]);
-    }
+    drawBackground(ctx, width, height, metrics, state.frame, state.shuffleFlash);
+    drawBars(ctx, metrics, state);
+    drawTitle(ctx, metrics, state.frame);
+
+    ctx.restore();
 }
 
 export function CleanA() {
-    sortbars = null;
+    algorithmState = null;
 }
 
 export const descriptionA = [
-    `"청소년이 잘못하면 소년원을 가고, 대학생이 잘못하면 대학원을 간다"라는 우스갯소리가 있죠.
-    전 뭘 잘못했을까요? 학부 2학년 때 DB 수업을 듣고 흥미를 느낀 것 정도겠네요.`,
-    `맞아요. 대학원 졸업했습니다. KAIST에서 석사과정을 밟았어요.
-    위에서도 언급했듯이 학부 수업을 듣고 DB에 흥미를 가졌고, 졸업 프로젝트도 관련된 주제로 하면서 자연스럽게 진학하게 되었죠.
-    당시에는 DB에 대해서 공부하고 프로젝트를 하는 게 재미있어서, 당연히 박사까지 할 생각이었어요.
-    친구들, 주변 지인들 모두 "너는 연구가 잘 맞을 것 같다, 잘 어울린다"라고 말해줬고, 저도 그렇게 생각했습니다.`,
-    `그런데 막상 석사과정을 시작해보니, 연구는 제 적성에 맞지 않았습니다.
-    연구와 일상 간의 균형을 맞추지 못한 게 가장 큰 문제였습니다. 
-    불면증이 생기는 등 일상생활이 무너지니까 스트레스가 컸어요.`,
-    `후회하냐고요? 아뇨, 석사 과정동안 정말 많은 걸 배웠고, 좋은 경험도 많이 했습니다.
-    그리고 연구실 생활은 참 행복했어요.
-    지도교수님도 좋은 분이셨고, 연구실 동료들과도 정말 많은 추억을 남겼습니다. 
-    아직도 연구실 동료들과 종종 만나서 놀고는 합니다.`,
-    `애초에 후회하고 있다면 졸업 후에 지도교수님 회사에 입사하지 않았겠죠. :)`
+    `I enjoy the moment when a scrambled structure slowly reveals its rule.
+    Bubble sort may be simple, but watching each local comparison accumulate into order still feels satisfying.`,
+    `This scene places a bar above every letter in ALGORITHM, starts from a shuffled order,
+    and lets the bars settle into place one swap at a time.`
 ];
 
 export const toolTipA = [
-    '학사모는 잡고 던질 수도 있고, 그냥 떨어트릴 수도 있습니다.',
-    '화면 밖으로 나가면 다시 위에서 내려오니 여러 번 시도할 수 있어요.'
+    'Click once to reshuffle the bars.',
+    'The bars sort themselves again with bubble sort.'
 ];
