@@ -449,22 +449,6 @@ class BottleOpener extends Blade {
             scratchCtx.closePath();
         };
 
-        const traceHookCutoutEdge = () => {
-            scratchCtx.beginPath();
-            scratchCtx.moveTo(hookSlotLeft, hookSlotTop + hookSlotHeight);
-            scratchCtx.lineTo(hookStemLeft + hookStemWidth, hookStemBottom);
-            scratchCtx.lineTo(hookStemLeft + hookStemWidth, hookStemTop + hookRadius);
-            scratchCtx.lineTo(hookStemLeft + hookRadius, hookStemTop);
-            scratchCtx.quadraticCurveTo(
-                hookStemLeft,
-                hookStemTop,
-                hookStemLeft,
-                hookStemTop + hookRadius
-            );
-            scratchCtx.lineTo(hookStemLeft, hookStemBottom - hookStemWidth);
-            scratchCtx.lineTo(hookSlotLeft, hookSlotTop);
-        };
-
         const traceShaftCutout = () => {
             traceRoundedRect(
                 scratchCtx,
@@ -599,6 +583,13 @@ export function AnimationV(ctx, width, height, movement) {
     const handleLineWidth = width / 10;
     const handleTop = centery - handleLineWidth / 2;
     const handleBottom = centery + handleLineWidth / 2;
+
+    const backgroundGradient = ctx.createLinearGradient(0, 0, 0, height);
+    backgroundGradient.addColorStop(0, '#f3ede2');
+    backgroundGradient.addColorStop(0.52, '#e2d5c1');
+    backgroundGradient.addColorStop(1, '#c7b59b');
+    ctx.fillStyle = backgroundGradient;
+    ctx.fillRect(0, 0, width, height);
 
     if (blades.length === 0) {
         blades[0] = new Dagger(0.375, 0.5, Math.PI * 13 / 12);

@@ -21,6 +21,15 @@
 
 ## Latest Update
 
+- Added a filled background to the `Versatile` scene so the composition no longer sits on a blank canvas.
+- The background uses a warm paper-like gradient with a soft staggered dot texture instead of circular stains or horizontal stripes.
+- Updated the background palette afterward from beige to a cooler blue-gray range so the scene feels less paper-like and sits better behind the metallic tools.
+- Shifted the background again to a matte muted red-brown palette for a warmer poster-like mood.
+- Adjusted the palette once more toward a matte orange-brown tone, which keeps the warmth while feeling a bit lighter and drier than the red version.
+- Softened the orange background afterward by reducing the gradient contrast and lowering the dot-pattern opacity.
+- Replaced the background again with a flat light-purple fill, removing the gradient entirely while keeping the dot texture subtle.
+- Updated the background once more to a darker blue-gray gradient for a cooler and more subdued overall mood.
+- Returned the background to the beige gradient direction and removed the dot texture for a cleaner final backdrop.
 - Removed outline-only strokes across all tools while keeping their fills, highlights, and cutout behavior intact.
 - `Dagger`, `Saw`, `Driver`, `BottleOpener`, and `WineOpener` now read through material contrast rather than dark border lines.
 - Reworked `WineOpener` again from the rolled-back baseline without changing any geometry.
