@@ -16,6 +16,32 @@ const HANDLE_COLORS = {
     ink: '#16100f'
 };
 
+function createScratchCanvas(width, height, ctx) {
+    if (typeof OffscreenCanvas !== 'undefined') {
+        return new OffscreenCanvas(width, height);
+    }
+
+    const canvas = ctx.canvas.ownerDocument.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+}
+
+function traceRoundedRect(ctx, x, y, width, height, radius) {
+    const r = Math.min(radius, width / 2, height / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + width - r, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+    ctx.lineTo(x + width, y + height - r);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+    ctx.lineTo(x + r, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+}
+
 function drawRivet(ctx, x, y, radius) {
     const gradient = ctx.createRadialGradient(
         x - radius * 0.3,
@@ -374,75 +400,173 @@ class Driver extends Blade {
 
 class BottleOpener extends Blade {
     draw(ctx, width, height) {
-        ctx.save();
-        ctx.translate(this.xRatio * width, this.yRatio * height);
-        ctx.rotate(this.deg);
+        const scratchCanvas = createScratchCanvas(width, height, ctx);
+        const scratchCtx = scratchCanvas.getContext('2d');
 
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.lineWidth = width / 20;
-        ctx.strokeStyle = 'rgba(152,160,165,1)';
+        scratchCtx.save();
+        scratchCtx.translate(this.xRatio * width, this.yRatio * height);
+        scratchCtx.rotate(this.deg);
 
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, width / 6);
-        ctx.closePath();
-        ctx.stroke();
+        // Draw the main body of the bottle opener
+        scratchCtx.globalCompositeOperation = 'source-over';
+        scratchCtx.lineCap = 'round';
+        scratchCtx.lineJoin = 'round';
+        scratchCtx.lineWidth = width / 20;
+        const openerWidth = scratchCtx.lineWidth;
+        const openerLength = width / 6;
+        const joinRadius = openerWidth * 0.3;
+        const endRadius = openerWidth * 0.18;
+        const shaftRightX = openerWidth / 2;
+        const leftX = -openerWidth / 2;
+        const bottomY = openerLength + openerWidth / 2;
+        const outlineWidth = Math.max(1.1, width / 150);
+        const highlightWidth = Math.max(1, width / 185);
+        const bodyGradient = scratchCtx.createLinearGradient(0, 0, 0, openerLength + openerWidth / 2);
+        bodyGradient.addColorStop(0, '#ece7de');
+        bodyGradient.addColorStop(0.42, '#b2b8bc');
+        bodyGradient.addColorStop(1, '#6a737a');
+        scratchCtx.fillStyle = bodyGradient;
 
-        ctx.save();
-        ctx.translate(-ctx.lineWidth / 4, 0);
-        ctx.lineWidth = ctx.lineWidth / 2;
+        const traceBottleBody = () => {
+            scratchCtx.beginPath();
+            scratchCtx.moveTo(leftX, 0);
+            scratchCtx.lineTo(shaftRightX, 0);
+            scratchCtx.lineTo(shaftRightX, openerLength - joinRadius * 0.55);
+            scratchCtx.quadraticCurveTo(
+                shaftRightX,
+                openerLength + openerWidth * 0.34,
+                leftX + endRadius,
+                bottomY
+            );
+            scratchCtx.arcTo(
+                leftX,
+                bottomY,
+                leftX,
+                bottomY - endRadius,
+                endRadius
+            );
+            scratchCtx.closePath();
+        };
 
-        ctx.beginPath();
-        ctx.lineCap = 'square';
-        ctx.lineJoin = 'miter';
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, width / 6 + ctx.lineWidth);
-        ctx.closePath();
-        ctx.stroke();
+        const hookSlotLeft = -1;
+        const hookSlotTop = -openerWidth * 0.18;
+        const hookSlotHeight = openerWidth * 0.34;
+        const hookStemLeft = openerWidth * 0.2;
+        const hookStemTop = -openerWidth * 0.62;
+        const hookStemWidth = openerWidth * 0.26;
+        const hookStemBottom = hookSlotTop + hookSlotHeight;
+        const hookRadius = openerWidth * 0.13;
 
-        ctx.restore();
+        const traceHookCutout = () => {
+            scratchCtx.beginPath();
+            scratchCtx.moveTo(hookSlotLeft - outlineWidth * 0.5, hookSlotTop + hookSlotHeight);
+            scratchCtx.lineTo(hookStemLeft + hookStemWidth, hookStemBottom);
+            scratchCtx.lineTo(hookStemLeft + hookStemWidth, hookStemTop + hookRadius);
+            scratchCtx.lineTo(hookStemLeft + hookRadius, hookStemTop);
+            scratchCtx.quadraticCurveTo(
+                hookStemLeft,
+                hookStemTop,
+                hookStemLeft,
+                hookStemTop + hookRadius
+            );
+            scratchCtx.lineTo(hookStemLeft, hookStemBottom - hookStemWidth);
+            scratchCtx.lineTo(hookSlotLeft - outlineWidth * 0.5, hookSlotTop);
+            scratchCtx.closePath();
+        };
 
-        ctx.save();
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.lineCap = 'square';
-        ctx.lineJoin = 'miter';
-        ctx.translate(-ctx.lineWidth / 2, width / 6 * 0.9);
-        ctx.lineWidth = ctx.lineWidth / 2;
+        const traceHookCutoutEdge = () => {
+            scratchCtx.beginPath();
+            scratchCtx.moveTo(hookSlotLeft, hookSlotTop + hookSlotHeight);
+            scratchCtx.lineTo(hookStemLeft + hookStemWidth, hookStemBottom);
+            scratchCtx.lineTo(hookStemLeft + hookStemWidth, hookStemTop + hookRadius);
+            scratchCtx.lineTo(hookStemLeft + hookRadius, hookStemTop);
+            scratchCtx.quadraticCurveTo(
+                hookStemLeft,
+                hookStemTop,
+                hookStemLeft,
+                hookStemTop + hookRadius
+            );
+            scratchCtx.lineTo(hookStemLeft, hookStemBottom - hookStemWidth);
+            scratchCtx.lineTo(hookSlotLeft, hookSlotTop);
+        };
 
-        ctx.beginPath();
-        ctx.moveTo(-1, 0);
-        ctx.lineTo(ctx.lineWidth * 1.25, 0);
-        ctx.closePath();
-        ctx.stroke();
+        const traceShaftCutout = () => {
+            traceRoundedRect(
+                scratchCtx,
+                -openerWidth * 0.2,
+                0,
+                openerWidth * 0.45,
+                width / 6 * 0.5,
+                openerWidth * 0.3
+            );
+        };
 
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        traceBottleBody();
+        scratchCtx.fill();
 
-        ctx.beginPath();
-        ctx.moveTo(ctx.lineWidth * (1.25 - 1 / 3), 0);
-        ctx.lineTo(ctx.lineWidth * (1.25 - 1 / 3), -ctx.lineWidth);
-        ctx.closePath();
-        ctx.lineWidth = ctx.lineWidth / 1.5;
-        ctx.stroke();
+        scratchCtx.strokeStyle = 'rgba(81, 86, 90, 0.5)';
+        scratchCtx.lineWidth = outlineWidth;
+        traceBottleBody();
+        scratchCtx.stroke();
 
-        ctx.restore();
+        scratchCtx.strokeStyle = 'rgba(255,255,255,0.18)';
+        scratchCtx.lineWidth = highlightWidth;
+        scratchCtx.beginPath();
+        scratchCtx.moveTo(-openerWidth * 0.05, openerWidth * 0.12);
+        scratchCtx.lineTo(-openerWidth * 0.05, openerLength * 0.86);
+        scratchCtx.stroke();
 
-        ctx.save();
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.translate(-ctx.lineWidth / 2, 0);
-        ctx.lineWidth = ctx.lineWidth / 2;
+        // Draw the cutout(opening) of the hook part of the bottle opener
+        scratchCtx.save();
+        scratchCtx.globalCompositeOperation = 'destination-out';
+        scratchCtx.lineCap = 'square';
+        scratchCtx.lineJoin = 'miter';
+        scratchCtx.translate(-openerWidth / 2, width / 6 * 0.9);
+        traceHookCutout();
+        scratchCtx.fill();
+        scratchCtx.lineWidth = outlineWidth * 2;
+        scratchCtx.stroke();
 
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, width / 6 * 0.5);
-        ctx.closePath();
-        ctx.stroke();
+        scratchCtx.restore();
 
-        ctx.restore();
+        // Draw the cutout of the shaft of the bottle opener
+        scratchCtx.save();
+        scratchCtx.globalCompositeOperation = 'destination-out';
+        scratchCtx.translate(-openerWidth / 2, 0);
+        traceShaftCutout();
+        scratchCtx.fill();
+        scratchCtx.lineWidth = outlineWidth * 2;
+        scratchCtx.stroke();
 
-        ctx.restore();
+        scratchCtx.restore();
+
+        scratchCtx.globalCompositeOperation = 'source-over';
+        scratchCtx.strokeStyle = 'rgba(81, 86, 90, 0.5)';
+        scratchCtx.lineWidth = outlineWidth;
+        scratchCtx.lineCap = 'round';
+        scratchCtx.lineJoin = 'round';
+
+        scratchCtx.save();
+        traceBottleBody();
+        scratchCtx.clip();
+
+        scratchCtx.save();
+        scratchCtx.translate(-openerWidth / 2, width / 6 * 0.9);
+        traceHookCutoutEdge();
+        scratchCtx.stroke();
+        scratchCtx.restore();
+
+        scratchCtx.save();
+        scratchCtx.translate(-openerWidth / 2, 0);
+        traceShaftCutout();
+        scratchCtx.stroke();
+        scratchCtx.restore();
+
+        scratchCtx.restore();
+
+        scratchCtx.restore();
+
+        ctx.drawImage(scratchCanvas, 0, 0);
     }
 };
 

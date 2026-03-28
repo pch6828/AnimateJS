@@ -1,56 +1,42 @@
 # CONTENT_V Report
 
-## 작업 개요
+## Date
 
-- 대상 파일: `src/animate-js/class/animate/v_versatile.jsx`
-- 작업 목적: 사용자 요청에 따라 `Versatile` 애니메이션을 원래 상태로 롤백
-- 보고 일자: 2026-03-27
+- 2026-03-28
 
-## 반영 내용
+## Scope
 
-### 1. 원복 이후 기준 정리
+- File: `src/animate-js/class/animate/v_versatile.jsx`
+- Focus: refine the Swiss-army-knife style `Versatile` scene without changing the current overall shape language
 
-- `v_versatile.jsx`를 원래 클래스 기반 구현 상태로 복원한 뒤, 해당 구조를 기준으로 순차 수정 진행
-- 현재 단계에서는 형태 변경 없이 손잡이 디테일만 우선 보강
+## Current Progress
 
-### 2. 손잡이 디테일 보강
+- Handle: kept the existing shape and improved the material feel with restrained detail.
+- Ring: detail was softened again to avoid looking too glossy.
+- `Dagger`: refined as a clearer blade silhouette with subtle metal shading.
+- `Saw`: kept the current form and rebuilt the teeth as a cleaner continuous silhouette.
+- `Driver`: refined the head so it reads more like a driver tip without becoming too bulky.
+- `BottleOpener`: iterated carefully while preserving `destination-out` areas as true cutouts.
 
-- 기존 수평 손잡이의 길이와 배치는 유지
-- 단색 스트로크 대신 레드 계열 세로 그라데이션을 적용해 입체감을 추가
-- 손잡이 상하 외곽선과 얇은 하이라이트를 넣어 표면이 둥글게 읽히도록 보정
-- 좌우 결합부는 황동 계열 리벳으로 바꿔 단순 원형 점보다 부품처럼 보이게 수정
-- 손잡이 아래에 그림자를 추가해 중앙에 안정적으로 놓인 인상을 강화
-- `Versatile` 타이포와 오른쪽 링 색상도 손잡이 톤에 맞게 함께 정리
-- 후속 수정으로 우측 하단 링은 단순 원형 스트로크 대신 금속 그라데이션, 외곽 그림자, 연결부 디테일을 가진 부품 형태로 보강
-- 추가 피드백에 따라 손잡이와 링의 하이라이트/그라데이션 강도는 한 단계 낮춰 과한 반짝임을 줄임
+## Latest Update
 
-### 3. 메인 칼날 디테일 보강
+- Adjusted `BottleOpener` border handling so the outline matches the final cutout silhouette.
+- The body is filled first, the hook and shaft cutouts are applied next, and then the visible border is redrawn.
+- The redraw now includes:
+  - the outer body outline
+  - the hook cutout edge
+  - the shaft cutout edge
+- This keeps the cutout shapes intact while making the border line up with the visible final form.
+- Refined the cutout border rule so inner cutout edges are only visible where they overlap the bottle opener body.
+- Open portions of the hook cutout are no longer outlined outside the body silhouette.
+- Adjusted the draw order so the main body outline is drawn before the cutouts are punched out.
+- This prevents the body border from remaining across regions removed by the cutouts.
+- Expanded the cutout erase pass so residual body-outline fragments are cleared along the hook and shaft openings before inner cutout edges are redrawn.
+- Temporarily commented out the hook cutout in `BottleOpener` for shape inspection.
+- Cleared the hook-side body border separately so the outer hook mass can be reviewed without the conflicting outline.
+- Refined the hook cutout edge stroke so the open mouth is not closed by the border redraw.
+- Replaced the temporary hook-mouth erase pass with a partial outer-border path so the opener entrance stays open without creating highlight artifacts.
 
-- `Dagger` 클래스는 그대로 유지하면서, 기존의 단순 직선형 칼 표현을 칼날 면이 보이는 실루엣으로 재구성
-- 메인 블레이드에 금속 그라데이션, 외곽선, 중앙선, 얇은 하이라이트를 추가해 실제 칼날처럼 읽히도록 보정
-- 칼날 중간에는 작은 컷아웃을 넣어 단순한 막대가 아니라 공구 파츠처럼 보이게 조정
+## Verification
 
-### 4. 톱 관련 상태
-
-- `Saw` 클래스는 사용자 요청에 따라 원래 형태로 되돌림
-- 현재는 메인 칼날(`Dagger`)과 손잡이 디테일만 보강된 상태이며, 톱은 원본 표현을 유지
-- 이후 후속 수정으로, 톱의 현재 형태와 컷아웃 구조는 그대로 두고 금속 그라데이션, 약한 그림자, 세로 하이라이트만 추가하는 방식으로 디테일 업 진행
-- 추가 조정으로 톱날은 분리된 컷아웃 조각이 아니라, 몸통과 톱니가 이어진 하나의 연속 경로로 다시 그림
-- 마지막 보정으로 톱날의 세로 깊이를 줄여, 전체 실루엣은 유지하면서도 톱니가 지나치게 길어 보이지 않도록 정리
-
-### 5. 드라이버 디테일 보강
-
-- `Driver` 클래스의 위치와 회전 구조는 유지
-- 샤프트에는 금속 그라데이션과 얇은 하이라이트를 넣어 다른 도구와 디테일 밀도를 맞춤
-- 추가 보정으로 샤프트에도 얇은 외곽선을 넣어 `Dagger`, `Saw`와 같은 톤의 경계감을 맞춤
-- 사용자 요청에 맞춰 드라이버 머리 부분은 더 적극적으로 수정하여, 상단에서 자연스럽게 벌어지고 하단이 단단하게 마감되는 팁 실루엣으로 재구성
-- 머리 부분에도 외곽선과 약한 하이라이트를 더해 단순한 사각형보다는 실제 공구 헤드에 가까운 인상을 주도록 조정
-- 후속 조정으로 드라이버 헤드의 폭과 높이를 줄여, 지나치게 크고 뭉툭해 보이던 인상을 완화
-
-## 검증
-
-- 이번 단계에서는 아직 빌드 검증을 수행하지 않음
-
-## 참고 사항
-
-- 현재 파일은 사용자가 기준으로 삼은 원래 버전과 동일한 방향으로 되돌린 상태
+- `npm run build`
