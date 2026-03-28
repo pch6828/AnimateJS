@@ -227,10 +227,6 @@ class Dagger extends Blade {
         ctx.closePath();
         ctx.fill();
 
-        ctx.strokeStyle = 'rgba(81, 86, 90, 0.55)';
-        ctx.lineWidth = Math.max(1.1, width / 140);
-        ctx.stroke();
-
         ctx.strokeStyle = 'rgba(255,255,255,0.3)';
         ctx.lineWidth = Math.max(1, width / 180);
         ctx.beginPath();
@@ -292,23 +288,6 @@ class Saw extends Blade {
         ctx.fill();
 
         ctx.shadowColor = 'transparent';
-        ctx.strokeStyle = 'rgba(81, 86, 90, 0.5)';
-        ctx.lineWidth = Math.max(1.1, width / 145);
-        ctx.beginPath();
-        ctx.moveTo(-bodyWidth * 0.5, 0);
-        ctx.lineTo(toothOuterX, 0);
-        ctx.lineTo(toothOuterX, toothStartY);
-        for (let i = 0; i < toothCount; i++) {
-            const valleyY = toothStartY + toothStep * (i * 2 + 0.8);
-            const peakY = toothStartY + toothStep * (i * 2 + 1.6);
-            ctx.lineTo(toothInnerX, valleyY);
-            ctx.lineTo(toothOuterX, peakY);
-        }
-        ctx.lineTo(-bodyWidth * 0.18, toothStartY + toothStep * (toothCount * 2 - 0.2));
-        ctx.lineTo(-bodyWidth * 0.5, bodyLength * 0.8);
-        ctx.closePath();
-        ctx.stroke();
-
         ctx.strokeStyle = 'rgba(255,255,255,0.22)';
         ctx.lineWidth = Math.max(1, width / 180);
         ctx.beginPath();
@@ -382,10 +361,6 @@ class Driver extends Blade {
         ctx.lineTo(-headHalfMid, headShoulderY);
         ctx.closePath();
         ctx.fill();
-
-        ctx.strokeStyle = 'rgba(76, 89, 98, 0.56)';
-        ctx.lineWidth = Math.max(1.1, width / 150);
-        ctx.stroke();
 
         ctx.strokeStyle = 'rgba(255,255,255,0.18)';
         ctx.lineWidth = Math.max(1, width / 190);
@@ -504,11 +479,6 @@ class BottleOpener extends Blade {
         traceBottleBody();
         scratchCtx.fill();
 
-        scratchCtx.strokeStyle = 'rgba(81, 86, 90, 0.5)';
-        scratchCtx.lineWidth = outlineWidth;
-        traceBottleBody();
-        scratchCtx.stroke();
-
         scratchCtx.strokeStyle = 'rgba(255,255,255,0.18)';
         scratchCtx.lineWidth = highlightWidth;
         scratchCtx.beginPath();
@@ -540,30 +510,6 @@ class BottleOpener extends Blade {
 
         scratchCtx.restore();
 
-        scratchCtx.globalCompositeOperation = 'source-over';
-        scratchCtx.strokeStyle = 'rgba(81, 86, 90, 0.5)';
-        scratchCtx.lineWidth = outlineWidth;
-        scratchCtx.lineCap = 'round';
-        scratchCtx.lineJoin = 'round';
-
-        scratchCtx.save();
-        traceBottleBody();
-        scratchCtx.clip();
-
-        scratchCtx.save();
-        scratchCtx.translate(-openerWidth / 2, width / 6 * 0.9);
-        traceHookCutoutEdge();
-        scratchCtx.stroke();
-        scratchCtx.restore();
-
-        scratchCtx.save();
-        scratchCtx.translate(-openerWidth / 2, 0);
-        traceShaftCutout();
-        scratchCtx.stroke();
-        scratchCtx.restore();
-
-        scratchCtx.restore();
-
         scratchCtx.restore();
 
         ctx.drawImage(scratchCanvas, 0, 0);
@@ -579,29 +525,40 @@ class WineOpener extends Blade {
         ctx.globalCompositeOperation = 'source-over';
         ctx.lineCap = 'square';
         ctx.lineJoin = 'miter';
-        ctx.lineWidth = width / 20;
-        ctx.strokeStyle = 'rgba(152,160,165,1)';
+        const stemWidth = width / 20;
+        const stemLength = width / 12;
+        const screwWidth = stemWidth / 5;
+        const stemGradient = ctx.createLinearGradient(0, 0, 0, stemLength);
+        stemGradient.addColorStop(0, '#e7e3dc');
+        stemGradient.addColorStop(0.42, '#b2b8bc');
+        stemGradient.addColorStop(1, '#7c868e');
+        const leadGradient = ctx.createLinearGradient(0, 0, 0, screwWidth);
+        leadGradient.addColorStop(0, '#7c868e');
+        leadGradient.addColorStop(1, '#8d989f');
+        ctx.lineWidth = stemWidth;
+        ctx.strokeStyle = stemGradient;
 
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(0, width / 12);
+        ctx.lineTo(0, stemLength);
         ctx.closePath();
         ctx.stroke();
 
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.lineWidth = ctx.lineWidth / 5;
+        ctx.lineWidth = screwWidth;
         ctx.save();
-        ctx.translate(0, width / 12);
+        ctx.translate(0, stemLength);
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(0, ctx.lineWidth);
         ctx.closePath();
+        ctx.strokeStyle = leadGradient;
         ctx.stroke();
 
         ctx.translate(0, ctx.lineWidth);
 
-        ctx.strokeStyle = 'rgba(116,139,151,1)';
+        ctx.strokeStyle = 'rgba(126, 138, 145, 0.9)';
         for (let i = 0; i < 5; i++) {
             ctx.beginPath();
             ctx.moveTo(ctx.lineWidth * 5 / 3, ctx.lineWidth / 2 + ctx.lineWidth * (2 * i));
@@ -609,7 +566,7 @@ class WineOpener extends Blade {
             ctx.closePath();
             ctx.stroke();
         }
-        ctx.strokeStyle = 'rgba(152,160,165,1)';
+        ctx.strokeStyle = 'rgba(163, 170, 174, 0.86)';
         for (let i = 0; i < 5; i++) {
             ctx.beginPath();
             ctx.moveTo(-ctx.lineWidth * 5 / 3, ctx.lineWidth / 2 + ctx.lineWidth * (2 * i + 1));
@@ -619,8 +576,10 @@ class WineOpener extends Blade {
         }
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(ctx.lineWidth * 5 / 3, ctx.lineWidth / 2);
+        ctx.lineTo(screwWidth * 5 / 3, screwWidth / 2);
         ctx.closePath();
+        ctx.lineWidth = screwWidth;
+        ctx.strokeStyle = 'rgba(163, 170, 174, 0.86)';
         ctx.stroke();
 
         ctx.restore();
