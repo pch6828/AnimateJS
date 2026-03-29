@@ -653,12 +653,19 @@ export function AnimationV(ctx, width, height, movement) {
     drawHandleRing(ctx, centerx, centery, width);
 
     ctx.fillStyle = HANDLE_COLORS.ink;
-    ctx.font = 'italic ' + fontSize + 'px Georgia';
-    const textwidth = ctx.measureText('Versatile').width;
+    const maxTextWidth = width * 0.42;
+    let titleFontSize = fontSize;
+    ctx.font = 'italic ' + titleFontSize + 'px Georgia';
+    let textwidth = ctx.measureText('Versatile').width;
+    if (textwidth > maxTextWidth) {
+        titleFontSize = Math.max(height / 12, titleFontSize * (maxTextWidth / textwidth));
+        ctx.font = 'italic ' + titleFontSize + 'px Georgia';
+        textwidth = ctx.measureText('Versatile').width;
+    }
 
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = HANDLE_COLORS.ink;
-    ctx.fillText('Versatile', centerx - textwidth / 2, centery + fontSize * 1.7);
+    ctx.fillText('Versatile', centerx - textwidth / 2, centery + titleFontSize * 2);
 
 }
 

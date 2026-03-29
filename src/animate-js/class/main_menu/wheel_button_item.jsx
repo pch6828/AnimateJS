@@ -20,7 +20,7 @@ const items = [
     { key: 'S', title: '', hasDetailPage: false },
     { key: 'T', title: '', hasDetailPage: false },
     { key: 'U', title: '', hasDetailPage: false },
-    { key: 'V', title: 'Versatile', hasDetailPage: true, date: '2026-03-XX' },
+    { key: 'V', title: 'Versatile', hasDetailPage: true, date: '2026-03-29' },
     { key: 'W', title: '', hasDetailPage: false },
     { key: 'X', title: '', hasDetailPage: false },
     { key: 'Y', title: '', hasDetailPage: false },

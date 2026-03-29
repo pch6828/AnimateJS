@@ -30,6 +30,7 @@
 - Replaced the background again with a flat light-purple fill, removing the gradient entirely while keeping the dot texture subtle.
 - Updated the background once more to a darker blue-gray gradient for a cooler and more subdued overall mood.
 - Returned the background to the beige gradient direction and removed the dot texture for a cleaner final backdrop.
+- Made the `Versatile` title responsive to canvas width so it scales down when horizontal space becomes tight.
 - Removed outline-only strokes across all tools while keeping their fills, highlights, and cutout behavior intact.
 - `Dagger`, `Saw`, `Driver`, `BottleOpener`, and `WineOpener` now read through material contrast rather than dark border lines.
 - Reworked `WineOpener` again from the rolled-back baseline without changing any geometry.
