@@ -9,7 +9,7 @@ const items = [
     { key: 'H', title: '', hasDetailPage: false },
     { key: 'I', title: '', hasDetailPage: false },
     { key: 'J', title: '', hasDetailPage: false },
-    { key: 'K', title: '', hasDetailPage: false },
+    { key: 'K', title: 'Kidult', hasDetailPage: true, date: '2026-03-29' },
     { key: 'L', title: '', hasDetailPage: false },
     { key: 'M', title: '', hasDetailPage: false },
     { key: 'N', title: '', hasDetailPage: false },
