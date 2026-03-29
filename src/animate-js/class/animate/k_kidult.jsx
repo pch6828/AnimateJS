@@ -1,495 +1,562 @@
-import { get_random } from "./util";
-
-class Stud {
-    static studWidth = 0;
-    constructor(block, color) {
-        this.connection = null;
-        this.block = block;
-        this.color = color;
-        this.centerPos = null;
-    }
-
-    move() {
-
-    }
-
-    draw(ctx, x, y) {
-        if (this.connection) {
-            this.connection.draw(ctx, x, y, this);
-        }
-        else {
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.fillStyle = this.color;
-
-            ctx.beginPath();
-            ctx.roundRect(x - Stud.studWidth / 2, y - Stud.studWidth / 2, Stud.studWidth, Stud.studWidth, Stud.studWidth / 4)
-            ctx.closePath();
-            ctx.fill();
-        }
-    }
-
-    setPosition(x, y) {
-        this.centerPos = { x: x, y: y };
-        if (this.connection) {
-            this.connection.setPosition(x, y, this);
-        }
-    }
+const WORD = 'KIDULT';
+const LETTER_PATTERNS = {
+    K: [
+        '1001',
+        '1010',
+        '1100',
+        '1010',
+        '1001',
+    ],
+    I: [
+        '111',
+        '010',
+        '010',
+        '010',
+        '111',
+    ],
+    D: [
+        '1110',
+        '1001',
+        '1001',
+        '1001',
+        '1110',
+    ],
+    U: [
+        '1001',
+        '1001',
+        '1001',
+        '1001',
+        '1111',
+    ],
+    L: [
+        '1000',
+        '1000',
+        '1000',
+        '1000',
+        '1111',
+    ],
+    T: [
+        '11111',
+        '00100',
+        '00100',
+        '00100',
+        '00100',
+    ],
 };
+const BRICK_PALETTE = [
+    { body: '#d84a3f', edge: '#a32c24', stud: '#f37a71', shine: 'rgba(255, 223, 210, 0.55)' },
+    { body: '#f0c419', edge: '#b98f08', stud: '#ffe27a', shine: 'rgba(255, 248, 198, 0.55)' },
+    { body: '#2585d1', edge: '#14548a', stud: '#6cb7f4', shine: 'rgba(220, 243, 255, 0.5)' },
+    { body: '#33a56a', edge: '#1c6d43', stud: '#7dd6a1', shine: 'rgba(222, 255, 234, 0.45)' },
+    { body: '#f28c28', edge: '#b45d10', stud: '#ffbc73', shine: 'rgba(255, 233, 205, 0.45)' },
+    { body: '#7a59c4', edge: '#51338f', stud: '#b59ae9', shine: 'rgba(235, 228, 255, 0.4)' },
+];
+const SCENE_COLORS = {
+    backgroundTop: '#cfe8f7',
+    backgroundBottom: '#8fb8d8',
+    vignette: 'rgba(14, 41, 66, 0.12)',
+    plateBody: '#7cb260',
+    plateEdge: '#4f7940',
+    plateShadow: 'rgba(53, 75, 42, 0.26)',
+    plateStud: '#9ed07d',
+    plateStudEdge: '#5e8f4a',
+    plateGlow: 'rgba(244, 252, 255, 0.28)',
+    targetFill: 'rgba(28, 68, 32, 0.12)',
+    targetStroke: 'rgba(35, 84, 40, 0.28)',
+    snapFill: 'rgba(255, 255, 255, 0.34)',
+    snapStroke: 'rgba(255, 255, 255, 0.7)',
+};
+const PLATE_MARGIN_X = 4;
+const PLATE_MARGIN_Y = 4;
 
-class LegoBlock {
-    constructor(letter, colorSet) {
-        const color = get_random(colorSet);
-        this.size = Math.floor(Math.random() * 3) + 1;
-        this.letter = letter;
-        this.color = color.blockColor;
-        this.drawed = false;
-        this.positioned = false;
-        this.studs = [];
-        this.antiStuds = [];
-        this.prevIsDown = false;
-        for (let i = 0; i < this.size; i++) {
-            this.studs[i] = new Stud(this, color.studColor);
-            this.antiStuds[i] = null;
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+function createWordLayout() {
+    const bricks = [];
+    let cursorX = 0;
+    let letterIndex = 0;
+    let rowCount = 0;
+
+    for (const letter of WORD) {
+        const pattern = LETTER_PATTERNS[letter];
+        const letterWidth = pattern[0].length;
+        rowCount = Math.max(rowCount, pattern.length);
+
+        for (let row = 0; row < pattern.length; row += 1) {
+            for (let col = 0; col < letterWidth; col += 1) {
+                if (pattern[row][col] !== '1') {
+                    continue;
+                }
+
+                bricks.push({
+                    wordCol: cursorX + col,
+                    wordRow: row,
+                    letterIndex,
+                });
+            }
         }
 
-        this.selectedPos = null;
-        this.isConnected = false;
-        this.isFalling = false;
-        this.dy = 0;
-        this.ddy = 1;
-        this.angle = 0;
-        this.rotate = Math.random() * Math.PI / 18;
+        cursorX += letterWidth + 1;
+        letterIndex += 1;
     }
 
-    move(movement, ctx, studs) {
-        const blockWidth = Stud.studWidth * 2;
-        const blockHeight = Stud.studWidth * 3;
+    return {
+        bricks,
+        cols: cursorX - 1,
+        rows: rowCount,
+    };
+}
 
-        const area = new Path2D();
-        if (this.isFalling) {
-            this.selectedPos.y += this.dy;
-            this.dy += this.ddy;
-            this.angle += this.rotate;
-            return;
+const WORD_LAYOUT = createWordLayout();
+
+function createBrickState(layoutItem, index) {
+    return {
+        id: index,
+        paletteIndex: layoutItem.letterIndex % BRICK_PALETTE.length,
+        homeCol: PLATE_MARGIN_X + layoutItem.wordCol,
+        homeRow: PLATE_MARGIN_Y + layoutItem.wordRow,
+        col: PLATE_MARGIN_X + layoutItem.wordCol,
+        row: PLATE_MARGIN_Y + layoutItem.wordRow,
+        dragX: 0,
+        dragY: 0,
+        isDragging: false,
+        bobSeed: Math.random() * Math.PI * 2,
+    };
+}
+
+function createState(width, height) {
+    return {
+        width,
+        height,
+        frame: 0,
+        prevIsDown: false,
+        selectedBrickId: null,
+        dragOffsetX: 0,
+        dragOffsetY: 0,
+        dropCell: null,
+        bricks: WORD_LAYOUT.bricks.map(createBrickState),
+    };
+}
+
+function ensureState(width, height) {
+    if (!kidultState || kidultState.width !== width || kidultState.height !== height) {
+        kidultState = createState(width, height);
+    }
+
+    return kidultState;
+}
+
+function getMetrics(width, height) {
+    const plateBlockCols = WORD_LAYOUT.cols + PLATE_MARGIN_X * 2;
+    const plateBlockRows = WORD_LAYOUT.rows + PLATE_MARGIN_Y * 2;
+    const plateStudCols = plateBlockCols * 2;
+    const plateStudRows = plateBlockRows * 2;
+    const studPitch = Math.min(width * 0.84 / plateStudCols, height * 0.68 / plateStudRows);
+    const brickSize = studPitch * 2;
+    const plateWidth = plateStudCols * studPitch;
+    const plateHeight = plateStudRows * studPitch;
+
+    return {
+        plateBlockCols,
+        plateBlockRows,
+        plateStudCols,
+        plateStudRows,
+        studPitch,
+        brickSize,
+        plateWidth,
+        plateHeight,
+        plateX: width / 2,
+        plateY: height / 2 + plateHeight * 0.06,
+        plateRadius: studPitch * 1.05,
+        studRadius: studPitch * 0.28,
+        plateRotation: -0.05,
+    };
+}
+
+function toBoardSpace(point, metrics) {
+    const dx = point.x - metrics.plateX;
+    const dy = point.y - metrics.plateY;
+    const cos = Math.cos(-metrics.plateRotation);
+    const sin = Math.sin(-metrics.plateRotation);
+
+    return {
+        x: dx * cos - dy * sin,
+        y: dx * sin + dy * cos,
+    };
+}
+
+function getBrickRect(brick, metrics, frame) {
+    const x = -metrics.plateWidth / 2 + brick.col * metrics.brickSize;
+    const y = -metrics.plateHeight / 2 + brick.row * metrics.brickSize;
+    const bobY = brick.isDragging ? 0 : Math.sin(frame * 0.05 + brick.bobSeed) * metrics.studPitch * 0.05;
+
+    return {
+        x: brick.isDragging ? brick.dragX : x,
+        y: brick.isDragging ? brick.dragY : y + bobY,
+        width: metrics.brickSize,
+        height: metrics.brickSize,
+    };
+}
+
+function isPointInRect(point, rect) {
+    return (
+        point.x >= rect.x &&
+        point.x <= rect.x + rect.width &&
+        point.y >= rect.y &&
+        point.y <= rect.y + rect.height
+    );
+}
+
+function findBrickAtPoint(state, point, metrics) {
+    for (let index = state.bricks.length - 1; index >= 0; index -= 1) {
+        const brick = state.bricks[index];
+        const rect = getBrickRect(brick, metrics, state.frame);
+
+        if (isPointInRect(point, rect)) {
+            return { brick, rect };
         }
+    }
 
-        for (let i = 0; i < this.size; i++) {
-            if (this.studs[i].connection) {
-                return;
-            }
+    return null;
+}
+
+function isCellOccupied(state, col, row, ignoreBrickId = null) {
+    return state.bricks.some((brick) => (
+        brick.id !== ignoreBrickId &&
+        !brick.isDragging &&
+        brick.col === col &&
+        brick.row === row
+    ));
+}
+
+function getDropCell(point, metrics) {
+    const col = Math.round((point.x + metrics.plateWidth / 2) / metrics.brickSize);
+    const row = Math.round((point.y + metrics.plateHeight / 2) / metrics.brickSize);
+
+    const clampedCol = clamp(col, 0, metrics.plateBlockCols - 1);
+    const clampedRow = clamp(row, 0, metrics.plateBlockRows - 1);
+    const x = -metrics.plateWidth / 2 + clampedCol * metrics.brickSize;
+    const y = -metrics.plateHeight / 2 + clampedRow * metrics.brickSize;
+
+    return {
+        col: clampedCol,
+        row: clampedRow,
+        x,
+        y,
+    };
+}
+
+function isPointNearPlate(point, metrics) {
+    return (
+        point.x >= -metrics.plateWidth / 2 - metrics.brickSize * 0.4 &&
+        point.x <= metrics.plateWidth / 2 + metrics.brickSize * 0.4 &&
+        point.y >= -metrics.plateHeight / 2 - metrics.brickSize * 0.4 &&
+        point.y <= metrics.plateHeight / 2 + metrics.brickSize * 0.4
+    );
+}
+
+function updateInteraction(state, movement, metrics) {
+    state.frame += 1;
+    const pointer = movement.mousePoint;
+    const boardPoint = toBoardSpace(pointer, metrics);
+
+    if (!state.prevIsDown && movement.isDown) {
+        const hit = findBrickAtPoint(state, boardPoint, metrics);
+        if (hit) {
+            state.selectedBrickId = hit.brick.id;
+            state.dragOffsetX = boardPoint.x - hit.rect.x;
+            state.dragOffsetY = boardPoint.y - hit.rect.y;
+            hit.brick.isDragging = true;
+            hit.brick.dragX = hit.rect.x;
+            hit.brick.dragY = hit.rect.y;
+
+            const brickIndex = state.bricks.findIndex((brick) => brick.id === hit.brick.id);
+            const [selectedBrick] = state.bricks.splice(brickIndex, 1);
+            state.bricks.push(selectedBrick);
         }
+    }
 
-        area.moveTo(
-            this.studs[0].centerPos.x - blockWidth / 2,
-            this.studs[0].centerPos.y + blockHeight
-        );
-        area.lineTo(
-            this.studs[0].centerPos.x - blockWidth / 2 + blockWidth * this.size,
-            this.studs[0].centerPos.y + blockHeight
-        );
-        area.lineTo(
-            this.studs[0].centerPos.x - blockWidth / 2 + blockWidth * this.size,
-            this.studs[0].centerPos.y
-        );
-        area.lineTo(
-            this.studs[0].centerPos.x - blockWidth / 2,
-            this.studs[0].centerPos.y
-        );
-        area.closePath();
+    if (movement.isDown && state.selectedBrickId !== null) {
+        const brick = state.bricks.find((item) => item.id === state.selectedBrickId);
+        brick.dragX = boardPoint.x - state.dragOffsetX;
+        brick.dragY = boardPoint.y - state.dragOffsetY;
 
-        if (movement.isDown) {
-            if (!this.prevIsDown &&
-                ctx.isPointInPath(area, movement.mousePoint.x, movement.mousePoint.y)) {
-                this.selectedPos = { x: movement.mousePoint.x, y: movement.mousePoint.y };
-                this.unconnect();
-            }
-            if (this.selectedPos) {
-                this.selectedPos = { x: movement.mousePoint.x, y: movement.mousePoint.y };
-                this.isConnected = this.connectIfPossible(studs);
+        if (isPointNearPlate(boardPoint, metrics)) {
+            const dropCell = getDropCell(
+                {
+                    x: brick.dragX + metrics.brickSize / 2,
+                    y: brick.dragY + metrics.brickSize / 2,
+                },
+                metrics
+            );
 
+            if (!isCellOccupied(state, dropCell.col, dropCell.row, brick.id)) {
+                state.dropCell = dropCell;
+            } else {
+                state.dropCell = null;
             }
         } else {
-            if (this.isConnected) {
-                this.selectedPos = null;
-            } else {
-                this.isFalling = true;
-            }
-        }
-
-        this.prevIsDown = movement.isDown;
-    }
-
-    draw(ctx, x, y, stud) {
-        const blockWidth = Stud.studWidth * 2;
-        const blockHeight = Stud.studWidth * 3;
-        const antiStudIdx = this.selectedPos && !this.isConnected ? 0 : this.antiStuds.indexOf(stud);
-        const fontSize = Stud.studWidth * 2.5;
-
-        if (this.drawed || (!this.selectedPos && stud === undefined))
-            return;
-
-        this.drawed = true;
-
-        if (this.isFalling) {
-            this.drawed = true;
-            ctx.save();
-            ctx.translate(this.selectedPos.x, this.selectedPos.y);
-            ctx.rotate(this.angle);
-            x = -blockWidth / 2 * this.size + blockWidth / 2;
-            y = blockHeight / 2;
-
-            for (let i = 0; i < this.size; i++) {
-                const stud = this.studs[i];
-                stud.draw(ctx, x - blockWidth * antiStudIdx + blockWidth * i, y - blockHeight);
-            }
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.fillStyle = this.color;
-
-            ctx.fillRect(x - blockWidth * antiStudIdx - blockWidth / 2, y, blockWidth * this.size, -blockHeight);
-            ctx.font = fontSize + 'px Comic Sans MS';
-            ctx.fillStyle = 'rgba(0,0,0,1)';
-            const textWidth = ctx.measureText(this.letter).width;
-            ctx.fillText(this.letter,
-                x - blockWidth * antiStudIdx - blockWidth / 2 + blockWidth * this.size / 2 - textWidth / 2,
-                y - blockHeight / 2 + fontSize / 2.5);
-
-            ctx.restore();
-            return;
-        }
-
-        if (this.selectedPos && !this.isConnected) {
-            x = this.selectedPos.x - blockWidth / 2 * this.size + blockWidth / 2;
-            y = this.selectedPos.y + blockHeight / 2;
-        }
-
-        for (let i = 0; i < this.size; i++) {
-            const stud = this.studs[i];
-            stud.draw(ctx, x - blockWidth * antiStudIdx + blockWidth * i, y - blockHeight);
-        }
-
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = this.color;
-
-        ctx.fillRect(x - blockWidth * antiStudIdx - blockWidth / 2, y, blockWidth * this.size, -blockHeight);
-        ctx.font = fontSize + 'px Comic Sans MS';
-        ctx.fillStyle = 'rgba(0,0,0,1)';
-        const textWidth = ctx.measureText(this.letter).width;
-        ctx.fillText(this.letter,
-            x - blockWidth * antiStudIdx - blockWidth / 2 + blockWidth * this.size / 2 - textWidth / 2,
-            y - blockHeight / 2 + fontSize / 2.5);
-    }
-
-    setPosition(x, y, stud) {
-        if (this.positioned)
-            return;
-
-        const blockWidth = Stud.studWidth * 2;
-        const blockHeight = Stud.studWidth * 3;
-        const antiStudIdx = this.antiStuds.indexOf(stud);
-
-        this.positioned = true;
-
-        for (let i = 0; i < this.size; i++) {
-            const stud = this.studs[i];
-            const antiStud = this.antiStuds[i];
-
-            stud.setPosition(x - blockWidth * antiStudIdx + blockWidth * i, y - blockHeight);
-
-            if (antiStud)
-                antiStud.setPosition(x - blockWidth * antiStudIdx + blockWidth * i, y);
+            state.dropCell = null;
         }
     }
 
-    unconnect(needToConnect) {
-        this.isConnected = false;
-        for (let i = 0; i < this.size; i++) {
-            const antiStud = this.antiStuds[i];
-            const stud = this.studs[i];
+    if (state.prevIsDown && !movement.isDown && state.selectedBrickId !== null) {
+        const brick = state.bricks.find((item) => item.id === state.selectedBrickId);
 
-            if (antiStud && antiStud.block !== needToConnect) {
-                antiStud.connection = null;
-                this.antiStuds[i] = null;
-            }
-
-            if (stud.connection) {
-                stud.connection.unconnect(this);
-            }
-        }
-    }
-
-    connectIfPossible(studs) {
-        const blockWidth = Stud.studWidth * 2;
-        const blockHeight = Stud.studWidth * 3;
-        var connectPossible = true;
-
-        this.unconnect();
-        for (let i = 0; i < this.size; i++) {
-            const x = this.selectedPos.x - blockWidth / 2 * this.size + blockWidth / 2 + blockWidth * i;
-            const y = this.selectedPos.y + blockHeight / 2;
-
-            for (let j = 0; j < studs.length; j++) {
-                const stud = studs[j];
-                const dx = x - stud.centerPos.x;
-                const dy = y - stud.centerPos.y;
-
-                if (stud.block === this) continue;
-
-                if (Math.sqrt(dx * dx + dy * dy) <= Stud.studWidth / 3) {
-                    for (let k = 0; k < studs.length; k++) {
-                        const stud2 = studs[k];
-                        if (stud2.block === this) continue;
-                        if (stud2.centerPos.x === stud.centerPos.x &&
-                            stud2.centerPos.y === stud.centerPos.y - 2 * blockHeight) {
-                            connectPossible = false;
-                            break;
-                        }
-                    }
-
-                    if (!connectPossible && stud.connection && stud.connection !== this) {
-                        connectPossible = false;
-                        break;
-                    }
-
-                    this.antiStuds[i] = stud;
-                    stud.connection = this;
-                    break;
-                }
-            }
+        if (state.dropCell) {
+            brick.col = state.dropCell.col;
+            brick.row = state.dropCell.row;
         }
 
-        if (!connectPossible)
-            this.unconnect();
+        brick.isDragging = false;
+        state.selectedBrickId = null;
+        state.dropCell = null;
+    }
 
-        for (let i = 0; i < this.size; i++) {
-            if (this.antiStuds[i])
-                return true;
+    state.prevIsDown = movement.isDown;
+}
+
+function drawBackground(ctx, width, height) {
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, SCENE_COLORS.backgroundTop);
+    gradient.addColorStop(1, SCENE_COLORS.backgroundBottom);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    const vignette = ctx.createRadialGradient(
+        width / 2,
+        height / 2,
+        Math.min(width, height) * 0.18,
+        width / 2,
+        height / 2,
+        Math.max(width, height) * 0.72
+    );
+    vignette.addColorStop(0, 'rgba(255, 255, 255, 0)');
+    vignette.addColorStop(1, SCENE_COLORS.vignette);
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, width, height);
+}
+
+function drawBasePlate(ctx, metrics, frame) {
+    ctx.fillStyle = SCENE_COLORS.plateShadow;
+    ctx.beginPath();
+    ctx.roundRect(
+        -metrics.plateWidth / 2 + metrics.studPitch * 0.18,
+        -metrics.plateHeight / 2 + metrics.studPitch * 0.24,
+        metrics.plateWidth,
+        metrics.plateHeight,
+        metrics.plateRadius
+    );
+    ctx.fill();
+
+    ctx.fillStyle = SCENE_COLORS.plateBody;
+    ctx.beginPath();
+    ctx.roundRect(
+        -metrics.plateWidth / 2,
+        -metrics.plateHeight / 2,
+        metrics.plateWidth,
+        metrics.plateHeight,
+        metrics.plateRadius
+    );
+    ctx.fill();
+
+    const glow = ctx.createLinearGradient(
+        -metrics.plateWidth / 2,
+        -metrics.plateHeight / 2,
+        metrics.plateWidth / 2,
+        metrics.plateHeight / 2
+    );
+    glow.addColorStop(0, SCENE_COLORS.plateGlow);
+    glow.addColorStop(0.4, 'rgba(255, 255, 255, 0)');
+    glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.roundRect(
+        -metrics.plateWidth / 2,
+        -metrics.plateHeight / 2,
+        metrics.plateWidth,
+        metrics.plateHeight,
+        metrics.plateRadius
+    );
+    ctx.fill();
+
+    for (let row = 0; row < metrics.plateStudRows; row += 1) {
+        for (let col = 0; col < metrics.plateStudCols; col += 1) {
+            const x = -metrics.plateWidth / 2 + metrics.studPitch * (col + 0.5);
+            const y = -metrics.plateHeight / 2 + metrics.studPitch * (row + 0.5);
+            const pulse = Math.sin(frame * 0.025 + row * 0.35 + col * 0.28) * metrics.studPitch * 0.015;
+
+            ctx.fillStyle = SCENE_COLORS.plateStud;
+            ctx.beginPath();
+            ctx.arc(x, y, metrics.studRadius + pulse, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = SCENE_COLORS.plateStudEdge;
+            ctx.lineWidth = Math.max(1, metrics.studPitch * 0.08);
+            ctx.beginPath();
+            ctx.arc(x, y, metrics.studRadius + pulse, 0, Math.PI * 2);
+            ctx.stroke();
         }
-        return false;
-    }
-
-    isFalledOut(height) {
-        const blockWidth = Stud.studWidth * 2;
-        const blockHeight = Stud.studWidth * 3;
-
-        return this.isFalling && this.selectedPos.y > height + Math.max(blockHeight, blockWidth * this.size);
-    }
-
-    spawn(studs, studToExclude) {
-        const blockWidth = Stud.studWidth * 2;
-        const blockHeight = Stud.studWidth * 3;
-
-        while (true) {
-            const antiStudIdx = Math.floor(Math.random() * this.size);
-            var studIdx = Math.floor(Math.random() * studs.length);
-            var connectPossible = true;
-
-            while (studToExclude.includes(studs[studIdx]) || studs[studIdx].connection || (studs[studIdx].block && studs[studIdx].block.selectedPos)) {
-                studIdx = Math.floor(Math.random() * studs.length);
-            }
-
-            const stud = studs[studIdx];
-            this.antiStuds[antiStudIdx] = stud;
-            stud.connection = this;
-            this.isConnected = true;
-
-            const leftBottomX = stud.centerPos.x - blockWidth * antiStudIdx - blockWidth / 2;
-            const leftBottomY = stud.centerPos.y;
-
-            for (let i = 0; i < this.size; i++) {
-                if (this.antiStuds[i])
-                    continue;
-                const x = leftBottomX + blockWidth / 2 + blockWidth * i;
-                const y = leftBottomY;
-
-                for (let j = 0; j < studs.length; j++) {
-                    const stud = studs[j];
-                    if (studToExclude.includes(stud) || j === studIdx || (stud.block && stud.block.selectedPos))
-                        continue;
-
-                    const dx = stud.centerPos.x - x;
-                    const dy = stud.centerPos.y - y;
-
-                    if (Math.sqrt(dx * dx + dy * dy) <= Stud.studWidth / 3) {
-                        for (let k = 0; k < studs.length; k++) {
-                            const stud2 = studs[k];
-                            if (stud2.block === this) continue;
-                            if (stud2.centerPos.x === stud.centerPos.x &&
-                                stud2.centerPos.y === stud.centerPos.y - 2 * blockHeight) {
-                                connectPossible = false;
-                                break;
-                            }
-                        }
-                        if (stud.connection && stud.connection !== this) {
-                            connectPossible = false;
-                            break;
-                        }
-                        this.antiStuds[i] = stud;
-                        stud.connection = this;
-                        break;
-                    }
-                }
-                if (!connectPossible)
-                    break;
-            }
-
-            if (connectPossible)
-                return;
-
-            for (let i = 0; i < this.size; i++) {
-                if (this.antiStuds[i]) {
-                    this.antiStuds[i].connection = null;
-                    this.antiStuds[i] = null;
-                }
-            }
-        }
-    }
-};
-
-var blocks = [];
-var basePlateStud = [];
-
-function blockSetUp(basePlateStud, blocks) {
-    var adultLength = 0;
-    const adultRange = 5;
-    const kIdx = 5;
-    const iIdx = 6;
-    const dIdx = 1;
-
-    for (let i = 0; i < adultRange; i++) {
-        adultLength += blocks[i].size;
-    }
-    const adultStartIdx = Math.floor((basePlateStud.length - adultLength) / 2);
-    var idx = adultStartIdx;
-
-    for (let i = 0; i < adultRange; i++) {
-        const block = blocks[i];
-        for (let j = 0; j < block.size; j++) {
-            basePlateStud[idx].connection = blocks[i];
-            blocks[i].antiStuds[j] = basePlateStud[idx];
-            blocks[i].isConnected = true;
-            idx++;
-        }
-    }
-
-    var blockIdx, studIdx;
-
-    if (blocks[dIdx].size === 1 && blocks[iIdx].size === 3) {
-        blockIdx = dIdx - 1;
-        studIdx = blocks[dIdx - 1].size - 1;
-    } else {
-        blockIdx = dIdx;
-        studIdx = 0;
-    }
-
-    for (let i = 0; i < blocks[iIdx].size; i++) {
-        blocks[blockIdx].studs[studIdx].connection = blocks[iIdx];
-        blocks[iIdx].antiStuds[i] = blocks[blockIdx].studs[studIdx];
-        blocks[iIdx].isConnected = true;
-        studIdx++;
-        if (studIdx === blocks[blockIdx].size) {
-            studIdx = 0;
-            blockIdx++;
-        }
-    }
-
-    for (let i = 0; i < blocks[kIdx].size && i < blocks[iIdx].size; i++) {
-        blocks[iIdx].studs[i].connection = blocks[kIdx];
-        blocks[kIdx].antiStuds[i] = blocks[iIdx].studs[i];
-        blocks[kIdx].isConnected = true;
     }
 }
 
+function drawHomeTargets(ctx, state, metrics) {
+    for (const brick of state.bricks) {
+        const isOccupied = state.bricks.some((candidate) => (
+            candidate.id !== brick.id &&
+            !candidate.isDragging &&
+            candidate.col === brick.homeCol &&
+            candidate.row === brick.homeRow
+        )) || (!brick.isDragging && brick.col === brick.homeCol && brick.row === brick.homeRow);
+
+        if (isOccupied) {
+            continue;
+        }
+
+        const x = -metrics.plateWidth / 2 + brick.homeCol * metrics.brickSize;
+        const y = -metrics.plateHeight / 2 + brick.homeRow * metrics.brickSize;
+
+        ctx.fillStyle = SCENE_COLORS.targetFill;
+        ctx.strokeStyle = SCENE_COLORS.targetStroke;
+        ctx.lineWidth = Math.max(1.5, metrics.studPitch * 0.12);
+        ctx.beginPath();
+        ctx.roundRect(x, y, metrics.brickSize, metrics.brickSize, metrics.brickSize * 0.16);
+        ctx.fill();
+        ctx.stroke();
+    }
+}
+
+function drawSnapPreview(ctx, state, metrics) {
+    if (!state.dropCell) {
+        return;
+    }
+
+    ctx.fillStyle = SCENE_COLORS.snapFill;
+    ctx.strokeStyle = SCENE_COLORS.snapStroke;
+    ctx.lineWidth = Math.max(2, metrics.studPitch * 0.16);
+    ctx.beginPath();
+    ctx.roundRect(
+        state.dropCell.x,
+        state.dropCell.y,
+        metrics.brickSize,
+        metrics.brickSize,
+        metrics.brickSize * 0.16
+    );
+    ctx.fill();
+    ctx.stroke();
+}
+
+function drawBrick(ctx, brick, metrics, frame) {
+    const palette = BRICK_PALETTE[brick.paletteIndex];
+    const rect = getBrickRect(brick, metrics, frame);
+    const size = rect.width;
+    const studOffset = size * 0.28;
+    const studRadius = size * 0.12;
+
+    ctx.fillStyle = brick.isDragging ? 'rgba(42, 31, 18, 0.26)' : 'rgba(42, 31, 18, 0.18)';
+    ctx.beginPath();
+    ctx.roundRect(rect.x + size * 0.08, rect.y + size * 0.1, size, size, size * 0.16);
+    ctx.fill();
+
+    ctx.fillStyle = palette.edge;
+    ctx.beginPath();
+    ctx.roundRect(rect.x, rect.y, size, size, size * 0.16);
+    ctx.fill();
+
+    const faceGradient = ctx.createLinearGradient(rect.x, rect.y, rect.x + size, rect.y + size);
+    faceGradient.addColorStop(0, palette.stud);
+    faceGradient.addColorStop(0.32, palette.body);
+    faceGradient.addColorStop(1, palette.edge);
+    ctx.fillStyle = faceGradient;
+    ctx.beginPath();
+    ctx.roundRect(rect.x + size * 0.06, rect.y + size * 0.05, size * 0.88, size * 0.88, size * 0.14);
+    ctx.fill();
+
+    const studPositions = [
+        [rect.x + studOffset, rect.y + studOffset],
+        [rect.x + size - studOffset, rect.y + studOffset],
+        [rect.x + studOffset, rect.y + size - studOffset],
+        [rect.x + size - studOffset, rect.y + size - studOffset],
+    ];
+
+    for (let index = 0; index < studPositions.length; index += 1) {
+        const [studX, studY] = studPositions[index];
+        const pulse = Math.sin(frame * 0.06 + brick.id * 0.45 + index) * size * 0.006;
+
+        ctx.fillStyle = palette.stud;
+        ctx.beginPath();
+        ctx.arc(studX, studY, studRadius + pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = palette.edge;
+        ctx.lineWidth = Math.max(1, size * 0.035);
+        ctx.beginPath();
+        ctx.arc(studX, studY, studRadius + pulse, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = palette.shine;
+        ctx.beginPath();
+        ctx.arc(studX - studRadius * 0.22, studY - studRadius * 0.25, studRadius * 0.34, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    ctx.fillStyle = brick.isDragging ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.14)';
+    ctx.beginPath();
+    ctx.roundRect(rect.x + size * 0.12, rect.y + size * 0.1, size * 0.24, size * 0.7, size * 0.1);
+    ctx.fill();
+}
+
+let kidultState = null;
+
 export function AnimationK(ctx, width, height, movement) {
-    const centerx = width / 2;
-    const centery = height / 2;
-    const basePlateLength = 21; // max block length * # of letters
-    const basePlateColor = {
-        studColor: "rgba(96,103,112,1)",
-        blockColor: "rgba(66,73,82,1)"
-    };
-    const colorSet = [
-        {
-            studColor: "rgba(234,67,74,1)",
-            blockColor: "rgba(204,37,44,1)"
-        },
-        {
-            studColor: "rgba(30,109,255,1)",
-            blockColor: "rgba(0,79,255,1)"
-        },
-        {
-            studColor: "rgba(254,231,21,1)",
-            blockColor: "rgba(255,223,0,1)"
-        },
-        {
-            studColor: "rgba(30,201,162,1)",
-            blockColor: "rgba(0,171,132,1)"
-        },
-    ]
+    const state = ensureState(width, height);
+    const metrics = getMetrics(width, height);
 
-    var studs = [];
+    updateInteraction(state, movement, metrics);
 
-    Stud.studWidth = width / 50;
-
-    if (basePlateStud.length === 0) {
-        for (let i = 0; i < basePlateLength; i++) {
-            basePlateStud[i] = new Stud(null, basePlateColor.studColor);
-        }
-    }
-
-    if (blocks.length === 0) {
-        blocks[0] = new LegoBlock('A', colorSet);
-        blocks[1] = new LegoBlock('D', colorSet);
-        blocks[2] = new LegoBlock('U', colorSet);
-        blocks[3] = new LegoBlock('L', colorSet);
-        blocks[4] = new LegoBlock('T', colorSet);
-        blocks[5] = new LegoBlock('K', colorSet);
-        blocks[6] = new LegoBlock('I', colorSet);
-        blockSetUp(basePlateStud, blocks);
-    }
-
-
-    for (let i = 0; i < basePlateLength; i++) {
-        const x = centerx - (10 - i) * Stud.studWidth * 2;
-        const y = centery * 1.3;
-        basePlateStud[i].setPosition(x, y)
-    }
-
-    studs = studs.concat(basePlateStud);
-    for (let i = 0; i < blocks.length; i++) {
-        studs = studs.concat(blocks[i].studs)
-    }
-
-    for (let i = 0; i < blocks.length; i++) {
-        blocks[i].move(movement, ctx, studs);
-    }
-
-    for (let i = 0; i < basePlateLength; i++) {
-        const x = centerx - (10 - i) * Stud.studWidth * 2;
-        const y = centery * 1.3;
-        basePlateStud[i].draw(ctx, x, y);
-    }
-
+    ctx.save();
     ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = basePlateColor.blockColor;
-    ctx.fillRect(centerx - 21 * Stud.studWidth, centery * 1.3, 42 * Stud.studWidth, Stud.studWidth);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
 
-    for (let i = 0; i < blocks.length; i++) {
-        if (!blocks[i].drawed)
-            blocks[i].draw(ctx);
+    drawBackground(ctx, width, height);
+
+    ctx.save();
+    ctx.translate(metrics.plateX, metrics.plateY);
+    ctx.rotate(metrics.plateRotation);
+
+    drawBasePlate(ctx, metrics, state.frame);
+    drawHomeTargets(ctx, state, metrics);
+    drawSnapPreview(ctx, state, metrics);
+
+    for (const brick of state.bricks) {
+        drawBrick(ctx, brick, metrics, state.frame);
     }
 
-    for (let i = 0; i < blocks.length; i++) {
-        blocks[i].drawed = false;
-        blocks[i].positioned = false;
-        if (blocks[i].isFalledOut(height)) {
-            const prevStuds = blocks[i].studs;
-            blocks[i] = new LegoBlock(blocks[i].letter, colorSet);
-            blocks[i].spawn(studs, prevStuds);
-        }
-    }
+    ctx.restore();
+    ctx.restore();
 }
 
 export function CleanK() {
-    blocks = [];
-    basePlateStud = [];
+    kidultState = null;
 }
+
+export const descriptionK = [
+    `어릴 때 좋아하던 장난감을 지금도 좋아합니다.
+특히 레고처럼 손으로 직접 만지고 옮기고 다시 끼우는 놀이는
+가만히 보기만 하는 취미보다 더 오래 기억에 남는 편입니다.`,
+    `이번 장면은 더 큰 레고 판 위에 2x2 블록만으로 KIDULT 글자를 올려 둔 구성입니다.
+위에서 내려다보는 시선은 유지하되,
+완성된 화면을 감상하는 것보다 직접 블록을 만지는 재미에 더 무게를 두었습니다.`,
+    `각 블록은 마우스나 터치로 집어서 다른 위치에 다시 끼울 수 있습니다.
+원래 글자 자리는 옅은 가이드로 남겨 두어서,
+흩어 놓고 놀다가도 다시 KIDULT 형태로 맞춰 볼 수 있게 만들었습니다.`,
+];
+
+export const toolTipK = [
+    '2x2 레고 블록을 직접 잡아서 레고 판의 다른 칸에 끼울 수 있습니다.',
+    '빈 자리에 보이는 옅은 가이드는 원래 KIDULT 글자가 놓이던 위치입니다.',
+    '이번 버전은 더 큰 레고 판과 차가운 블루 배경으로 장난감 테이블 같은 느낌을 만들었습니다.',
+];

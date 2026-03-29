@@ -2,12 +2,12 @@ import { AnimationA, CleanA, descriptionA, toolTipA } from "../animate/a_algorit
 import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee";
 import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
+import { AnimationK, CleanK, descriptionK, toolTipK } from "../animate/k_kidult";
 // import { AnimationD, CleanD } from "../animate/d_design_develop";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
 // import { AnimationH, CleanH } from "../animate/h_homebody";
 // import { AnimationJ, CleanJ } from "../animate/j_judging";
-// import { AnimationK, CleanK } from "../animate/k_kidult";
 // import { AnimationM, CleanM } from "../animate/m_mentor";
 // import { AnimationR, CleanR } from "../animate/r_rambler";
 // import { AnimationS, CleanS } from "../animate/s_steady";
@@ -37,7 +37,13 @@ const items = new Map([
     ['H', null],
     ['I', null],
     ['J', null],
-    ['K', null],
+    ['K', {
+        animate: AnimationK,
+        clean: CleanK,
+        title: 'Kidult',
+        text: descriptionK,
+        toolTipText: toolTipK
+    }],
     ['L', null],
     ['M', null],
     ['N', null],
@@ -286,28 +292,6 @@ const items = new Map([
 //             '우클릭을 하면 선이 생기는 개수가 늘어납니다.']
 //     }],
 //     ['U', null],
-//     ['V', {
-//         backgroundColor: '#D7D2CB',
-//         toolTipColor: 'black',
-//         toolTipTextColor: 'white',
-//         animate: AnimationV,
-//         clean: CleanV,
-//         title: 'Versatile',
-//         text: ['제 입으로 말하긴 민망하지만,',
-//             '할 줄 아는 게 꽤 많습니다.',
-//             '나름 미적 감각은 있어서 간단한 디자인은 할 수 있고,',
-//             '손재주가 좋아서 만들기도 좀 합니다.',
-//             ' ',
-//             '전공 쪽으로 넘어가면,',
-//             '코딩 테스트 출제로 외주도 받아봤구요.',
-//             '프론트엔드 개발도 조금 합니다.',
-//             '지금은 DB 엔진 개발을 하고 있죠.',
-//             ' ',
-//             '너무 얕게만 알고 있어서 이걸 다 어디다 쓰나 싶었는데,',
-//             '지금 와서 보니까 다 언젠가는 쓰게 되더라구요.'],
-//         toolTipText: ['멀티툴의 다양한 도구를 선택해보세요!',
-//             '선택된 도구를 다시 누르면 원래 상태로 돌아옵니다.']
-//     }],
 //     ['W', {
 //         backgroundColor: '#0A3255',
 //         toolTipColor: 'white',
