@@ -1,6 +1,7 @@
 import { AnimationA, CleanA, descriptionA, toolTipA } from "../animate/a_algorithm";
 import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee";
 import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
+import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
 // import { AnimationD, CleanD } from "../animate/d_design_develop";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
@@ -11,7 +12,6 @@ import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgra
 // import { AnimationR, CleanR } from "../animate/r_rambler";
 // import { AnimationS, CleanS } from "../animate/s_steady";
 // import { AnimationT, CleanT } from "../animate/t_tracing";
-// import { AnimationV, CleanV } from "../animate/v_versatile";
 // import { AnimationW, CleanW } from "../animate/w_workaholic";
 
 const items = new Map([
@@ -54,7 +54,13 @@ const items = new Map([
     ['S', null],
     ['T', null],
     ['U', null],
-    ['V', null],
+    ['V', {
+        animate: AnimationV,
+        clean: CleanV,
+        title: 'Versatile',
+        text: descriptionV,
+        toolTipText: toolTipV
+    }],
     ['W', null],
     ['X', null],
     ['Y', null],
@@ -62,25 +68,6 @@ const items = new Map([
 ]);
 
 // const items = new Map([
-//     ['A', {
-//         backgroundColor: '#FFAD00',
-//         toolTipColor: 'black',
-//         toolTipTextColor: 'white',
-//         animate: AnimationA,
-//         clean: CleanA,
-//         title: 'Algorithm',
-//         text: ['대학에서는 알고리즘 공부를 좀 했어요.',
-//             '나름 동아리 학술부장도 해보고,',
-//             '대회 출제라는 것도 해보고,',
-//             '동아리 연합 세미나에서 수업도 해봤어요.',
-//             ' ',
-//             '인생 첫 코딩 공부였는데 나름 적성에 맞았던 것 같아요.',
-//             '덕분에 전공 수업도 나름 잘 따라갈 수 있었죠.',
-//             '지금은 알고리즘 공부를 따로 하지는 않지만,',
-//             '가끔씩 재미로 문제 풀이는 하고 있어요.'],
-//         toolTipText: ['마우스를 꾹 누르면 막대가 섞입니다.',
-//             '섞인 막대가 정렬되는 것을 지켜보세요!']
-//     }],
 //     ['B', null],
 //     ['D', {
 //         backgroundColor: '#32363F',
