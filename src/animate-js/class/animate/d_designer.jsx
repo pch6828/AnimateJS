@@ -1,7 +1,7 @@
 const FRONT_TEXT = 'DESIGNER';
 const BACK_TEXT = 'Developer';
 const FONT_FAMILY = '"Limelight", "Times New Roman", serif';
-const DEVELOPER_FONT_FAMILY = '"Consolas", "Courier New", monospace';
+const DEVELOPER_FONT_FAMILY = '"VT323", Consolas, monospace';
 const SLICE_COUNT = 10;
 const DRAG_RATIO = 1;
 const THEME = {
