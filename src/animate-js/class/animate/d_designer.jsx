@@ -134,3 +134,11 @@ export function CleanD() {
     prevIsDown = false;
     timestamp = 0;
 }
+
+export const descriptionD = [
+    ``
+]
+
+export const toolTipD = [
+    ''
+];
