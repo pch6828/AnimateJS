@@ -1,143 +1,366 @@
-class RevealingPath {
-    constructor(type, timestamp) {
-        this.type = type;
-        this.points = [];
-        this.timestamp = timestamp;
-    }
-
-    addPoint(x, y) {
-        this.points.push({ x: x, y: y });
-    }
-
-    isEmpty() {
-        return this.points.length === 0;
-    }
-
-    removeSinglePoint() {
-        this.points.splice(0, 1);
-    }
-
-    erase(ctx, width, height) {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.lineWidth = width / 15;
-
-        for (let i = 1; i < this.points.length; i++) {
-            ctx.beginPath();
-            ctx.moveTo(this.points[i - 1].x, this.points[i - 1].y);
-            ctx.lineTo(this.points[i].x, this.points[i].y);
-            ctx.closePath();
-            ctx.stroke();
-        }
-    }
-
-    fill(ctx, width, height, color) {
-        ctx.globalCompositeOperation = 'destination-over';
-        ctx.lineWidth = width / 15;
-        ctx.strokeStyle = color;
-
-        for (let i = 1; i < this.points.length; i++) {
-            ctx.beginPath();
-            ctx.moveTo(this.points[i - 1].x, this.points[i - 1].y);
-            ctx.lineTo(this.points[i].x, this.points[i].y);
-            ctx.closePath();
-            ctx.stroke();
-        }
-    }
+const FRONT_TEXT = 'DESIGNER';
+const BACK_TEXT = 'Developer';
+const FONT_FAMILY = '"Limelight", "Times New Roman", serif';
+const DEVELOPER_FONT_FAMILY = '"Consolas", "Courier New", monospace';
+const SLICE_COUNT = 10;
+const DRAG_RATIO = 1;
+const THEME = {
+    backgroundTop: '#f4dfc8',
+    backgroundBottom: '#d5b288',
+    halo: 'rgba(255, 247, 234, 0.88)',
+    frameFill: 'rgba(83, 50, 31, 0.08)',
+    frameStroke: 'rgba(75, 42, 24, 0.36)',
+    frameInner: 'rgba(255, 246, 231, 0.55)',
+    guide: 'rgba(67, 41, 27, 0.38)',
+    frontPanel: '#f4df72',
+    frontStripe: 'rgba(179, 52, 44, 0.58)',
+    frontRule: '#4a7ad9',
+    frontFill: '#3f2a1f',
+    frontAccent: '#8f5c42',
+    backPanel: '#050505',
+    backFill: '#7dff7a',
+    sliceEdge: 'rgba(38, 23, 15, 0.14)',
+    shadow: 'rgba(39, 22, 12, 0.18)',
 };
 
-const PATH_MAX_LIFE = 1000;
-var paths = [];
-var bgTextDict = null;
-var prevIsDown = false;
-var timestamp = 0;
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
 
-export function AnimationD(ctx, width, height, movement) {
-    const centerx = width / 2;
-    const centery = height / 2;
+function easeInOut(value) {
+    return value < 0.5
+        ? 2 * value * value
+        : 1 - Math.pow(-2 * value + 2, 2) / 2;
+}
 
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+function approach(current, target, factor) {
+    return current + (target - current) * factor;
+}
 
-    ctx.fillStyle = '#32363F'
+function createScratchCanvas(width, height, ctx) {
+    if (typeof OffscreenCanvas !== 'undefined') {
+        return new OffscreenCanvas(width, height);
+    }
+
+    const canvas = ctx.canvas.ownerDocument.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
+}
+
+function createState(width, height) {
+    return {
+        width,
+        height,
+        frame: 0,
+        progress: 0,
+        targetProgress: 0,
+        prevIsDown: false,
+        prevPointerX: null,
+        velocity: 0,
+        dragGlow: 0,
+        frontBuffer: null,
+        backBuffer: null,
+        bufferWidth: 0,
+        bufferHeight: 0,
+    };
+}
+
+function ensureState(width, height) {
+    if (!designerState || designerState.width !== width || designerState.height !== height) {
+        designerState = createState(width, height);
+    }
+
+    return designerState;
+}
+
+function getMetrics(ctx, width, height) {
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const fontSize = clamp(Math.min(width * 0.14, height * 0.24), 68, 220);
+    const letterSpacing = fontSize * 0.08;
+    const panelWidth = width;
+    const panelHeight = height;
+    const panelX = 0;
+    const panelY = 0;
+    const sliceWidth = panelWidth / SLICE_COUNT;
+    const sliceGap = 0;
+
+    ctx.font = `400 ${fontSize}px ${FONT_FAMILY}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    return {
+        centerX,
+        centerY,
+        fontSize,
+        letterSpacing,
+        panelWidth,
+        panelHeight,
+        panelX,
+        panelY,
+        sliceWidth,
+        sliceGap,
+        titleY: centerY,
+    };
+}
+
+function ensureBuffers(state, metrics, ctx) {
+    const width = Math.max(1, Math.round(metrics.panelWidth));
+    const height = Math.max(1, Math.round(metrics.panelHeight));
+
+    if (
+        state.frontBuffer &&
+        state.backBuffer &&
+        state.bufferWidth === width &&
+        state.bufferHeight === height
+    ) {
+        return;
+    }
+
+    state.frontBuffer = createScratchCanvas(width, height, ctx);
+    state.backBuffer = createScratchCanvas(width, height, ctx);
+    state.bufferWidth = width;
+    state.bufferHeight = height;
+
+    drawWordBuffer(state.frontBuffer, width, height, {
+        text: FRONT_TEXT,
+        fillColor: THEME.frontFill,
+        accentColor: THEME.frontAccent,
+        fontFamily: FONT_FAMILY,
+        backgroundColor: THEME.frontPanel,
+    }, metrics);
+    drawWordBuffer(state.backBuffer, width, height, {
+        text: BACK_TEXT,
+        fillColor: THEME.backFill,
+        accentColor: null,
+        fontFamily: DEVELOPER_FONT_FAMILY,
+        backgroundColor: THEME.backPanel,
+    }, metrics);
+}
+
+function drawWordBuffer(canvas, width, height, style, metrics) {
+    const bufferCtx = canvas.getContext('2d');
+
+    bufferCtx.clearRect(0, 0, width, height);
+    if (style.backgroundColor) {
+        bufferCtx.fillStyle = style.backgroundColor;
+        bufferCtx.fillRect(0, 0, width, height);
+    }
+
+    if (style.text === FRONT_TEXT) {
+        const stripeGap = Math.max(16, metrics.fontSize * 0.2);
+        bufferCtx.strokeStyle = THEME.frontStripe;
+        bufferCtx.lineWidth = Math.max(1.2, metrics.fontSize * 0.018);
+
+        for (let y = stripeGap * 0.7; y < height; y += stripeGap) {
+            bufferCtx.beginPath();
+            bufferCtx.moveTo(0, y);
+            bufferCtx.lineTo(width, y);
+            bufferCtx.stroke();
+        }
+
+        bufferCtx.fillStyle = THEME.frontRule;
+        bufferCtx.fillRect(width * 0.08, 0, Math.max(3, width * 0.012), height);
+    }
+
+    bufferCtx.save();
+    bufferCtx.translate(width / 2, height / 2);
+    bufferCtx.textAlign = 'center';
+    bufferCtx.textBaseline = 'middle';
+    bufferCtx.font = `400 ${metrics.fontSize}px ${style.fontFamily}`;
+
+    const glow = bufferCtx.createLinearGradient(-width / 2, -height / 2, width / 2, height / 2);
+    glow.addColorStop(0, style.text === FRONT_TEXT ? 'rgba(255, 245, 201, 0.38)' : style.backgroundColor ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 248, 237, 0.65)');
+    glow.addColorStop(0.5, 'rgba(255, 248, 237, 0)');
+    glow.addColorStop(1, style.text === FRONT_TEXT ? 'rgba(255, 234, 173, 0.18)' : style.backgroundColor ? 'rgba(255, 255, 255, 0.03)' : 'rgba(255, 248, 237, 0.3)');
+    bufferCtx.fillStyle = glow;
+    bufferCtx.fillRect(-width / 2, -height / 2, width, height);
+
+    bufferCtx.lineWidth = Math.max(1.5, metrics.fontSize * 0.02);
+    bufferCtx.strokeStyle = style.text === FRONT_TEXT
+        ? 'rgba(255, 248, 223, 0.72)'
+        : style.backgroundColor
+            ? 'rgba(255, 255, 255, 0.12)'
+            : 'rgba(255, 245, 233, 0.55)';
+    bufferCtx.strokeText(style.text, 0, metrics.fontSize * 0.02);
+
+    if (style.accentColor) {
+        bufferCtx.fillStyle = style.accentColor;
+        bufferCtx.fillText(style.text, metrics.fontSize * 0.022, metrics.fontSize * 0.034);
+    }
+
+    bufferCtx.fillStyle = style.fillColor;
+    bufferCtx.fillText(style.text, 0, 0);
+
+    bufferCtx.fillStyle = style.text === FRONT_TEXT
+        ? 'rgba(255, 248, 221, 0.18)'
+        : style.backgroundColor
+            ? 'rgba(255, 255, 255, 0.04)'
+            : 'rgba(255, 255, 255, 0.12)';
+    bufferCtx.fillRect(-width / 2, -height / 2, width * 0.24, height);
+    bufferCtx.restore();
+}
+
+function updateInteraction(state, movement, width) {
+    state.frame += 1;
+
+    if (!state.prevIsDown && movement.isDown) {
+        state.prevPointerX = movement.mousePoint.x;
+    } else if (!movement.isDown) {
+        state.prevPointerX = null;
+    }
+
+    if (movement.isDown && state.prevPointerX !== null) {
+        const deltaX = movement.mousePoint.x - state.prevPointerX;
+        const normalizedDelta = deltaX / Math.max(width, 1);
+        const isDraggingPastFront = state.targetProgress <= 0 && normalizedDelta < 0;
+        const isDraggingPastBack = state.targetProgress >= 1 && normalizedDelta > 0;
+        const isBlockedAtEdge = isDraggingPastFront || isDraggingPastBack;
+
+        if (isBlockedAtEdge) {
+            state.velocity = approach(state.velocity, 0, 0.6);
+            state.dragGlow *= 0.9;
+        } else {
+            state.targetProgress = clamp(state.targetProgress + normalizedDelta / DRAG_RATIO, 0, 1);
+            state.velocity = approach(state.velocity, normalizedDelta, 0.45);
+            state.dragGlow = approach(state.dragGlow, Math.min(1, Math.abs(normalizedDelta) * 28), 0.18);
+        }
+
+        state.prevPointerX = movement.mousePoint.x;
+    } else {
+        state.velocity *= 0.86;
+        state.dragGlow *= 0.92;
+    }
+
+    state.progress = approach(state.progress, state.targetProgress, movement.isDown ? 0.22 : 0.12);
+    state.prevIsDown = movement.isDown;
+}
+
+function drawBackground(ctx, width, height, metrics, state) {
+    const halo = ctx.createRadialGradient(
+        metrics.centerX,
+        metrics.centerY - metrics.fontSize * 0.18,
+        metrics.fontSize * 0.25,
+        metrics.centerX,
+        metrics.centerY,
+        Math.max(width, height) * 0.72
+    );
+    halo.addColorStop(0, THEME.halo);
+    halo.addColorStop(1, 'rgba(255, 247, 234, 0)');
+    ctx.fillStyle = halo;
     ctx.fillRect(0, 0, width, height);
 
-    if (!bgTextDict) {
-        bgTextDict = new Map([
-            ['left', {
-                text: 'Design',
-                font: 'Brush Script MT',
-                size: height / 3,
-                color: '#F787B4',
-                xRatio: -0.8,
-                yRatio: -0.3
-            }],
-            ['right', {
-                text: 'Develop',
-                font: 'Century Gothic',
-                size: height / 5,
-                color: '#0695FE',
-                xRatio: -0.2,
-                yRatio: 0.4
-            }]
-        ]);
-    }
-
-    if (movement.isDown) {
-        if (!prevIsDown) {
-            paths.push(new RevealingPath(movement.mouseButton, timestamp));
-            const lastPath = paths[paths.length - 1];
-            lastPath.addPoint(movement.mousePoint.x, movement.mousePoint.y);
-        } else {
-            const lastPath = paths[paths.length - 1];
-            lastPath.addPoint(movement.mousePoint.x, movement.mousePoint.y);
-        }
-    }
-    prevIsDown = movement.isDown;
-
-    for (let i = 0; i < paths.length; i++) {
-
-        // 각 path가 그려질 때마다 그 path에 해당하는 내용물을 모두 지움, globalCompositeOperation은 destination-out
-        // 이후 그 path에 해당하는 글씨를 적음, 이때 globalCompositeOperation은 destination-over
-        paths[i].erase(ctx, width, height);
-
-        ctx.globalCompositeOperation = 'destination-over';
-        ctx.fillStyle = 'rgba(0,0,0,1)';
-        const bgText = bgTextDict.get(paths[i].type);
-        ctx.font = bgText.size + 'px ' + bgText.font;
-        const textWidth = ctx.measureText(bgText.text).width;
-        ctx.fillText(bgText.text, centerx + textWidth * bgText.xRatio, centery + bgText.size * bgText.yRatio);
-
-        paths[i].fill(ctx, width, height, bgText.color);
-        // 그 후 각 path를 채움, 이때 globalCompositeOperation은 다시 destination-over
-        // 이 과정을 loop로 하면 클릭에 따라서 가능할 듯
-        // path의 유지 시간은 약 2000프레임 정도로 해보자
-    }
-
-
-    if (paths.length > 0 && timestamp - paths[0].timestamp > PATH_MAX_LIFE) {
-        paths[0].removeSinglePoint();
-        if (paths[0].isEmpty())
-            paths.splice(0, 1);
-    }
-
-    // 마우스 좌우 버튼에 따라 서로 다른 글씨가 드러나도록 만들기
-    timestamp++;
-    if (paths.length === 0) {
-        timestamp = 0;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.lineWidth = 1;
+    for (let index = 1; index < SLICE_COUNT; index += 1) {
+        const x = metrics.panelX + metrics.sliceWidth * index;
+        ctx.beginPath();
+        ctx.moveTo(x, metrics.panelY);
+        ctx.lineTo(x, metrics.panelY + metrics.panelHeight);
+        ctx.stroke();
     }
 }
 
+function drawSliceShadow(ctx, x, y, width, height, amount, color) {
+    if (amount <= 0) {
+        return;
+    }
+
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, width, height);
+}
+
+function drawFlipSlices(ctx, metrics, state) {
+    ensureBuffers(state, metrics, ctx);
+
+    ctx.save();
+
+    for (let index = 0; index < SLICE_COUNT; index += 1) {
+        const sliceStart = index / SLICE_COUNT;
+        const staggerWindow = 0.28;
+        const reveal = clamp((state.progress - sliceStart * staggerWindow) / (1 - staggerWindow), 0, 1);
+        const easedReveal = easeInOut(reveal);
+        const angle = easedReveal * Math.PI;
+        const scaleX = Math.max(0.02, Math.abs(Math.cos(angle)));
+        const depth = Math.sin(angle);
+        const centerX = metrics.panelX + metrics.sliceWidth * index + metrics.sliceWidth / 2;
+        const sliceX = metrics.sliceWidth * index;
+        const sourceCanvas = angle < Math.PI / 2 ? state.frontBuffer : state.backBuffer;
+        const sway = (index - (SLICE_COUNT - 1) / 2) * metrics.fontSize * state.velocity * 0.28;
+        const liftedY = metrics.panelY - depth * metrics.fontSize * 0.03;
+        const renderedWidth = Math.max(metrics.sliceWidth * scaleX - metrics.sliceGap, 1.5);
+
+        ctx.fillStyle = `rgba(45, 28, 18, ${0.04 + depth * 0.1})`;
+        ctx.fillRect(
+            centerX - renderedWidth / 2 + metrics.fontSize * 0.02,
+            metrics.panelY + metrics.panelHeight + metrics.fontSize * 0.05,
+            renderedWidth,
+            metrics.fontSize * 0.08
+        );
+
+        ctx.save();
+        ctx.translate(centerX + sway, liftedY);
+        ctx.beginPath();
+        ctx.rect(-renderedWidth / 2, 0, renderedWidth, metrics.panelHeight);
+        ctx.clip();
+
+        ctx.drawImage(
+            sourceCanvas,
+            sliceX,
+            0,
+            metrics.sliceWidth,
+            metrics.panelHeight,
+            -renderedWidth / 2,
+            0,
+            renderedWidth,
+            metrics.panelHeight
+        );
+
+        drawSliceShadow(
+            ctx,
+            -renderedWidth / 2,
+            0,
+            renderedWidth,
+            metrics.panelHeight,
+            depth,
+            `rgba(23, 15, 11, ${depth * 0.32})`
+        );
+
+        ctx.strokeStyle = THEME.sliceEdge;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-renderedWidth / 2, 0, renderedWidth, metrics.panelHeight);
+        ctx.restore();
+    }
+
+    ctx.restore();
+}
+
+let designerState = null;
+
+export function AnimationD(ctx, width, height, movement) {
+    const state = ensureState(width, height);
+    const metrics = getMetrics(ctx, width, height);
+
+    updateInteraction(state, movement, width);
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    drawBackground(ctx, width, height, metrics, state);
+    drawFlipSlices(ctx, metrics, state);
+    ctx.restore();
+}
+
 export function CleanD() {
-    paths = [];
-    bgTextDict = null;
-    prevIsDown = false;
-    timestamp = 0;
+    designerState = null;
 }
 
 export const descriptionD = [
     ``
-]
+];
 
 export const toolTipD = [
     ''
