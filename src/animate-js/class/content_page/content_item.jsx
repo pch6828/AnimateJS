@@ -1,9 +1,9 @@
 import { AnimationA, CleanA, descriptionA, toolTipA } from "../animate/a_algorithm";
 import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee";
+import { AnimationD, CleanD, descriptionD, toolTipD } from "../animate/d_designer";
 import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
 import { AnimationK, CleanK, descriptionK, toolTipK } from "../animate/k_kidult";
-// import { AnimationD, CleanD } from "../animate/d_design_develop";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
 // import { AnimationH, CleanH } from "../animate/h_homebody";
@@ -30,7 +30,13 @@ const items = new Map([
         text: descriptionC,
         toolTipText: toolTipC
     }],
-    ['D', null],
+    ['D', {
+        animate: AnimationD,
+        clean: CleanD,
+        title: 'Designer',
+        text: descriptionD,
+        toolTipText: toolTipD
+    }],
     ['E', null],
     ['F', null],
     ['G', null],
@@ -189,30 +195,6 @@ const items = new Map([
 //             '당신의 마우스를 따라서 계획이 진행될 겁니다.',
 //             '계획의 끝에 도달했나요?',
 //             '클릭하면 다시 새로운 계획이 생겨난답니다.']
-//     }],
-//     ['K', {
-//         backgroundColor: '#C9CBDB',
-//         toolTipColor: 'black',
-//         toolTipTextColor: 'white',
-//         animate: AnimationK,
-//         clean: CleanK,
-//         title: 'Kidult',
-//         text: ['키덜트입니다.',
-//             '레고나 클레이 같은 취미에 관심이 많아요.',
-//             '다 어릴 때 좋아하던 장난감들이죠.',
-//             ' ',
-//             '대학생 때는 이런 취미를 거의 하지 못했습니다.',
-//             '하숙집 방이 너무 좁았거든요.',
-//             '기껏해야 클레이 조금 한 정도였죠.',
-//             ' ',
-//             '그러다 대학원생이 되고, 보다 넓은 집에 살면서',
-//             '이런 취미들을 다시 시작할 수 있었어요.',
-//             '지금은 레고도 간간히 사모으고 있습니다.',
-//             '너무 돈을 많이 쓰는 건 아닌가 좀 걱정되기도 해요.'],
-//         toolTipText: ['레고 블록을 가지고 여러가지 모양이나 단어를 만들어보세요!',
-//             '한번에 하나의 블록만 옮길 수 있습니다.',
-//             '색깔이나 크기가 마음에 안 들면 공중에서 블록을 놓아보세요.',
-//             '새로운 블록이 생길 겁니다.']
 //     }],
 //     ['L', null],
 //     ['M', {
