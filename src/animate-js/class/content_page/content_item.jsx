@@ -4,10 +4,10 @@ import { AnimationD, CleanD, descriptionD, toolTipD } from "../animate/d_designe
 import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
 import { AnimationK, CleanK, descriptionK, toolTipK } from "../animate/k_kidult";
+import { AnimationJ, CleanJ, descriptionJ, toolTipJ } from "../animate/j_judging";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
 // import { AnimationH, CleanH } from "../animate/h_homebody";
-// import { AnimationJ, CleanJ } from "../animate/j_judging";
 // import { AnimationM, CleanM } from "../animate/m_mentor";
 // import { AnimationR, CleanR } from "../animate/r_rambler";
 // import { AnimationS, CleanS } from "../animate/s_steady";
@@ -42,7 +42,13 @@ const items = new Map([
     ['G', null],
     ['H', null],
     ['I', null],
-    ['J', null],
+    ['J', {
+        animate: AnimationJ,
+        clean: CleanJ,
+        title: 'mbti-J',
+        text: descriptionJ,
+        toolTipText: toolTipJ
+    }],
     ['K', {
         animate: AnimationK,
         clean: CleanK,
@@ -81,27 +87,6 @@ const items = new Map([
 
 // const items = new Map([
 //     ['B', null],
-//     ['D', {
-//         backgroundColor: '#32363F',
-//         toolTipColor: 'white',
-//         toolTipTextColor: 'black',
-//         animate: AnimationD,
-//         clean: CleanD,
-//         title: 'Design? Develop?',
-//         text: ['원래는 디자인과로 진학하려 했습니다.',
-//             '컴공에 오기로 결정한 건 고3이 되어서였어요.',
-//             ' ',
-//             '동아리에서 코딩하는 친구들이 재미있어보이더라구요.',
-//             '게다가 디자인에 특출난 재능이 있지도 않았기에,',
-//             '진로를 컴공으로 바꾸게 되었어요.',
-//             '지금 생각하면 바꾸길 잘했다고 생각합니다.',
-//             ' ',
-//             '그래도 일상에서 나름의 미적 감각을 발휘할 때도 있어요.',
-//             '예를 들자면... 지금 이 프로젝트 같은 거 말이죠.'],
-//         toolTipText: ['마우스를 꾹 누른 채로 움직여보세요!',
-//             '숨겨진 글자가 드러납니다.',
-//             '왼쪽, 오른쪽 버튼에 따라 서로 다른 글자를 찾을 수 있습니다.']
-//     }],
 //     ['E', {
 //         backgroundColor: '#6E95B2',
 //         toolTipColor: 'black',

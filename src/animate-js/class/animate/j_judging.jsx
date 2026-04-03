@@ -298,3 +298,10 @@ export function AnimationJ(ctx, width, height, movement) {
 export function CleanJ() {
     seed = null;
 }
+
+export const descriptionJ = [
+    ``
+]
+export const toolTipJ = [
+    ''
+]
