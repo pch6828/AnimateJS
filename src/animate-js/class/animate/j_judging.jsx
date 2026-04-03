@@ -1,6 +1,15 @@
 const FONT_FAMILY = '"Fredericka the Great", "Times New Roman", serif';
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const DETACH_DISTANCE_RATIO = 0.17;
+const LETTER_COLORS = [
+    '#b3433d',
+    '#2f6c9f',
+    '#4d7a3c',
+    '#8d5a2b',
+    '#6d4aa1',
+    '#2a7b72',
+    '#ad6b1f',
+];
 const THEME = {
     backgroundTop: '#efe2c2',
     backgroundBottom: '#d8bc8e',
@@ -33,11 +42,18 @@ function getLetter(index) {
     return LETTERS[((index % LETTERS.length) + LETTERS.length) % LETTERS.length];
 }
 
+function getNextLetterColor(previousColor) {
+    const candidates = LETTER_COLORS.filter((color) => color !== previousColor);
+    const pool = candidates.length > 0 ? candidates : LETTER_COLORS;
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+
 function createState(width, height) {
     return {
         width,
         height,
         currentIndex: LETTERS.indexOf('J'),
+        currentLetterColor: LETTER_COLORS[0],
         stackDepth: 4,
         prevIsDown: false,
         grabbed: false,
@@ -146,6 +162,7 @@ function resetTopPaper(state) {
 
 function beginNextPaper(state) {
     state.currentIndex = (state.currentIndex + 1) % LETTERS.length;
+    state.currentLetterColor = getNextLetterColor(state.currentLetterColor);
     resetTopPaper(state);
     state.settleRotation = 0;
 }
@@ -437,7 +454,7 @@ function drawPaperStack(ctx, metrics, state) {
         state.paperOffsetY,
         state.paperRotation,
         {
-            letterColor: '#b3433d',
+            letterColor: state.currentLetterColor,
         }
     );
 }
