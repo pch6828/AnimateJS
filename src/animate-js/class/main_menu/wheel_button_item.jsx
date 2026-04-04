@@ -8,7 +8,7 @@ const items = [
     { key: 'G', title: '', hasDetailPage: false },
     { key: 'H', title: '', hasDetailPage: false },
     { key: 'I', title: '', hasDetailPage: false },
-    { key: 'J', title: '', hasDetailPage: false },
+    { key: 'J', title: 'mbti-J', hasDetailPage: true, date: '2026-04-05' },
     { key: 'K', title: 'Kidult', hasDetailPage: true, date: '2026-03-29' },
     { key: 'L', title: '', hasDetailPage: false },
     { key: 'M', title: '', hasDetailPage: false },
