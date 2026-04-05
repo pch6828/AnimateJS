@@ -1,13 +1,13 @@
 import { AnimationA, CleanA, descriptionA, toolTipA } from "../animate/a_algorithm";
 import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee";
 import { AnimationD, CleanD, descriptionD, toolTipD } from "../animate/d_designer";
+import { AnimationH, CleanH, descriptionH, toolTipH } from "../animate/h_homebody";
 import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
 import { AnimationK, CleanK, descriptionK, toolTipK } from "../animate/k_kidult";
 import { AnimationJ, CleanJ, descriptionJ, toolTipJ } from "../animate/j_judging";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
-// import { AnimationH, CleanH } from "../animate/h_homebody";
 // import { AnimationM, CleanM } from "../animate/m_mentor";
 // import { AnimationR, CleanR } from "../animate/r_rambler";
 // import { AnimationS, CleanS } from "../animate/s_steady";
@@ -40,7 +40,13 @@ const items = new Map([
     ['E', null],
     ['F', null],
     ['G', null],
-    ['H', null],
+    ['H', {
+        animate: AnimationH,
+        clean: CleanH,
+        title: 'Homebody',
+        text: descriptionH,
+        toolTipText: toolTipH
+    }],
     ['I', null],
     ['J', {
         animate: AnimationJ,
