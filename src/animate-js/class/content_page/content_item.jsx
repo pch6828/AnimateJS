@@ -1,13 +1,13 @@
 import { AnimationA, CleanA, descriptionA, toolTipA } from "../animate/a_algorithm";
 import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee";
 import { AnimationD, CleanD, descriptionD, toolTipD } from "../animate/d_designer";
+import { AnimationH, CleanH, descriptionH, toolTipH } from "../animate/h_homebody";
 import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
 import { AnimationK, CleanK, descriptionK, toolTipK } from "../animate/k_kidult";
 import { AnimationJ, CleanJ, descriptionJ, toolTipJ } from "../animate/j_judging";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
-// import { AnimationH, CleanH } from "../animate/h_homebody";
 // import { AnimationM, CleanM } from "../animate/m_mentor";
 // import { AnimationR, CleanR } from "../animate/r_rambler";
 // import { AnimationS, CleanS } from "../animate/s_steady";
@@ -40,7 +40,13 @@ const items = new Map([
     ['E', null],
     ['F', null],
     ['G', null],
-    ['H', null],
+    ['H', {
+        animate: AnimationH,
+        clean: CleanH,
+        title: 'Homebody',
+        text: descriptionH,
+        toolTipText: toolTipH
+    }],
     ['I', null],
     ['J', {
         animate: AnimationJ,
@@ -134,27 +140,6 @@ const items = new Map([
 //             '포춘 쿠키마다 운세가 다릅니다. 여러가지 메시지를 찾아보세요!']
 //     }],
 //     ['G', null],
-//     ['H', {
-//         backgroundColor: '#191970',
-//         toolTipColor: 'white',
-//         toolTipTextColor: 'black',
-//         animate: AnimationH,
-//         clean: CleanH,
-//         title: 'Homebody',
-//         text: ['집돌이입니다.',
-//             '일주일동안 집에만 있던 적도 있어요.',
-//             '집에서는 보통 멍때리거나 유튜브를 봅니다.',
-//             ' ',
-//             '취직을 한 지금도 주말에 놀러나가기보다는',
-//             '집에 있을 때가 많습니다.',
-//             ' ',
-//             '물론 집 밖으로 나가는 걸 싫어하는 건 아닙니다.',
-//             '약속이 잡히면 즐겁게 나갑니다.',
-//             '단지 제가 먼저 약속을 잡는 일이 적을 뿐이죠.'],
-//         toolTipText: ['집안에 있는 글자들을 밖으로 내보내보세요.',
-//             '이 글자들도 집을 정말 좋아합니다.',
-//             '글자들이 서둘러 집으로 돌아가는 모습을 지켜보세요.']
-//     }],
 //     ['I', null],
 //     ['L', null],
 //     ['M', {
