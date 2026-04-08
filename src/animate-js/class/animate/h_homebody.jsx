@@ -1,8 +1,11 @@
-const FONT_FAMILY = '"Oregano", "Times New Roman", serif';
+const FONT_FAMILY = '"Barriecito", "Times New Roman", serif';
 const BODY_TEXT = 'body';
 const BODY_LETTERS = ['b', 'o', 'd', 'y'];
 const PALETTE = {
-    background: '#191970',
+    backgroundTop: '#29456f',
+    backgroundBottom: '#1f3557',
+    backgroundLight: 'rgba(255, 246, 214, 0.05)',
+    backgroundDark: 'rgba(10, 18, 34, 0.1)',
     homeText: '#f6e8b4',
     houseFillTop: '#fbefcf',
     houseFillBottom: '#e3bf7b',
@@ -23,6 +26,17 @@ function approach(current, target, delta) {
     }
 
     return Math.max(current - delta, target);
+}
+
+function createScratchCanvas(width, height, ctx) {
+    if (typeof OffscreenCanvas !== 'undefined') {
+        return new OffscreenCanvas(width, height);
+    }
+
+    const canvas = ctx.canvas.ownerDocument.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
 }
 
 function pointInRect(point, rect) {
@@ -79,7 +93,7 @@ function getMetrics(ctx, width, height) {
     const fontSize = clamp(scale * 0.18, 66, 180);
     const centerX = width / 2;
     const centerY = height / 2;
-    const baselineY = centerY + fontSize * 0.2;
+    const baselineY = centerY + fontSize * 0.5;
     const bodyBottomY = baselineY + fontSize * 0.12;
     const roofRise = fontSize * 1.06;
     const houseHeight = fontSize * 1.1;
@@ -93,7 +107,7 @@ function getMetrics(ctx, width, height) {
 
     const homeWidth = ctx.measureText('Home').width;
     const bodyWidth = ctx.measureText(BODY_TEXT).width;
-    const houseGap = fontSize * 0.18;
+    const houseGap = fontSize * 0.04;
     const totalWidth = homeWidth + houseGap + bodyWidth;
     const leftX = centerX - totalWidth / 2;
     const houseX = leftX + homeWidth + houseGap;
@@ -123,17 +137,11 @@ function getMetrics(ctx, width, height) {
         width: houseWidth - wallInset * 2,
         height: houseHeight - wallInset * 1.9,
     };
-    const doorRect = {
-        x: houseX + houseWidth * 0.38,
-        y: houseY + houseHeight * 0.56,
-        width: houseWidth * 0.24,
-        height: houseHeight * 0.44,
-    };
-    const doorPassageRect = {
-        x: doorRect.x - fontSize * 0.12,
-        y: interiorRect.y + interiorRect.height * 0.35,
-        width: doorRect.width + fontSize * 0.24,
-        height: houseHeight + fontSize * 0.55 - (interiorRect.y + interiorRect.height * 0.35),
+    const bottomPassageRect = {
+        x: interiorRect.x + fontSize * 0.06,
+        y: houseY + houseHeight - fontSize * 0.12,
+        width: interiorRect.width - fontSize * 0.12,
+        height: fontSize * 0.42,
     };
     const chimneyRect = {
         x: houseX + houseWidth * 0.73,
@@ -148,7 +156,7 @@ function getMetrics(ctx, width, height) {
         height: fontSize * 1.18,
     };
     const bodyStartX = interiorRect.x + (interiorRect.width - bodyWidth) / 2;
-    const bodyBaselineY = baselineY;
+    const bodyBaselineY = baselineY - fontSize * 0.08;
     const homePositions = buildHomePositions(ctx, bodyStartX, bodyBaselineY);
 
     return {
@@ -163,8 +171,7 @@ function getMetrics(ctx, width, height) {
         bodyWidth,
         houseRect,
         interiorRect,
-        doorRect,
-        doorPassageRect,
+        bottomPassageRect,
         chimneyRect,
         roofPeak,
         roofLeft,
@@ -204,6 +211,10 @@ function createState(metrics) {
         frame: 0,
         prevIsDown: false,
         activeLetterId: null,
+        maskBuffer: null,
+        letterBuffer: null,
+        bufferWidth: 0,
+        bufferHeight: 0,
         letters: metrics.homePositions.map((position, index) => (
             createLetterState(BODY_LETTERS[index], index, position, metrics.fontSize)
         )),
@@ -216,6 +227,25 @@ function ensureState(metrics) {
     }
 
     return homebodyState;
+}
+
+function ensureBuffers(state, metrics, ctx) {
+    const width = Math.max(1, Math.round(metrics.width));
+    const height = Math.max(1, Math.round(metrics.height));
+
+    if (
+        state.maskBuffer &&
+        state.letterBuffer &&
+        state.bufferWidth === width &&
+        state.bufferHeight === height
+    ) {
+        return;
+    }
+
+    state.maskBuffer = createScratchCanvas(width, height, ctx);
+    state.letterBuffer = createScratchCanvas(width, height, ctx);
+    state.bufferWidth = width;
+    state.bufferHeight = height;
 }
 
 function getLetterHitBox(letter) {
@@ -256,12 +286,12 @@ function isBlockedPoint(point, metrics, padding) {
 
     const expandedHouseRect = expandRect(metrics.houseRect, padding);
     const expandedInteriorRect = expandRect(metrics.interiorRect, -padding * 0.35);
-    const expandedDoorPassage = expandRect(metrics.doorPassageRect, padding * 0.1);
+    const expandedBottomPassage = expandRect(metrics.bottomPassageRect, padding * 0.1);
 
     if (
         pointInRect(point, expandedHouseRect) &&
         !pointInRect(point, expandedInteriorRect) &&
-        !pointInRect(point, expandedDoorPassage)
+        !pointInRect(point, expandedBottomPassage)
     ) {
         return true;
     }
@@ -295,20 +325,25 @@ function toPoint(cell, step) {
 }
 
 function getFallbackRoute(startPoint, goalPoint, metrics) {
-    const doorwayOutside = {
-        x: metrics.doorRect.x + metrics.doorRect.width / 2,
-        y: metrics.houseRect.y + metrics.houseRect.height + metrics.routeStep * 1.2,
+    const entryX = clamp(
+        goalPoint.x,
+        metrics.bottomPassageRect.x + metrics.routeStep * 0.4,
+        metrics.bottomPassageRect.x + metrics.bottomPassageRect.width - metrics.routeStep * 0.4
+    );
+    const bottomOutside = {
+        x: entryX,
+        y: metrics.houseRect.y + metrics.houseRect.height + metrics.routeStep * 0.95,
     };
-    const doorwayInside = {
-        x: metrics.doorRect.x + metrics.doorRect.width / 2,
-        y: metrics.doorRect.y + metrics.doorRect.height * 0.48,
+    const bottomInside = {
+        x: entryX,
+        y: metrics.houseRect.y + metrics.houseRect.height - metrics.routeStep * 0.38,
     };
 
     return [
-        { x: startPoint.x, y: doorwayOutside.y },
-        doorwayOutside,
-        doorwayInside,
-        { x: goalPoint.x, y: doorwayInside.y },
+        { x: startPoint.x, y: bottomOutside.y },
+        bottomOutside,
+        bottomInside,
+        { x: goalPoint.x, y: bottomInside.y },
         goalPoint,
     ];
 }
@@ -443,7 +478,7 @@ function releaseLetter(letter, metrics) {
     letter.prevPointerY = null;
     letter.route = route;
     letter.routeIndex = 0;
-    letter.speed = metrics.routeStep * 0.22;
+    letter.speed = metrics.routeStep * 0.16;
 }
 
 function moveLetterHome(letter, metrics) {
@@ -464,7 +499,7 @@ function moveLetterHome(letter, metrics) {
     const dy = target.y - anchor.y;
     const distance = Math.abs(dx) + Math.abs(dy);
 
-    letter.speed = Math.min(metrics.routeStep * 0.82, letter.speed + metrics.routeStep * 0.065);
+    letter.speed = Math.min(metrics.routeStep * 0.62, letter.speed + metrics.routeStep * 0.045);
 
     if (distance <= letter.speed) {
         setLetterFromAnchor(letter, target, metrics.width, metrics.height);
@@ -517,30 +552,46 @@ function updateInteraction(state, metrics, movement) {
     state.prevIsDown = movement.isDown;
 }
 
-function appendHouseShellPath(ctx, metrics) {
-    ctx.roundRect(
-        metrics.houseRect.x,
-        metrics.houseRect.y,
-        metrics.houseRect.width,
-        metrics.houseRect.height,
-        metrics.fontSize * 0.16
-    );
-    ctx.moveTo(metrics.roofLeft.x, metrics.roofLeft.y);
-    ctx.lineTo(metrics.roofPeak.x, metrics.roofPeak.y);
-    ctx.lineTo(metrics.roofRight.x, metrics.roofRight.y);
+function appendWonkyRectPath(ctx, rect, wobbleX, wobbleY) {
+    ctx.moveTo(rect.x + wobbleX * 0.4, rect.y + wobbleY * 0.12);
+    ctx.lineTo(rect.x + rect.width * 0.32, rect.y - wobbleY * 0.22);
+    ctx.lineTo(rect.x + rect.width * 0.68, rect.y + wobbleY * 0.18);
+    ctx.lineTo(rect.x + rect.width - wobbleX * 0.62, rect.y - wobbleY * 0.18);
+    ctx.lineTo(rect.x + rect.width + wobbleX * 0.14, rect.y + rect.height * 0.28);
+    ctx.lineTo(rect.x + rect.width - wobbleX * 0.12, rect.y + rect.height * 0.72);
+    ctx.lineTo(rect.x + rect.width + wobbleX * 0.22, rect.y + rect.height - wobbleY * 0.34);
+    ctx.lineTo(rect.x + rect.width * 0.62, rect.y + rect.height + wobbleY * 0.24);
+    ctx.lineTo(rect.x + rect.width * 0.26, rect.y + rect.height - wobbleY * 0.2);
+    ctx.lineTo(rect.x - wobbleX * 0.28, rect.y + rect.height + wobbleY * 0.32);
+    ctx.lineTo(rect.x + wobbleX * 0.16, rect.y + rect.height * 0.56);
     ctx.closePath();
-    ctx.roundRect(
-        metrics.chimneyRect.x,
-        metrics.chimneyRect.y,
-        metrics.chimneyRect.width,
-        metrics.chimneyRect.height,
-        metrics.fontSize * 0.04
+}
+
+function appendWallPath(ctx, metrics) {
+    appendWonkyRectPath(
+        ctx,
+        metrics.houseRect,
+        metrics.fontSize * 0.07,
+        metrics.fontSize * 0.05
     );
+}
+
+function appendHouseShellPath(ctx, metrics) {
+    const chimneyWobbleX = metrics.fontSize * 0.03;
+    const chimneyWobbleY = metrics.fontSize * 0.025;
+
+    appendWallPath(ctx, metrics);
+    ctx.moveTo(metrics.roofLeft.x - metrics.fontSize * 0.035, metrics.roofLeft.y + metrics.fontSize * 0.012);
+    ctx.lineTo(metrics.roofPeak.x - metrics.fontSize * 0.008, metrics.roofPeak.y + metrics.fontSize * 0.005);
+    ctx.lineTo(metrics.roofPeak.x + metrics.fontSize * 0.01, metrics.roofPeak.y - metrics.fontSize * 0.021);
+    ctx.lineTo(metrics.roofRight.x + metrics.fontSize * 0.032, metrics.roofRight.y + metrics.fontSize * 0.002);
+    ctx.closePath();
+    appendWonkyRectPath(ctx, metrics.chimneyRect, chimneyWobbleX, chimneyWobbleY);
 }
 
 function drawHouse(ctx, metrics) {
     ctx.lineWidth = metrics.strokeWidth;
-    ctx.lineJoin = 'round';
+    ctx.lineJoin = 'miter';
     ctx.lineCap = 'round';
     ctx.shadowColor = PALETTE.houseShadow;
     ctx.shadowBlur = metrics.fontSize * 0.1;
@@ -555,62 +606,105 @@ function drawHouse(ctx, metrics) {
     ctx.shadowOffsetY = 0;
     ctx.strokeStyle = PALETTE.houseStroke;
     ctx.stroke();
+}
 
-    ctx.fillStyle = PALETTE.windowFill;
-    ctx.beginPath();
-    ctx.roundRect(
-        metrics.interiorRect.x + metrics.interiorRect.width * 0.06,
-        metrics.interiorRect.y + metrics.interiorRect.height * 0.18,
-        metrics.interiorRect.width * 0.18,
-        metrics.interiorRect.height * 0.2,
-        metrics.fontSize * 0.04
-    );
-    ctx.fill();
+function renderHouseMask(state, metrics) {
+    const maskCtx = state.maskBuffer.getContext('2d');
 
-    ctx.beginPath();
-    ctx.roundRect(
-        metrics.interiorRect.x + metrics.interiorRect.width * 0.76,
-        metrics.interiorRect.y + metrics.interiorRect.height * 0.18,
-        metrics.interiorRect.width * 0.18,
-        metrics.interiorRect.height * 0.2,
-        metrics.fontSize * 0.04
+    maskCtx.clearRect(0, 0, metrics.width, metrics.height);
+    maskCtx.lineWidth = metrics.strokeWidth;
+    maskCtx.lineJoin = 'miter';
+    maskCtx.lineCap = 'round';
+    maskCtx.fillStyle = '#ffffff';
+    maskCtx.strokeStyle = '#ffffff';
+    maskCtx.beginPath();
+    appendHouseShellPath(maskCtx, metrics);
+    maskCtx.fill();
+    maskCtx.stroke();
+}
+
+function renderLetterMaskLayer(state, metrics, fillStyle, compositeOperation) {
+    const letterCtx = state.letterBuffer.getContext('2d');
+
+    letterCtx.clearRect(0, 0, metrics.width, metrics.height);
+    letterCtx.textAlign = 'left';
+    letterCtx.textBaseline = 'alphabetic';
+    letterCtx.font = `400 ${metrics.fontSize}px ${FONT_FAMILY}`;
+    letterCtx.fillStyle = fillStyle;
+    for (const letter of state.letters) {
+        letterCtx.fillText(letter.char, letter.x, letter.y);
+    }
+
+    letterCtx.globalCompositeOperation = compositeOperation;
+    letterCtx.drawImage(state.maskBuffer, 0, 0);
+    letterCtx.globalCompositeOperation = 'source-over';
+}
+
+function drawBackground(ctx, metrics) {
+    const backgroundGradient = ctx.createLinearGradient(0, 0, 0, metrics.height);
+    backgroundGradient.addColorStop(0, PALETTE.backgroundTop);
+    backgroundGradient.addColorStop(1, PALETTE.backgroundBottom);
+    ctx.fillStyle = backgroundGradient;
+    ctx.fillRect(0, 0, metrics.width, metrics.height);
+
+    const glow = ctx.createRadialGradient(
+        metrics.centerX,
+        metrics.centerY * 0.92,
+        metrics.fontSize * 0.4,
+        metrics.centerX,
+        metrics.centerY,
+        Math.max(metrics.width, metrics.height) * 0.78
     );
-    ctx.fill();
+    glow.addColorStop(0, PALETTE.backgroundLight);
+    glow.addColorStop(1, 'rgba(255, 246, 214, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, metrics.width, metrics.height);
+
+    ctx.strokeStyle = PALETTE.backgroundLight;
+    ctx.lineWidth = 1;
+    const stripeGap = Math.max(16, metrics.fontSize * 0.12);
+    for (let y = stripeGap * 0.5; y < metrics.height; y += stripeGap) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(metrics.width, y);
+        ctx.stroke();
+    }
+
+    ctx.fillStyle = PALETTE.backgroundLight;
+    const dotGap = Math.max(24, metrics.fontSize * 0.22);
+    for (let row = 0; row <= Math.ceil(metrics.height / dotGap); row += 1) {
+        for (let col = 0; col <= Math.ceil(metrics.width / dotGap); col += 1) {
+            const x = col * dotGap + ((row % 2) * dotGap * 0.35);
+            const y = row * dotGap;
+            const radius = Math.max(0.7, metrics.fontSize * 0.008 + ((row + col) % 3) * metrics.fontSize * 0.002);
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
 }
 
 function drawScene(ctx, metrics, state) {
     ctx.clearRect(0, 0, metrics.width, metrics.height);
     ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = PALETTE.background;
-    ctx.fillRect(0, 0, metrics.width, metrics.height);
+    drawBackground(ctx, metrics);
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
     ctx.font = `400 ${metrics.fontSize}px ${FONT_FAMILY}`;
     ctx.fillStyle = PALETTE.homeText;
     ctx.fillText('Home', metrics.leftX, metrics.baselineY);
 
+    ensureBuffers(state, metrics, ctx);
+    renderHouseMask(state, metrics);
     drawHouse(ctx, metrics);
 
-    ctx.save();
-    ctx.beginPath();
-    appendHouseShellPath(ctx, metrics);
-    ctx.clip();
-    ctx.fillStyle = PALETTE.background;
-    for (const letter of state.letters) {
-        ctx.fillText(letter.char, letter.x, letter.y);
-    }
-    ctx.restore();
+    renderLetterMaskLayer(state, metrics, PALETTE.backgroundBottom, 'destination-in');
+    ctx.drawImage(state.letterBuffer, 0, 0);
 
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, 0, metrics.width, metrics.height);
-    appendHouseShellPath(ctx, metrics);
-    ctx.clip('evenodd');
-    ctx.fillStyle = PALETTE.bodyText;
-    for (const letter of state.letters) {
-        ctx.fillText(letter.char, letter.x, letter.y);
-    }
-    ctx.restore();
+    renderLetterMaskLayer(state, metrics, PALETTE.bodyText, 'destination-out');
+    ctx.drawImage(state.letterBuffer, 0, 0);
 }
 
 let homebodyState = null;
