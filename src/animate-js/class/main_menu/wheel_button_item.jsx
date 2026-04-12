@@ -11,7 +11,7 @@ const items = [
     { key: 'J', title: 'mbti-J', hasDetailPage: true, date: '2026-04-05' },
     { key: 'K', title: 'Kidult', hasDetailPage: true, date: '2026-03-29' },
     { key: 'L', title: '', hasDetailPage: false },
-    { key: 'M', title: '', hasDetailPage: false },
+    { key: 'M', title: 'Mimic', hasDetailPage: true, date: '2026-04-12' },
     { key: 'N', title: '', hasDetailPage: false },
     { key: 'O', title: '', hasDetailPage: false },
     { key: 'P', title: 'Postgraduate', hasDetailPage: true, date: '2026-03-26' },

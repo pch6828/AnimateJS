@@ -2,13 +2,13 @@ import { AnimationA, CleanA, descriptionA, toolTipA } from "../animate/a_algorit
 import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee";
 import { AnimationD, CleanD, descriptionD, toolTipD } from "../animate/d_designer";
 import { AnimationH, CleanH, descriptionH, toolTipH } from "../animate/h_homebody";
+import { AnimationM, CleanM, descriptionM, toolTipM } from "../animate/m_mimic";
 import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
 import { AnimationK, CleanK, descriptionK, toolTipK } from "../animate/k_kidult";
 import { AnimationJ, CleanJ, descriptionJ, toolTipJ } from "../animate/j_judging";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
-// import { AnimationM, CleanM } from "../animate/m_mentor";
 // import { AnimationR, CleanR } from "../animate/r_rambler";
 // import { AnimationS, CleanS } from "../animate/s_steady";
 // import { AnimationT, CleanT } from "../animate/t_tracing";
@@ -63,7 +63,13 @@ const items = new Map([
         toolTipText: toolTipK
     }],
     ['L', null],
-    ['M', null],
+    ['M', {
+        animate: AnimationM,
+        clean: CleanM,
+        title: 'Mimic',
+        text: descriptionM,
+        toolTipText: toolTipM,
+    }],
     ['N', null],
     ['O', null],
     ['P', {
