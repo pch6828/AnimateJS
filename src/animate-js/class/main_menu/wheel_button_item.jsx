@@ -17,7 +17,7 @@ const items = [
     { key: 'P', title: 'Postgraduate', hasDetailPage: true, date: '2026-03-26' },
     { key: 'Q', title: '', hasDetailPage: false },
     { key: 'R', title: '', hasDetailPage: false },
-    { key: 'S', title: 'Stubborn', hasDetailPage: true, date: '2026-04-XX' },
+    { key: 'S', title: 'Stubborn', hasDetailPage: true, date: '2026-04-19' },
     { key: 'T', title: '', hasDetailPage: false },
     { key: 'U', title: '', hasDetailPage: false },
     { key: 'V', title: 'Versatile', hasDetailPage: true, date: '2026-03-29' },
