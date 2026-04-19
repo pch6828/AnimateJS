@@ -2,17 +2,17 @@ import { AnimationA, CleanA, descriptionA, toolTipA } from "../animate/a_algorit
 import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee";
 import { AnimationD, CleanD, descriptionD, toolTipD } from "../animate/d_designer";
 import { AnimationH, CleanH, descriptionH, toolTipH } from "../animate/h_homebody";
-import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
-import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
-import { AnimationK, CleanK, descriptionK, toolTipK } from "../animate/k_kidult";
 import { AnimationJ, CleanJ, descriptionJ, toolTipJ } from "../animate/j_judging";
+import { AnimationK, CleanK, descriptionK, toolTipK } from "../animate/k_kidult";
+import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 import { AnimationS, CleanS, descriptionS, toolTipS } from "../animate/s_stubborn";
+import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
+import { AnimationW, CleanW, descriptionW, toolTipW } from "../animate/w_workaholic";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
 // import { AnimationM, CleanM } from "../animate/m_mentor";
 // import { AnimationR, CleanR } from "../animate/r_rambler";
 // import { AnimationT, CleanT } from "../animate/t_tracing";
-// import { AnimationW, CleanW } from "../animate/w_workaholic";
 
 const items = new Map([
     ['A', {
@@ -91,7 +91,13 @@ const items = new Map([
         text: descriptionV,
         toolTipText: toolTipV
     }],
-    ['W', null],
+    ['W', {
+        animate: AnimationW,
+        clean: CleanW,
+        title: 'Workaholic',
+        text: descriptionW,
+        toolTipText: toolTipW
+    }],
     ['X', null],
     ['Y', null],
     ['Z', null]

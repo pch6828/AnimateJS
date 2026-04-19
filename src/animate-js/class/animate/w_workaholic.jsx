@@ -313,3 +313,11 @@ export function CleanW() {
     mouseChasingWord = null;
     objDropper = null;
 }
+
+export const descriptionW = [
+    ``
+]
+
+export const toolTipW = [
+    ''
+];

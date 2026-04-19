@@ -21,7 +21,7 @@ const items = [
     { key: 'T', title: '', hasDetailPage: false },
     { key: 'U', title: '', hasDetailPage: false },
     { key: 'V', title: 'Versatile', hasDetailPage: true, date: '2026-03-29' },
-    { key: 'W', title: '', hasDetailPage: false },
+    { key: 'W', title: 'Workaholic', hasDetailPage: true, date: '2026-04-XX' },
     { key: 'X', title: '', hasDetailPage: false },
     { key: 'Y', title: '', hasDetailPage: false },
     { key: 'Z', title: '', hasDetailPage: false }
