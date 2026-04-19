@@ -6,11 +6,11 @@ import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgra
 import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
 import { AnimationK, CleanK, descriptionK, toolTipK } from "../animate/k_kidult";
 import { AnimationJ, CleanJ, descriptionJ, toolTipJ } from "../animate/j_judging";
+import { AnimationS, CleanS, descriptionS, toolTipS } from "../animate/s_stubborn";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
 // import { AnimationM, CleanM } from "../animate/m_mentor";
 // import { AnimationR, CleanR } from "../animate/r_rambler";
-// import { AnimationS, CleanS } from "../animate/s_steady";
 // import { AnimationT, CleanT } from "../animate/t_tracing";
 // import { AnimationW, CleanW } from "../animate/w_workaholic";
 
@@ -75,7 +75,13 @@ const items = new Map([
     }],
     ['Q', null],
     ['R', null],
-    ['S', null],
+    ['S', {
+        animate: AnimationS,
+        clean: CleanS,
+        title: 'Stubborn',
+        text: descriptionS,
+        toolTipText: toolTipS
+    }],
     ['T', null],
     ['U', null],
     ['V', {
@@ -186,16 +192,6 @@ const items = new Map([
 //         toolTipText: ['산책 다니는 사람(?)들이 많네요!',
 //             '마우스로 잡아서 끌면 맘대로 끌고 다닐 수 있어요.',
 //             '걱정 마세요, 놓으면 다시 가던 길 갈 겁니다.']
-//     }],
-//     ['S', {
-//         backgroundColor: '#261430',
-//         toolTipColor: 'white',
-//         toolTipTextColor: 'black',
-//         animate: AnimationS,
-//         clean: CleanS,
-//         title: 'Steady',
-//         text: [],
-//         toolTipText: []
 //     }],
 //     ['T', {
 //         backgroundColor: '#261430',
