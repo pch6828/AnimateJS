@@ -7,6 +7,7 @@ import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versati
 import { AnimationK, CleanK, descriptionK, toolTipK } from "../animate/k_kidult";
 import { AnimationJ, CleanJ, descriptionJ, toolTipJ } from "../animate/j_judging";
 import { AnimationS, CleanS, descriptionS, toolTipS } from "../animate/s_stubborn";
+import { AnimationZ, CleanZ, descriptionZ, toolTipZ } from "../animate/z_zzz";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
 // import { AnimationF, CleanF } from "../animate/f_fortune";
 // import { AnimationM, CleanM } from "../animate/m_mentor";
@@ -94,7 +95,13 @@ const items = new Map([
     ['W', null],
     ['X', null],
     ['Y', null],
-    ['Z', null]
+    ['Z', {
+        animate: AnimationZ,
+        clean: CleanZ,
+        title: 'Zzz',
+        text: descriptionZ,
+        toolTipText: toolTipZ
+    }]
 ]);
 
 // const items = new Map([

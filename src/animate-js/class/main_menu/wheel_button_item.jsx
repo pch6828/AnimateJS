@@ -24,7 +24,7 @@ const items = [
     { key: 'W', title: '', hasDetailPage: false },
     { key: 'X', title: '', hasDetailPage: false },
     { key: 'Y', title: '', hasDetailPage: false },
-    { key: 'Z', title: '', hasDetailPage: false }
+    { key: 'Z', title: 'Zzz', hasDetailPage: true, date: '2026-04-XX' }
 ];
 
 export default items;
