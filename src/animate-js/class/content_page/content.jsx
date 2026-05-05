@@ -27,6 +27,7 @@ function Content({ aspectRatio }) {
         : ['This entry is being prepared.'];
     const toolTipLines = animation ? animation.toolTipText : [];
     const canvasBackground = animation ? animation.backgroundColor : '#f4ead7';
+    const contextType = animation?.contextType || '2d';
 
     useEffect(() => {
         return () => {
@@ -46,7 +47,13 @@ function Content({ aspectRatio }) {
             return undefined;
         }
 
-        const context = canvas.getContext('2d');
+        const context = contextType === 'webgl'
+            ? canvas.getContext('webgl', { alpha: true, antialias: true }) || canvas.getContext('experimental-webgl', { alpha: true, antialias: true })
+            : canvas.getContext('2d');
+
+        if (!context) {
+            return undefined;
+        }
 
         function resizeCanvas() {
             const pixelRatio = window.devicePixelRatio || 1;
@@ -58,20 +65,28 @@ function Content({ aspectRatio }) {
                 canvas.width = pixelRatio * window.innerWidth * 0.6;
                 canvas.height = pixelRatio * window.innerHeight;
             }
+
+            if (contextType === 'webgl') {
+                context.viewport(0, 0, canvas.width, canvas.height);
+            }
         }
 
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
         canvas.style.backgroundColor = canvasBackground;
-        context.strokeStyle = '#1f1a14';
-        context.lineWidth = 2.5;
+        if (contextType === '2d') {
+            context.strokeStyle = '#1f1a14';
+            context.lineWidth = 2.5;
+        }
 
         let requestId;
 
         const draw = () => {
             requestId = window.requestAnimationFrame(draw);
-            context.clearRect(0, 0, canvas.width, canvas.height);
+            if (contextType === '2d') {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+            }
             animation.animate(
                 context,
                 canvas.width,
@@ -86,7 +101,7 @@ function Content({ aspectRatio }) {
             window.cancelAnimationFrame(requestId);
             window.removeEventListener('resize', resizeCanvas);
         };
-    }, [animation, aspectRatio, canvasBackground]);
+    }, [animation, aspectRatio, canvasBackground, contextType]);
 
     function updatePointerState(nativeEvent, isDown) {
         const pixelRatio = window.devicePixelRatio || 1;
@@ -187,6 +202,7 @@ function Content({ aspectRatio }) {
                         </div>
                     ) : null}
                     <canvas
+                        key={`${articleCode}-${contextType}`}
                         className='content-canvas'
                         ref={canvasRef}
                         onPointerDown={pointerDown}

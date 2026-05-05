@@ -96,6 +96,7 @@ const items = new Map([
     ['X', null],
     ['Y', null],
     ['Z', {
+        contextType: 'webgl',
         animate: AnimationZ,
         clean: CleanZ,
         title: 'Zzz',
