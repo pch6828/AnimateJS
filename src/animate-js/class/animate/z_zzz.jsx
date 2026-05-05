@@ -30,6 +30,8 @@ void main() {
 const THEME = {
     background: [0.956, 0.918, 0.843, 1],
     gold: [0.94, 0.68, 0.22],
+    hat: [0.21, 0.38, 0.7],
+    fur: [0.96, 0.93, 0.86],
 };
 
 function clamp(value, min, max) {
@@ -139,6 +141,14 @@ function rotateZ(angle) {
     return matrix;
 }
 
+function transformLocalPoint(matrix, point) {
+    return [
+        matrix[0] * point[0] + matrix[4] * point[1] + matrix[8] * point[2] + matrix[12],
+        matrix[1] * point[0] + matrix[5] * point[1] + matrix[9] * point[2] + matrix[13],
+        matrix[2] * point[0] + matrix[6] * point[1] + matrix[10] * point[2] + matrix[14],
+    ];
+}
+
 function ortho(left, right, bottom, top, near, far) {
     const matrix = identity();
 
@@ -239,7 +249,7 @@ function getMetrics(width, height, state) {
         letters,
         projection: ortho(-width / 2, width / 2, height / 2, -height / 2, -1200, 1200),
         group: multiply(
-            translate(0, height * 0.06, 0),
+            translate(height * 0.06, -height * 0.06, 0),
             multiply(
                 rotateX(Math.PI / 4),
                 rotateZ(Math.PI / 4)
@@ -383,6 +393,78 @@ function pushQuad(data, frontA, frontB, backA, backB, normal) {
     data.push(...backA, ...normal);
 }
 
+function pushMeshVertex(data, x, y, z, normal) {
+    data.push(x, y, z, normal[0], normal[1], normal[2]);
+}
+
+function createConeMesh(radius, height, segments = 28) {
+    const data = [];
+    const tip = [0, -height, 0];
+    const center = [0, 0, 0];
+
+    for (let index = 0; index < segments; index += 1) {
+        const angleA = index / segments * Math.PI * 2;
+        const angleB = (index + 1) / segments * Math.PI * 2;
+        const a = [Math.cos(angleA) * radius, 0, Math.sin(angleA) * radius];
+        const b = [Math.cos(angleB) * radius, 0, Math.sin(angleB) * radius];
+        const sideNormal = normalize3d([
+            (a[0] + b[0]) / 2,
+            radius / Math.max(height, 1),
+            (a[2] + b[2]) / 2,
+        ]);
+
+        pushMeshVertex(data, tip[0], tip[1], tip[2], sideNormal);
+        pushMeshVertex(data, a[0], a[1], a[2], sideNormal);
+        pushMeshVertex(data, b[0], b[1], b[2], sideNormal);
+
+        pushMeshVertex(data, center[0], center[1], center[2], [0, 1, 0]);
+        pushMeshVertex(data, b[0], b[1], b[2], [0, 1, 0]);
+        pushMeshVertex(data, a[0], a[1], a[2], [0, 1, 0]);
+    }
+
+    return new Float32Array(data);
+}
+
+function createSphereMesh(radius, rows = 10, columns = 16) {
+    const data = [];
+
+    for (let row = 0; row < rows; row += 1) {
+        const vA = row / rows;
+        const vB = (row + 1) / rows;
+        const thetaA = vA * Math.PI;
+        const thetaB = vB * Math.PI;
+
+        for (let column = 0; column < columns; column += 1) {
+            const uA = column / columns;
+            const uB = (column + 1) / columns;
+            const phiA = uA * Math.PI * 2;
+            const phiB = uB * Math.PI * 2;
+            const points = [
+                sphericalPoint(radius, thetaA, phiA),
+                sphericalPoint(radius, thetaB, phiA),
+                sphericalPoint(radius, thetaB, phiB),
+                sphericalPoint(radius, thetaA, phiB),
+            ];
+
+            for (const point of [points[0], points[1], points[2], points[0], points[2], points[3]]) {
+                pushMeshVertex(data, point[0], point[1], point[2], normalize3d(point));
+            }
+        }
+    }
+
+    return new Float32Array(data);
+}
+
+function sphericalPoint(radius, theta, phi) {
+    const sinTheta = Math.sin(theta);
+
+    return [
+        Math.cos(phi) * sinTheta * radius,
+        Math.cos(theta) * radius,
+        Math.sin(phi) * sinTheta * radius,
+    ];
+}
+
 function createZMesh(letter) {
     const outline = getZOutline(letter);
     const { points, depth } = outline;
@@ -433,6 +515,37 @@ function drawMesh(renderer, projection, model, vertices, color) {
     gl.deleteBuffer(buffer);
 }
 
+function getHatParts(metrics) {
+    const mainLetter = metrics.letters[0];
+    const anchorX = mainLetter.x + mainLetter.width * 0.8;
+    const anchorY = mainLetter.baselineY - mainLetter.height + mainLetter.thickness * 0.36;
+    const anchorZ = -metrics.size * 0.02;
+    const baseRadius = metrics.size * 0.18;
+    const coneHeight = metrics.size * 0.48;
+    const pomRadius = metrics.size * 0.065;
+    const mainLocal = multiply(
+        translate(anchorX, anchorY, anchorZ + baseRadius * 0.2),
+        multiply(
+            rotateZ(0.68),
+            multiply(rotateX(0.42), rotateY(-0.18))
+        )
+    );
+    const mainTip = transformLocalPoint(mainLocal, [0, -coneHeight, 0]);
+    const mainModel = multiply(
+        metrics.group,
+        mainLocal
+    );
+    const pomModel = multiply(
+        metrics.group,
+        translate(mainTip[0], mainTip[1], mainTip[2])
+    );
+
+    return [
+        { vertices: createConeMesh(baseRadius, coneHeight), model: mainModel, color: THEME.hat },
+        { vertices: createSphereMesh(pomRadius), model: pomModel, color: THEME.fur },
+    ];
+}
+
 function renderZzz(gl, width, height, movement) {
     const renderer = ensureRenderer(gl);
     const state = ensureState();
@@ -453,6 +566,10 @@ function renderZzz(gl, width, height, movement) {
         const vertices = createZMesh(metrics.letters[letterIndex]);
         drawMesh(renderer, metrics.projection, metrics.group, vertices, THEME.gold);
     }
+
+    for (const part of getHatParts(metrics)) {
+        drawMesh(renderer, metrics.projection, part.model, part.vertices, part.color);
+    }
 }
 
 let zzzRenderer = null;
@@ -471,6 +588,7 @@ export const descriptionZ = [
     `Z 컨텐츠는 WebGL 렌더링 기반으로 다시 시작했습니다.
     기존 A~Y 컨텐츠는 2D canvas를 그대로 사용하고, Z만 WebGL context를 받아 3D 장면으로 그립니다.`,
     `현재 단계에서는 외곽 폴리곤을 extrude한 3D Zzz를 표시합니다.
+    가장 큰 Z의 오른쪽 귀퉁이에는 원뿔형 몸체와 흰 털공만 가진 잠옷 모자를 걸쳐 두었습니다.
     마우스를 누른 채 좌우로 움직이면 Y축을 기준으로 글씨를 회전할 수 있습니다.
     다음 단계에서 모자, 이불, 수면 인터랙션을 이 3D 기반 위에 얹을 수 있습니다.`,
 ];
