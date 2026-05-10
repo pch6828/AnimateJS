@@ -4,13 +4,15 @@ attribute vec3 aNormal;
 
 uniform mat4 uMatrix;
 uniform mat4 uModel;
+uniform float uLightAmount;
 
 varying float vLight;
 
 void main() {
     vec3 normal = normalize((uModel * vec4(aNormal, 0.0)).xyz);
     vec3 light = normalize(vec3(-0.35, -0.72, 0.6));
-    vLight = 0.36 + max(dot(normal, light), 0.0) * 0.64;
+    float lit = 0.36 + max(dot(normal, light), 0.0) * 0.64;
+    vLight = mix(1.0, lit, uLightAmount);
     gl_Position = uMatrix * vec4(aPosition, 1.0);
 }
 `;
@@ -28,7 +30,8 @@ void main() {
 `;
 
 const THEME = {
-    background: [0.956, 0.918, 0.843, 1],
+    background: [0.78, 0.9, 0.98, 1],
+    backgroundDot: [0.88, 0.96, 1],
     gold: [0.94, 0.68, 0.22],
     hat: [0.21, 0.38, 0.7],
     blanket: [0.16, 0.34, 0.68],
@@ -175,6 +178,7 @@ function createRenderer(gl) {
         aNormal: gl.getAttribLocation(program, 'aNormal'),
         uMatrix: gl.getUniformLocation(program, 'uMatrix'),
         uModel: gl.getUniformLocation(program, 'uModel'),
+        uLightAmount: gl.getUniformLocation(program, 'uLightAmount'),
         uColor: gl.getUniformLocation(program, 'uColor'),
     };
 }
@@ -719,6 +723,33 @@ function pushDiskMesh(data, center, normal, radius, segments = 22) {
     }
 }
 
+function createBackgroundDotMesh(width, height) {
+    const data = [];
+    const base = Math.min(width, height);
+    const dots = [
+        [-0.42, -0.34, 0.18],
+        [-0.12, -0.46, 0.12],
+        [0.28, -0.36, 0.16],
+        [0.52, -0.08, 0.2],
+        [-0.5, 0.18, 0.14],
+        [-0.18, 0.1, 0.19],
+        [0.18, 0.24, 0.13],
+        [0.46, 0.42, 0.17],
+    ];
+
+    for (const [x, y, scale] of dots) {
+        pushDiskMesh(
+            data,
+            [x * width, y * height, -1100],
+            [0, 0, 1],
+            base * scale,
+            36
+        );
+    }
+
+    return new Float32Array(data);
+}
+
 function createConeSurfaceVertex(radius, height, y, angle, offset) {
     const localRadius = radius * (1 + y / height);
     const cos = Math.cos(angle);
@@ -1042,7 +1073,7 @@ function createZMesh(letter) {
     return new Float32Array(data);
 }
 
-function drawMesh(renderer, projection, model, vertices, color) {
+function drawMesh(renderer, projection, model, vertices, color, lightAmount = 1) {
     const { gl } = renderer;
     const matrix = multiply(projection, model);
     const buffer = gl.createBuffer();
@@ -1055,6 +1086,7 @@ function drawMesh(renderer, projection, model, vertices, color) {
     gl.vertexAttribPointer(renderer.aNormal, 3, gl.FLOAT, false, 24, 12);
     gl.uniformMatrix4fv(renderer.uMatrix, false, new Float32Array(matrix));
     gl.uniformMatrix4fv(renderer.uModel, false, new Float32Array(model));
+    gl.uniform1f(renderer.uLightAmount, lightAmount);
     gl.uniform3fv(renderer.uColor, new Float32Array(color));
     gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 6);
     gl.deleteBuffer(buffer);
@@ -1189,6 +1221,15 @@ function renderZzz(gl, width, height, movement) {
     gl.disable(gl.CULL_FACE);
 
     gl.useProgram(renderer.program);
+
+    drawMesh(
+        renderer,
+        metrics.projection,
+        identity(),
+        createBackgroundDotMesh(width, height),
+        THEME.backgroundDot,
+        0
+    );
 
     const wakeProgress = getWakeProgress(state);
     const annoyanceProgress = getAnnoyanceProgress(state);
