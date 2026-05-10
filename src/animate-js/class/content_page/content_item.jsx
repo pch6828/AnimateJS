@@ -1,6 +1,7 @@
 import { AnimationA, CleanA, descriptionA, toolTipA } from "../animate/a_algorithm";
 import { AnimationC, CleanC, descriptionC, toolTipC } from "../animate/c_coffee";
 import { AnimationD, CleanD, descriptionD, toolTipD } from "../animate/d_designer";
+import { AnimationF, CleanF, descriptionF, toolTipF } from "../animate/f_fortune";
 import { AnimationH, CleanH, descriptionH, toolTipH } from "../animate/h_homebody";
 import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
@@ -9,7 +10,6 @@ import { AnimationJ, CleanJ, descriptionJ, toolTipJ } from "../animate/j_judging
 import { AnimationS, CleanS, descriptionS, toolTipS } from "../animate/s_stubborn";
 import { AnimationZ, CleanZ, descriptionZ, toolTipZ } from "../animate/z_zzz";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
-// import { AnimationF, CleanF } from "../animate/f_fortune";
 // import { AnimationM, CleanM } from "../animate/m_mentor";
 // import { AnimationR, CleanR } from "../animate/r_rambler";
 // import { AnimationT, CleanT } from "../animate/t_tracing";
@@ -39,7 +39,14 @@ const items = new Map([
         toolTipText: toolTipD
     }],
     ['E', null],
-    ['F', null],
+    ['F', {
+        animate: AnimationF,
+        clean: CleanF,
+        title: 'Fortune',
+        text: descriptionF,
+        toolTipText: toolTipF,
+        backgroundColor: '#f5d29b'
+    }],
     ['G', null],
     ['H', {
         animate: AnimationH,
