@@ -33,13 +33,15 @@ const THEME = {
 };
 
 const FACE_LETTERS = [
-    { letter: 'M', center: [0, 0, 0.506], normal: [0, 0, 1], u: [1, 0, 0], v: [0, -1, 0] },
-    { letter: 'E', center: [-0.506, 0, 0], normal: [-1, 0, 0], u: [0, 0, 1], v: [0, -1, 0] },
-    { letter: 'O', center: [0.506, 0, 0], normal: [1, 0, 0], u: [0, 0, -1], v: [0, -1, 0] },
-    { letter: 'R', center: [0, 0, -0.506], normal: [0, 0, -1], u: [-1, 0, 0], v: [0, -1, 0] },
-    { letter: 'M', center: [0, -0.506, 0], normal: [0, -1, 0], u: [1, 0, 0], v: [0, 0, -1] },
-    { letter: 'Y', center: [0, 0.506, 0], normal: [0, 1, 0], u: [1, 0, 0], v: [0, 0, 1] },
+    { letter: 'M', netX: -1, netY: -1, center: [0, 0, 0.506], normal: [0, 0, 1], u: [1, 0, 0], v: [0, -1, 0] },
+    { letter: 'E', netX: -1, netY: 0, center: [-0.506, 0, 0], normal: [-1, 0, 0], u: [0, 0, 1], v: [0, -1, 0] },
+    { letter: 'O', netX: 1, netY: 0, center: [0.506, 0, 0], normal: [1, 0, 0], u: [0, 0, -1], v: [0, -1, 0] },
+    { letter: 'R', netX: 2, netY: 0, center: [0, 0, -0.506], normal: [0, 0, -1], u: [-1, 0, 0], v: [0, -1, 0] },
+    { letter: 'M', netX: 0, netY: 0, center: [0, -0.506, 0], normal: [0, -1, 0], u: [1, 0, 0], v: [0, 0, -1] },
+    { letter: 'Y', netX: 2, netY: 1, center: [0, 0.506, 0], normal: [0, 1, 0], u: [1, 0, 0], v: [0, 0, 1] },
 ];
+
+const CLICK_DISTANCE = 8;
 
 function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -152,6 +154,23 @@ function transformVector(matrix, vector) {
     ];
 }
 
+function lerp(start, end, amount) {
+    return start + (end - start) * amount;
+}
+
+function lerp3d(start, end, amount) {
+    return [
+        lerp(start[0], end[0], amount),
+        lerp(start[1], end[1], amount),
+        lerp(start[2], end[2], amount),
+    ];
+}
+
+function smoothstep(value) {
+    const t = clamp(value, 0, 1);
+    return t * t * (3 - 2 * t);
+}
+
 function ortho(left, right, bottom, top, near, far) {
     const matrix = identity();
 
@@ -189,9 +208,15 @@ function ensureRenderer(gl) {
 function createState() {
     return {
         orientation: multiply(rotateX(-0.42), rotateY(0.62)),
+        unfoldProgress: 0,
+        targetUnfoldProgress: 0,
         velocityX: 0,
         velocityY: 0,
         isDragging: false,
+        isPointerActive: false,
+        pressCandidate: false,
+        pointerStartX: 0,
+        pointerStartY: 0,
         wasDown: false,
         lastPointerX: 0,
         lastPointerY: 0,
@@ -207,12 +232,15 @@ function ensureState() {
 }
 
 function getMetrics(width, height) {
-    const size = clamp(Math.min(width, height) * 0.34, 130, 280);
+    const size = clamp(Math.min(width, height) * 0.5, 200, 400);
+    const unfoldSize = Math.min(width * 0.18, height * 0.26, size * 0.58);
 
     return {
         width,
         height,
         size,
+        unfoldSize,
+        unfoldStep: unfoldSize * 1.06,
         projection: ortho(-width / 2, width / 2, height / 2, -height / 2, -1000, 1000),
     };
 }
@@ -260,6 +288,32 @@ function isPointOnCube(metrics, model, point) {
     );
 }
 
+function getUnfoldedNetBounds(metrics) {
+    const half = metrics.unfoldSize * 0.58;
+    const points = FACE_LETTERS.map((face) => ({
+        x: (face.netX - 0.5) * metrics.unfoldStep + metrics.width / 2,
+        y: face.netY * metrics.unfoldStep + metrics.height / 2,
+    }));
+
+    return {
+        left: Math.min(...points.map((point) => point.x)) - half,
+        right: Math.max(...points.map((point) => point.x)) + half,
+        top: Math.min(...points.map((point) => point.y)) - half,
+        bottom: Math.max(...points.map((point) => point.y)) + half,
+    };
+}
+
+function isPointOnUnfoldedNet(metrics, point) {
+    const bounds = getUnfoldedNetBounds(metrics);
+
+    return (
+        point.x >= bounds.left &&
+        point.x <= bounds.right &&
+        point.y >= bounds.top &&
+        point.y <= bounds.bottom
+    );
+}
+
 function rotateByScreenDelta(state, angleX, angleY) {
     state.orientation = multiply(
         multiply(rotateX(angleX), rotateY(angleY)),
@@ -268,25 +322,47 @@ function rotateByScreenDelta(state, angleX, angleY) {
 }
 
 function updateInteraction(state, movement, metrics) {
+    state.unfoldProgress = lerp(state.unfoldProgress, state.targetUnfoldProgress, 0.14);
+
     if (!movement) {
-        rotateByScreenDelta(state, state.velocityX, state.velocityY);
-        state.velocityX *= 0.94;
-        state.velocityY *= 0.94;
+        if (state.targetUnfoldProgress < 0.5) {
+            rotateByScreenDelta(state, state.velocityX, state.velocityY);
+            state.velocityX *= 0.94;
+            state.velocityY *= 0.94;
+        }
         return;
     }
 
     const pointer = movement.mousePoint;
     const model = getCubeModel(metrics, state);
+    const isUnfolded = state.targetUnfoldProgress > 0.5;
 
-    if (!state.wasDown && movement.isDown && isPointOnCube(metrics, model, pointer)) {
-        state.isDragging = true;
+    if (!state.wasDown && movement.isDown) {
+        state.pressCandidate = isUnfolded
+            ? isPointOnUnfoldedNet(metrics, pointer)
+            : isPointOnCube(metrics, model, pointer);
+        state.isPointerActive = state.pressCandidate;
+        state.isDragging = false;
+        state.pointerStartX = pointer.x;
+        state.pointerStartY = pointer.y;
         state.lastPointerX = pointer.x;
         state.lastPointerY = pointer.y;
         state.velocityX = 0;
         state.velocityY = 0;
     }
 
-    if (movement.isDown && state.isDragging) {
+    if (movement.isDown && state.isPointerActive && !isUnfolded) {
+        const dragDistance = Math.hypot(
+            pointer.x - state.pointerStartX,
+            pointer.y - state.pointerStartY
+        );
+
+        if (!state.isDragging && dragDistance > CLICK_DISTANCE) {
+            state.isDragging = true;
+        }
+    }
+
+    if (movement.isDown && state.isDragging && !isUnfolded) {
         const deltaX = pointer.x - state.lastPointerX;
         const deltaY = pointer.y - state.lastPointerY;
 
@@ -298,13 +374,29 @@ function updateInteraction(state, movement, metrics) {
     }
 
     if (state.wasDown && !movement.isDown) {
+        const releaseDistance = Math.hypot(
+            pointer.x - state.pointerStartX,
+            pointer.y - state.pointerStartY
+        );
+
+        if (state.pressCandidate && releaseDistance <= CLICK_DISTANCE) {
+            state.targetUnfoldProgress = isUnfolded ? 0 : 1;
+            state.velocityX = 0;
+            state.velocityY = 0;
+        }
+
         state.isDragging = false;
+        state.isPointerActive = false;
+        state.pressCandidate = false;
     }
 
-    if (!state.isDragging) {
+    if (!state.isDragging && state.targetUnfoldProgress < 0.5) {
         rotateByScreenDelta(state, state.velocityX, state.velocityY);
         state.velocityX *= 0.94;
         state.velocityY *= 0.94;
+    } else if (state.targetUnfoldProgress > 0.5) {
+        state.velocityX *= 0.82;
+        state.velocityY *= 0.82;
     }
 
     state.wasDown = movement.isDown;
@@ -485,8 +577,47 @@ function pushLetterY(data, face) {
     pushCapsuleStroke(data, face, [0, 0.03], [0, -0.35], t);
 }
 
-function createLetterMesh(orientation) {
+function getUnfoldedFace(face, metrics) {
+    return {
+        letter: face.letter,
+        center: [
+            (face.netX - 0.5) * metrics.unfoldStep,
+            face.netY * metrics.unfoldStep,
+            0,
+        ],
+        normal: [0, 0, 1],
+        u: [metrics.unfoldSize, 0, 0],
+        v: [0, -metrics.unfoldSize, 0],
+    };
+}
+
+function getFoldedFace(face, model) {
+    return {
+        letter: face.letter,
+        center: transformPoint(model, face.center),
+        normal: transformVector(model, face.normal),
+        u: transformVector(model, face.u),
+        v: transformVector(model, face.v),
+    };
+}
+
+function getMorphedFace(face, metrics, model, progress) {
+    const amount = smoothstep(progress);
+    const folded = getFoldedFace(face, model);
+    const unfolded = getUnfoldedFace(face, metrics);
+
+    return {
+        letter: face.letter,
+        center: lerp3d(folded.center, unfolded.center, amount),
+        normal: lerp3d(folded.normal, unfolded.normal, amount),
+        u: lerp3d(folded.u, unfolded.u, amount),
+        v: lerp3d(folded.v, unfolded.v, amount),
+    };
+}
+
+function createLetterMesh(metrics, state) {
     const data = [];
+    const model = getCubeModel(metrics, state);
     const drawLetter = {
         M: pushLetterM,
         E: pushLetterE,
@@ -496,11 +627,13 @@ function createLetterMesh(orientation) {
     };
 
     for (const face of FACE_LETTERS) {
-        if (transformVector(orientation, face.normal)[2] <= 0) {
+        const foldedNormal = transformVector(state.orientation, face.normal);
+
+        if (state.unfoldProgress < 0.02 && foldedNormal[2] <= 0) {
             continue;
         }
 
-        drawLetter[face.letter](data, face);
+        drawLetter[face.letter](data, getMorphedFace(face, metrics, model, state.unfoldProgress));
     }
 
     return new Float32Array(data);
@@ -540,9 +673,7 @@ function renderMemory(gl, width, height, movement) {
     gl.disable(gl.CULL_FACE);
     gl.useProgram(renderer.program);
 
-    const model = getCubeModel(metrics, state);
-
-    drawMesh(renderer, metrics.projection, model, createLetterMesh(state.orientation), THEME.letter);
+    drawMesh(renderer, metrics.projection, identity(), createLetterMesh(metrics, state), THEME.letter);
 }
 
 let memoryRenderer = null;
