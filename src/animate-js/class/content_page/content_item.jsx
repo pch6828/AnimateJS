@@ -6,11 +6,11 @@ import { AnimationH, CleanH, descriptionH, toolTipH } from "../animate/h_homebod
 import { AnimationP, CleanP, descriptionP, toolTipP } from "../animate/p_postgraduate";
 import { AnimationV, CleanV, descriptionV, toolTipV } from "../animate/v_versatile";
 import { AnimationK, CleanK, descriptionK, toolTipK } from "../animate/k_kidult";
+import { AnimationM, CleanM, descriptionM, toolTipM } from "../animate/m_memory";
 import { AnimationJ, CleanJ, descriptionJ, toolTipJ } from "../animate/j_judging";
 import { AnimationS, CleanS, descriptionS, toolTipS } from "../animate/s_stubborn";
 import { AnimationZ, CleanZ, descriptionZ, toolTipZ } from "../animate/z_zzz";
 // import { AnimationE, CleanE } from "../animate/e_encyclopedia";
-// import { AnimationM, CleanM } from "../animate/m_mentor";
 // import { AnimationR, CleanR } from "../animate/r_rambler";
 // import { AnimationT, CleanT } from "../animate/t_tracing";
 // import { AnimationW, CleanW } from "../animate/w_workaholic";
@@ -71,7 +71,14 @@ const items = new Map([
         toolTipText: toolTipK
     }],
     ['L', null],
-    ['M', null],
+    ['M', {
+        contextType: 'webgl',
+        animate: AnimationM,
+        clean: CleanM,
+        title: 'Memory',
+        text: descriptionM,
+        toolTipText: toolTipM
+    }],
     ['N', null],
     ['O', null],
     ['P', {
@@ -136,29 +143,6 @@ const items = new Map([
 //             '말풍선이 나왔나요?',
 //             '이번에는 말풍선을 클릭해보세요!',
 //             '마치 제 잡지식처럼 계속 말풍선이 나오네요.']
-//     }],
-//     ['F', {
-//         backgroundColor: '#B34646',
-//         toolTipColor: 'white',
-//         toolTipTextColor: 'black',
-//         animate: AnimationF,
-//         clean: CleanF,
-//         title: 'Fortune',
-//         text: ['\'운\'이 좋게 잘 풀린 일이 많습니다.',
-//             '수능 성적이 생각보다 잘 나와서 좋은 대학을 갔고,',
-//             '(물론 수시는 모두 광탈했지만)',
-//             '고3 때 갑자기 전공을 바꿨음에도 적성에 잘 맞았습니다.',
-//             ' ',
-//             '대학원 입시도 생각보다 쉽게 통과했고,',
-//             '심지어 원하는 연구실에 바로 컨택이 되었어요.',
-//             '졸업하고도 바로 교수님 회사에 취직했는데,',
-//             '공교롭게도 바로 전문연 편입을 할 수 있었습니다.',
-//             ' ',
-//             '이 모든 게 단순히 운 때문은 아니지만,',
-//             '그래도 제 예상보다 결과가 더 좋게 나온 건 사실이죠.'],
-//         toolTipText: ['포춘 쿠키에서 쪽지를 꺼내보세요!',
-//             '당신의 운세는 무엇인가요?',
-//             '포춘 쿠키마다 운세가 다릅니다. 여러가지 메시지를 찾아보세요!']
 //     }],
 //     ['G', null],
 //     ['I', null],
