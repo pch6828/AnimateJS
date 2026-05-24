@@ -42,6 +42,8 @@ const FACE_LETTERS = [
 ];
 
 const CLICK_DISTANCE = 8;
+const TAP_MAX_FRAMES = 24;
+const DOUBLE_TAP_FRAMES = 36;
 
 function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -215,6 +217,9 @@ function createState() {
         isDragging: false,
         isPointerActive: false,
         pressCandidate: false,
+        pressFrames: 0,
+        tapCount: 0,
+        tapCooldown: 0,
         pointerStartX: 0,
         pointerStartY: 0,
         wasDown: false,
@@ -321,8 +326,32 @@ function rotateByScreenDelta(state, angleX, angleY) {
     );
 }
 
+function updateTapCooldown(state) {
+    if (state.tapCooldown > 0) {
+        state.tapCooldown -= 1;
+        return;
+    }
+
+    state.tapCount = 0;
+}
+
+function registerShortTap(state) {
+    if (state.tapCooldown > 0 && state.tapCount === 1) {
+        state.targetUnfoldProgress = state.targetUnfoldProgress > 0.5 ? 0 : 1;
+        state.tapCount = 0;
+        state.tapCooldown = 0;
+        state.velocityX = 0;
+        state.velocityY = 0;
+        return;
+    }
+
+    state.tapCount = 1;
+    state.tapCooldown = DOUBLE_TAP_FRAMES;
+}
+
 function updateInteraction(state, movement, metrics) {
     state.unfoldProgress = lerp(state.unfoldProgress, state.targetUnfoldProgress, 0.14);
+    updateTapCooldown(state);
 
     if (!movement) {
         if (state.targetUnfoldProgress < 0.5) {
@@ -347,8 +376,13 @@ function updateInteraction(state, movement, metrics) {
         state.pointerStartY = pointer.y;
         state.lastPointerX = pointer.x;
         state.lastPointerY = pointer.y;
+        state.pressFrames = 0;
         state.velocityX = 0;
         state.velocityY = 0;
+    }
+
+    if (movement.isDown && state.isPointerActive) {
+        state.pressFrames += 1;
     }
 
     if (movement.isDown && state.isPointerActive && !isUnfolded) {
@@ -379,15 +413,21 @@ function updateInteraction(state, movement, metrics) {
             pointer.y - state.pointerStartY
         );
 
-        if (state.pressCandidate && releaseDistance <= CLICK_DISTANCE) {
-            state.targetUnfoldProgress = isUnfolded ? 0 : 1;
-            state.velocityX = 0;
-            state.velocityY = 0;
+        if (
+            state.pressCandidate &&
+            releaseDistance <= CLICK_DISTANCE &&
+            state.pressFrames <= TAP_MAX_FRAMES
+        ) {
+            registerShortTap(state);
+        } else if (releaseDistance > CLICK_DISTANCE || state.pressFrames > TAP_MAX_FRAMES) {
+            state.tapCount = 0;
+            state.tapCooldown = 0;
         }
 
         state.isDragging = false;
         state.isPointerActive = false;
         state.pressCandidate = false;
+        state.pressFrames = 0;
     }
 
     if (!state.isDragging && state.targetUnfoldProgress < 0.5) {
