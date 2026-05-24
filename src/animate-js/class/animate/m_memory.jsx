@@ -29,9 +29,17 @@ void main() {
 
 const THEME = {
     background: [0.94, 0.91, 0.86, 1],
-    cube: [0.28, 0.48, 0.78],
-    cubeEdge: [0.95, 0.83, 0.46],
+    letter: [0.3, 0.47, 0.76],
 };
+
+const FACE_LETTERS = [
+    { letter: 'M', center: [0, 0, 0.506], normal: [0, 0, 1], u: [1, 0, 0], v: [0, -1, 0] },
+    { letter: 'E', center: [-0.506, 0, 0], normal: [-1, 0, 0], u: [0, 0, 1], v: [0, -1, 0] },
+    { letter: 'O', center: [0.506, 0, 0], normal: [1, 0, 0], u: [0, 0, -1], v: [0, -1, 0] },
+    { letter: 'R', center: [0, 0, -0.506], normal: [0, 0, -1], u: [-1, 0, 0], v: [0, -1, 0] },
+    { letter: 'M', center: [0, -0.506, 0], normal: [0, -1, 0], u: [1, 0, 0], v: [0, 0, -1] },
+    { letter: 'Y', center: [0, 0.506, 0], normal: [0, 1, 0], u: [1, 0, 0], v: [0, 0, 1] },
+];
 
 function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -133,6 +141,14 @@ function transformPoint(matrix, point) {
         matrix[0] * point[0] + matrix[4] * point[1] + matrix[8] * point[2] + matrix[12],
         matrix[1] * point[0] + matrix[5] * point[1] + matrix[9] * point[2] + matrix[13],
         matrix[2] * point[0] + matrix[6] * point[1] + matrix[10] * point[2] + matrix[14],
+    ];
+}
+
+function transformVector(matrix, vector) {
+    return [
+        matrix[0] * vector[0] + matrix[4] * vector[1] + matrix[8] * vector[2],
+        matrix[1] * vector[0] + matrix[5] * vector[1] + matrix[9] * vector[2],
+        matrix[2] * vector[0] + matrix[6] * vector[1] + matrix[10] * vector[2],
     ];
 }
 
@@ -303,50 +319,188 @@ function pushFace(data, a, b, c, d, normal) {
     data.push(...c, ...normal);
 }
 
-function createCubeMesh() {
-    const data = [];
-    const n = 0.5;
-
-    pushFace(data, [-n, -n, n], [n, -n, n], [-n, n, n], [n, n, n], [0, 0, 1]);
-    pushFace(data, [n, -n, -n], [-n, -n, -n], [n, n, -n], [-n, n, -n], [0, 0, -1]);
-    pushFace(data, [-n, -n, -n], [-n, -n, n], [-n, n, -n], [-n, n, n], [-1, 0, 0]);
-    pushFace(data, [n, -n, n], [n, -n, -n], [n, n, n], [n, n, -n], [1, 0, 0]);
-    pushFace(data, [-n, -n, -n], [n, -n, -n], [-n, -n, n], [n, -n, n], [0, -1, 0]);
-    pushFace(data, [-n, n, n], [n, n, n], [-n, n, -n], [n, n, -n], [0, 1, 0]);
-
-    return new Float32Array(data);
+function add3d(a, b) {
+    return [
+        a[0] + b[0],
+        a[1] + b[1],
+        a[2] + b[2],
+    ];
 }
 
-function createEdgeMesh(thickness = 0.018) {
-    const data = [];
-    const n = 0.5;
-    const edge = (center, size) => {
-        const half = size.map((value) => value / 2);
+function scale3d(vector, amount) {
+    return [
+        vector[0] * amount,
+        vector[1] * amount,
+        vector[2] * amount,
+    ];
+}
 
-        pushFace(data, [center[0] - half[0], center[1] - half[1], center[2] + half[2]], [center[0] + half[0], center[1] - half[1], center[2] + half[2]], [center[0] - half[0], center[1] + half[1], center[2] + half[2]], [center[0] + half[0], center[1] + half[1], center[2] + half[2]], [0, 0, 1]);
-        pushFace(data, [center[0] + half[0], center[1] - half[1], center[2] - half[2]], [center[0] - half[0], center[1] - half[1], center[2] - half[2]], [center[0] + half[0], center[1] + half[1], center[2] - half[2]], [center[0] - half[0], center[1] + half[1], center[2] - half[2]], [0, 0, -1]);
-        pushFace(data, [center[0] - half[0], center[1] - half[1], center[2] - half[2]], [center[0] - half[0], center[1] - half[1], center[2] + half[2]], [center[0] - half[0], center[1] + half[1], center[2] - half[2]], [center[0] - half[0], center[1] + half[1], center[2] + half[2]], [-1, 0, 0]);
-        pushFace(data, [center[0] + half[0], center[1] - half[1], center[2] + half[2]], [center[0] + half[0], center[1] - half[1], center[2] - half[2]], [center[0] + half[0], center[1] + half[1], center[2] + half[2]], [center[0] + half[0], center[1] + half[1], center[2] - half[2]], [1, 0, 0]);
-        pushFace(data, [center[0] - half[0], center[1] - half[1], center[2] - half[2]], [center[0] + half[0], center[1] - half[1], center[2] - half[2]], [center[0] - half[0], center[1] - half[1], center[2] + half[2]], [center[0] + half[0], center[1] - half[1], center[2] + half[2]], [0, -1, 0]);
-        pushFace(data, [center[0] - half[0], center[1] + half[1], center[2] + half[2]], [center[0] + half[0], center[1] + half[1], center[2] + half[2]], [center[0] - half[0], center[1] + half[1], center[2] - half[2]], [center[0] + half[0], center[1] + half[1], center[2] - half[2]], [0, 1, 0]);
+function getFacePoint(face, x, y) {
+    return add3d(
+        add3d(face.center, scale3d(face.u, x)),
+        scale3d(face.v, y)
+    );
+}
+
+function pushFaceShape(data, face, a, b, c, d) {
+    pushFace(
+        data,
+        getFacePoint(face, a[0], a[1]),
+        getFacePoint(face, b[0], b[1]),
+        getFacePoint(face, c[0], c[1]),
+        getFacePoint(face, d[0], d[1]),
+        face.normal
+    );
+}
+
+function pushDisk(data, face, center, radius, segments = 24) {
+    for (let index = 0; index < segments; index += 1) {
+        const angleA = index / segments * Math.PI * 2;
+        const angleB = (index + 1) / segments * Math.PI * 2;
+
+        pushFaceShape(
+            data,
+            face,
+            center,
+            [
+                center[0] + Math.cos(angleA) * radius,
+                center[1] + Math.sin(angleA) * radius,
+            ],
+            center,
+            [
+                center[0] + Math.cos(angleB) * radius,
+                center[1] + Math.sin(angleB) * radius,
+            ]
+        );
+    }
+}
+
+function pushOvalDisk(data, face, center, radiusX, radiusY, segments = 36) {
+    for (let index = 0; index < segments; index += 1) {
+        const angleA = index / segments * Math.PI * 2;
+        const angleB = (index + 1) / segments * Math.PI * 2;
+
+        pushFaceShape(
+            data,
+            face,
+            center,
+            [
+                center[0] + Math.cos(angleA) * radiusX,
+                center[1] + Math.sin(angleA) * radiusY,
+            ],
+            center,
+            [
+                center[0] + Math.cos(angleB) * radiusX,
+                center[1] + Math.sin(angleB) * radiusY,
+            ]
+        );
+    }
+}
+
+function pushCapsuleStroke(data, face, start, end, thickness) {
+    const dx = end[0] - start[0];
+    const dy = end[1] - start[1];
+    const length = Math.hypot(dx, dy) || 1;
+    const offsetX = -dy / length * thickness / 2;
+    const offsetY = dx / length * thickness / 2;
+
+    pushFaceShape(
+        data,
+        face,
+        [start[0] + offsetX, start[1] + offsetY],
+        [end[0] + offsetX, end[1] + offsetY],
+        [start[0] - offsetX, start[1] - offsetY],
+        [end[0] - offsetX, end[1] - offsetY]
+    );
+    pushDisk(data, face, start, thickness / 2);
+    pushDisk(data, face, end, thickness / 2);
+}
+
+function pushOvalRing(data, face, center, outerRadiusX, outerRadiusY, thickness, startAngle = 0, endAngle = Math.PI * 2, segments = 40) {
+    const innerRadiusX = Math.max(outerRadiusX - thickness, outerRadiusX * 0.1);
+    const innerRadiusY = Math.max(outerRadiusY - thickness, outerRadiusY * 0.1);
+    const angleSpan = endAngle - startAngle;
+
+    for (let index = 0; index < segments; index += 1) {
+        const angleA = startAngle + angleSpan * index / segments;
+        const angleB = startAngle + angleSpan * (index + 1) / segments;
+        const outerA = [
+            center[0] + Math.cos(angleA) * outerRadiusX,
+            center[1] + Math.sin(angleA) * outerRadiusY,
+        ];
+        const outerB = [
+            center[0] + Math.cos(angleB) * outerRadiusX,
+            center[1] + Math.sin(angleB) * outerRadiusY,
+        ];
+        const innerA = [
+            center[0] + Math.cos(angleA) * innerRadiusX,
+            center[1] + Math.sin(angleA) * innerRadiusY,
+        ];
+        const innerB = [
+            center[0] + Math.cos(angleB) * innerRadiusX,
+            center[1] + Math.sin(angleB) * innerRadiusY,
+        ];
+
+        pushFaceShape(data, face, outerA, outerB, innerA, innerB);
+    }
+}
+
+function pushLetterM(data, face) {
+    const t = 0.31;
+
+    pushCapsuleStroke(data, face, [-0.33, 0.34], [-0.33, -0.34], t);
+    pushCapsuleStroke(data, face, [0.33, 0.34], [0.33, -0.34], t);
+    pushCapsuleStroke(data, face, [-0.27, 0.32], [0, -0.03], t);
+    pushCapsuleStroke(data, face, [0, -0.03], [0.27, 0.32], t);
+}
+
+function pushLetterE(data, face) {
+    const t = 0.31;
+
+    pushCapsuleStroke(data, face, [-0.3, 0.34], [-0.3, -0.34], t);
+    pushCapsuleStroke(data, face, [-0.3, 0.34], [0.35, 0.34], t);
+    pushCapsuleStroke(data, face, [-0.3, 0], [0.25, 0], t);
+    pushCapsuleStroke(data, face, [-0.3, -0.34], [0.35, -0.34], t);
+}
+
+function pushLetterO(data, face) {
+    pushOvalRing(data, face, [0, 0], 0.43, 0.42, 0.31, 0, Math.PI * 2, 56);
+}
+
+function pushLetterR(data, face) {
+    const t = 0.31;
+
+    pushCapsuleStroke(data, face, [-0.3, 0.34], [-0.3, -0.34], t);
+    pushCapsuleStroke(data, face, [-0.3, 0.34], [-0.08, 0.34], t);
+    pushCapsuleStroke(data, face, [-0.3, 0.03], [-0.08, 0.03], t);
+    pushOvalDisk(data, face, [-0.03, 0.2], 0.42, 0.29, 36);
+    pushCapsuleStroke(data, face, [-0.11, -0.03], [0.35, -0.36], t);
+}
+
+function pushLetterY(data, face) {
+    const t = 0.33;
+
+    pushCapsuleStroke(data, face, [-0.31, 0.35], [0, 0.03], t);
+    pushCapsuleStroke(data, face, [0.31, 0.35], [0, 0.03], t);
+    pushCapsuleStroke(data, face, [0, 0.03], [0, -0.35], t);
+}
+
+function createLetterMesh(orientation) {
+    const data = [];
+    const drawLetter = {
+        M: pushLetterM,
+        E: pushLetterE,
+        O: pushLetterO,
+        R: pushLetterR,
+        Y: pushLetterY,
     };
 
-    for (const y of [-n, n]) {
-        for (const z of [-n, n]) {
-            edge([0, y, z], [1 + thickness, thickness, thickness]);
+    for (const face of FACE_LETTERS) {
+        if (transformVector(orientation, face.normal)[2] <= 0) {
+            continue;
         }
-    }
 
-    for (const x of [-n, n]) {
-        for (const z of [-n, n]) {
-            edge([x, 0, z], [thickness, 1 + thickness, thickness]);
-        }
-    }
-
-    for (const x of [-n, n]) {
-        for (const y of [-n, n]) {
-            edge([x, y, 0], [thickness, thickness, 1 + thickness]);
-        }
+        drawLetter[face.letter](data, face);
     }
 
     return new Float32Array(data);
@@ -388,8 +542,7 @@ function renderMemory(gl, width, height, movement) {
 
     const model = getCubeModel(metrics, state);
 
-    drawMesh(renderer, metrics.projection, model, createCubeMesh(), THEME.cube);
-    drawMesh(renderer, metrics.projection, model, createEdgeMesh(), THEME.cubeEdge);
+    drawMesh(renderer, metrics.projection, model, createLetterMesh(state.orientation), THEME.letter);
 }
 
 let memoryRenderer = null;
