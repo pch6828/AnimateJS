@@ -29,21 +29,33 @@ void main() {
 
 const THEME = {
     background: [0.94, 0.91, 0.86, 1],
-    letter: [0.3, 0.47, 0.76],
 };
 
 const FACE_LETTERS = [
-    { letter: 'M', netX: -1, netY: -1, center: [0, 0, 0.506], normal: [0, 0, 1], u: [1, 0, 0], v: [0, -1, 0] },
-    { letter: 'E', netX: -1, netY: 0, center: [-0.506, 0, 0], normal: [-1, 0, 0], u: [0, 0, 1], v: [0, -1, 0] },
-    { letter: 'O', netX: 1, netY: 0, center: [0.506, 0, 0], normal: [1, 0, 0], u: [0, 0, -1], v: [0, -1, 0] },
-    { letter: 'R', netX: 2, netY: 0, center: [0, 0, -0.506], normal: [0, 0, -1], u: [-1, 0, 0], v: [0, -1, 0] },
-    { letter: 'M', netX: 0, netY: 0, center: [0, -0.506, 0], normal: [0, -1, 0], u: [1, 0, 0], v: [0, 0, -1] },
-    { letter: 'Y', netX: 2, netY: 1, center: [0, 0.506, 0], normal: [0, 1, 0], u: [1, 0, 0], v: [0, 0, 1] },
+    { letter: 'M', color: [0.24, 0.45, 0.82], netX: -1, netY: -1, center: [0, 0, 0.506], normal: [0, 0, 1], u: [1, 0, 0], v: [0, -1, 0] },
+    { letter: 'E', color: [0.82, 0.3, 0.36], netX: -1, netY: 0, center: [-0.506, 0, 0], normal: [-1, 0, 0], u: [0, 0, 1], v: [0, -1, 0] },
+    { letter: 'O', color: [0.24, 0.6, 0.44], netX: 1, netY: 0, center: [0.506, 0, 0], normal: [1, 0, 0], u: [0, 0, -1], v: [0, -1, 0] },
+    { letter: 'R', color: [0.76, 0.45, 0.17], netX: 2, netY: 0, center: [0, 0, -0.506], normal: [0, 0, -1], u: [-1, 0, 0], v: [0, -1, 0] },
+    { letter: 'M', color: [0.5, 0.35, 0.72], netX: 0, netY: 0, center: [0, -0.506, 0], normal: [0, -1, 0], u: [1, 0, 0], v: [0, 0, -1] },
+    { letter: 'Y', color: [0.86, 0.67, 0.2], netX: 2, netY: 1, center: [0, 0.506, 0], normal: [0, 1, 0], u: [1, 0, 0], v: [0, 0, 1] },
+];
+
+const FACE_FRONT_ORIENTATIONS = [
+    identity(),
+    rotateY(Math.PI / 2),
+    rotateY(-Math.PI / 2),
+    rotateY(Math.PI),
+    rotateX(-Math.PI / 2),
+    rotateX(Math.PI / 2),
 ];
 
 const CLICK_DISTANCE = 8;
+const HOLD_MOVE_DISTANCE = 6;
+const LONG_PRESS_FRAMES = 42;
 const TAP_MAX_FRAMES = 24;
 const DOUBLE_TAP_FRAMES = 36;
+const REVEAL_PROGRESS_THRESHOLD = { close: 0.1, open: 0.95 };
+
 
 function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -168,6 +180,10 @@ function lerp3d(start, end, amount) {
     ];
 }
 
+function lerpMatrix(start, end, amount) {
+    return start.map((value, index) => lerp(value, end[index], amount));
+}
+
 function smoothstep(value) {
     const t = clamp(value, 0, 1);
     return t * t * (3 - 2 * t);
@@ -212,12 +228,24 @@ function createState() {
         orientation: multiply(rotateX(-0.42), rotateY(0.62)),
         unfoldProgress: 0,
         targetUnfoldProgress: 0,
+        focusProgress: 0,
+        targetFocusProgress: 0,
+        revealProgress: 0,
+        targetRevealProgress: 0,
+        isFocusClosing: false,
+        focusFaceIndex: null,
+        focusStartOrientation: identity(),
+        focusFromUnfolded: false,
+        focusRevealCenter: [0, 0],
+        focusReturnUnfoldTarget: 0,
         velocityX: 0,
         velocityY: 0,
         isDragging: false,
         isPointerActive: false,
         pressCandidate: false,
         pressFrames: 0,
+        pressFaceIndex: null,
+        longPressTriggered: false,
         tapCount: 0,
         tapCooldown: 0,
         pointerStartX: 0,
@@ -250,9 +278,33 @@ function getMetrics(width, height) {
     };
 }
 
+function getFocusRotateProgress(state) {
+    if (state.focusFaceIndex === null || state.focusFromUnfolded) {
+        return 0;
+    }
+
+    return smoothstep(clamp(state.focusProgress / 0.7, 0, 1));
+}
+
+function getFocusProgressRate(state) {
+    return 0.065;
+}
+
+function getRenderOrientation(state) {
+    if (state.focusFaceIndex === null) {
+        return state.orientation;
+    }
+
+    return lerpMatrix(
+        state.focusStartOrientation,
+        FACE_FRONT_ORIENTATIONS[state.focusFaceIndex],
+        getFocusRotateProgress(state)
+    );
+}
+
 function getCubeModel(metrics, state) {
     return multiply(
-        state.orientation,
+        getRenderOrientation(state),
         scale(metrics.size, metrics.size, metrics.size)
     );
 }
@@ -319,6 +371,43 @@ function isPointOnUnfoldedNet(metrics, point) {
     );
 }
 
+function getScreenPoint(metrics, point) {
+    return {
+        x: point[0] + metrics.width / 2,
+        y: point[1] + metrics.height / 2,
+    };
+}
+
+function getFaceScreenCorners(metrics, face) {
+    return [
+        getScreenPoint(metrics, add3d(add3d(face.center, scale3d(face.u, -0.5)), scale3d(face.v, -0.5))),
+        getScreenPoint(metrics, add3d(add3d(face.center, scale3d(face.u, 0.5)), scale3d(face.v, -0.5))),
+        getScreenPoint(metrics, add3d(add3d(face.center, scale3d(face.u, 0.5)), scale3d(face.v, 0.5))),
+        getScreenPoint(metrics, add3d(add3d(face.center, scale3d(face.u, -0.5)), scale3d(face.v, 0.5))),
+    ];
+}
+
+function isPointInFace(metrics, face, point) {
+    const corners = getFaceScreenCorners(metrics, face);
+    let hasPositive = false;
+    let hasNegative = false;
+
+    for (let index = 0; index < corners.length; index += 1) {
+        const a = corners[index];
+        const b = corners[(index + 1) % corners.length];
+        const cross = (b.x - a.x) * (point.y - a.y) - (b.y - a.y) * (point.x - a.x);
+
+        hasPositive = hasPositive || cross > 0;
+        hasNegative = hasNegative || cross < 0;
+
+        if (hasPositive && hasNegative) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function rotateByScreenDelta(state, angleX, angleY) {
     state.orientation = multiply(
         multiply(rotateX(angleX), rotateY(angleY)),
@@ -337,7 +426,14 @@ function updateTapCooldown(state) {
 
 function registerShortTap(state) {
     if (state.tapCooldown > 0 && state.tapCount === 1) {
-        state.targetUnfoldProgress = state.targetUnfoldProgress > 0.5 ? 0 : 1;
+        if (state.focusFaceIndex !== null || state.targetFocusProgress > 0.5) {
+            state.targetRevealProgress = 0;
+            state.isFocusClosing = true;
+            state.targetUnfoldProgress = state.focusReturnUnfoldTarget;
+        } else {
+            state.targetUnfoldProgress = state.targetUnfoldProgress > 0.5 ? 0 : 1;
+        }
+
         state.tapCount = 0;
         state.tapCooldown = 0;
         state.velocityX = 0;
@@ -349,8 +445,66 @@ function registerShortTap(state) {
     state.tapCooldown = DOUBLE_TAP_FRAMES;
 }
 
+function triggerFaceFocus(state, faceIndex, metrics) {
+    state.focusFaceIndex = faceIndex;
+    state.focusStartOrientation = state.orientation;
+    state.focusReturnUnfoldTarget = state.targetUnfoldProgress;
+    state.focusFromUnfolded = state.targetUnfoldProgress > 0.5 || state.unfoldProgress > 0.5;
+    state.focusRevealCenter = state.focusFromUnfolded
+        ? getUnfoldedFace(FACE_LETTERS[faceIndex], metrics).center.slice(0, 2)
+        : [0, 0];
+    state.isFocusClosing = false;
+
+    if (!state.focusFromUnfolded) {
+        state.targetUnfoldProgress = 0;
+    }
+
+    state.targetFocusProgress = 1;
+    state.velocityX = 0;
+    state.velocityY = 0;
+    state.tapCount = 0;
+    state.tapCooldown = 0;
+    state.longPressTriggered = true;
+}
+
 function updateInteraction(state, movement, metrics) {
     state.unfoldProgress = lerp(state.unfoldProgress, state.targetUnfoldProgress, 0.14);
+    state.focusProgress = lerp(state.focusProgress, state.targetFocusProgress, getFocusProgressRate(state));
+
+    if (state.isFocusClosing && state.revealProgress < REVEAL_PROGRESS_THRESHOLD.close) {
+        state.targetFocusProgress = 0;
+    }
+
+    if (
+        state.focusFaceIndex !== null &&
+        !state.isFocusClosing &&
+        state.targetFocusProgress > 0.5 &&
+        (state.focusFromUnfolded || getFocusRotateProgress(state) >= 0.995)
+    ) {
+        state.targetRevealProgress = 1;
+    } else if (state.isFocusClosing || state.targetFocusProgress < 0.5) {
+        state.targetRevealProgress = 0;
+    }
+
+    if (state.revealProgress > REVEAL_PROGRESS_THRESHOLD.open && state.targetRevealProgress === 1) {
+        state.revealProgress = 1;
+    } else {
+        state.revealProgress = lerp(state.revealProgress, state.targetRevealProgress, 0.03);
+    }
+
+    if (
+        state.targetFocusProgress === 0 &&
+        state.targetRevealProgress === 0 &&
+        state.focusProgress < 0.01 &&
+        state.revealProgress < REVEAL_PROGRESS_THRESHOLD.close
+    ) {
+        state.focusFaceIndex = null;
+        state.focusFromUnfolded = false;
+        state.isFocusClosing = false;
+        state.focusProgress = 0;
+        state.revealProgress = 0;
+    }
+
     updateTapCooldown(state);
 
     if (!movement) {
@@ -365,11 +519,14 @@ function updateInteraction(state, movement, metrics) {
     const pointer = movement.mousePoint;
     const model = getCubeModel(metrics, state);
     const isUnfolded = state.targetUnfoldProgress > 0.5;
+    const isFocused = state.focusFaceIndex !== null && state.focusProgress > 0.02;
 
     if (!state.wasDown && movement.isDown) {
-        state.pressCandidate = isUnfolded
-            ? isPointOnUnfoldedNet(metrics, pointer)
-            : isPointOnCube(metrics, model, pointer);
+        state.pressFaceIndex = findFaceAtPoint(metrics, state, pointer);
+        state.pressCandidate = state.pressFaceIndex !== null || (
+            !isFocused &&
+            (isUnfolded ? isPointOnUnfoldedNet(metrics, pointer) : isPointOnCube(metrics, model, pointer))
+        );
         state.isPointerActive = state.pressCandidate;
         state.isDragging = false;
         state.pointerStartX = pointer.x;
@@ -377,6 +534,7 @@ function updateInteraction(state, movement, metrics) {
         state.lastPointerX = pointer.x;
         state.lastPointerY = pointer.y;
         state.pressFrames = 0;
+        state.longPressTriggered = false;
         state.velocityX = 0;
         state.velocityY = 0;
     }
@@ -385,12 +543,25 @@ function updateInteraction(state, movement, metrics) {
         state.pressFrames += 1;
     }
 
-    if (movement.isDown && state.isPointerActive && !isUnfolded) {
-        const dragDistance = Math.hypot(
-            pointer.x - state.pointerStartX,
-            pointer.y - state.pointerStartY
-        );
+    const dragDistance = Math.hypot(
+        pointer.x - state.pointerStartX,
+        pointer.y - state.pointerStartY
+    );
 
+    if (
+        movement.isDown &&
+        state.isPointerActive &&
+        state.pressFaceIndex !== null &&
+        !state.longPressTriggered &&
+        !isFocused &&
+        state.pressFrames >= LONG_PRESS_FRAMES &&
+        dragDistance <= HOLD_MOVE_DISTANCE
+    ) {
+        triggerFaceFocus(state, state.pressFaceIndex, metrics);
+        state.isDragging = false;
+    }
+
+    if (movement.isDown && state.isPointerActive && !isUnfolded && !isFocused && !state.longPressTriggered) {
         if (!state.isDragging && dragDistance > CLICK_DISTANCE) {
             state.isDragging = true;
         }
@@ -416,10 +587,15 @@ function updateInteraction(state, movement, metrics) {
         if (
             state.pressCandidate &&
             releaseDistance <= CLICK_DISTANCE &&
-            state.pressFrames <= TAP_MAX_FRAMES
+            state.pressFrames <= TAP_MAX_FRAMES &&
+            !state.longPressTriggered
         ) {
             registerShortTap(state);
-        } else if (releaseDistance > CLICK_DISTANCE || state.pressFrames > TAP_MAX_FRAMES) {
+        } else if (
+            releaseDistance > CLICK_DISTANCE ||
+            state.pressFrames > TAP_MAX_FRAMES ||
+            state.longPressTriggered
+        ) {
             state.tapCount = 0;
             state.tapCooldown = 0;
         }
@@ -428,13 +604,15 @@ function updateInteraction(state, movement, metrics) {
         state.isPointerActive = false;
         state.pressCandidate = false;
         state.pressFrames = 0;
+        state.pressFaceIndex = null;
+        state.longPressTriggered = false;
     }
 
-    if (!state.isDragging && state.targetUnfoldProgress < 0.5) {
+    if (!state.isDragging && state.targetUnfoldProgress < 0.5 && state.targetFocusProgress < 0.5) {
         rotateByScreenDelta(state, state.velocityX, state.velocityY);
         state.velocityX *= 0.94;
         state.velocityY *= 0.94;
-    } else if (state.targetUnfoldProgress > 0.5) {
+    } else if (state.targetUnfoldProgress > 0.5 || state.targetFocusProgress > 0.5) {
         state.velocityX *= 0.82;
         state.velocityY *= 0.82;
     }
@@ -655,9 +833,42 @@ function getMorphedFace(face, metrics, model, progress) {
     };
 }
 
-function createLetterMesh(metrics, state) {
-    const data = [];
+function getDisplayFace(face, metrics, state) {
     const model = getCubeModel(metrics, state);
+
+    return getMorphedFace(face, metrics, model, state.unfoldProgress);
+}
+
+function findFaceAtPoint(metrics, state, point) {
+    if (state.unfoldProgress < 0.02 && state.focusFaceIndex !== null && state.focusProgress > 0.02) {
+        return state.focusFaceIndex;
+    }
+    let selectedFaceIndex = null;
+    let selectedZ = -Infinity;
+
+    for (let faceIndex = 0; faceIndex < FACE_LETTERS.length; faceIndex += 1) {
+
+        const displayFace = getDisplayFace(FACE_LETTERS[faceIndex], metrics, state);
+
+        if (state.focusFaceIndex === null && state.unfoldProgress < 0.02 && displayFace.normal[2] <= 0) {
+            continue;
+        }
+
+        if (!isPointInFace(metrics, displayFace, point)) {
+            continue;
+        }
+        console.log('Face ' + FACE_LETTERS[faceIndex].letter + ' selected at z = ' + displayFace.center[2].toFixed(2));
+        if (displayFace.center[2] > selectedZ) {
+            selectedZ = displayFace.center[2];
+            selectedFaceIndex = faceIndex;
+        }
+    }
+
+    return selectedFaceIndex;
+}
+
+function createLetterMeshForFace(face, faceIndex, metrics, state) {
+    const data = [];
     const drawLetter = {
         M: pushLetterM,
         E: pushLetterE,
@@ -665,17 +876,13 @@ function createLetterMesh(metrics, state) {
         R: pushLetterR,
         Y: pushLetterY,
     };
+    const displayFace = getDisplayFace(face, metrics, state);
 
-    for (const face of FACE_LETTERS) {
-        const foldedNormal = transformVector(state.orientation, face.normal);
-
-        if (state.unfoldProgress < 0.02 && foldedNormal[2] <= 0) {
-            continue;
-        }
-
-        drawLetter[face.letter](data, getMorphedFace(face, metrics, model, state.unfoldProgress));
+    if (state.unfoldProgress < 0.02 && displayFace.normal[2] <= 0) {
+        return null;
     }
 
+    drawLetter[face.letter](data, displayFace);
     return new Float32Array(data);
 }
 
@@ -697,6 +904,37 @@ function drawMesh(renderer, projection, model, vertices, color) {
     gl.deleteBuffer(buffer);
 }
 
+function createFocusRevealMesh(metrics, progress, centerPoint) {
+    const data = [];
+    const farthestX = Math.max(
+        Math.abs(-metrics.width / 2 - centerPoint[0]),
+        Math.abs(metrics.width / 2 - centerPoint[0])
+    );
+    const farthestY = Math.max(
+        Math.abs(-metrics.height / 2 - centerPoint[1]),
+        Math.abs(metrics.height / 2 - centerPoint[1])
+    );
+    const radius = Math.hypot(farthestX, farthestY) * progress;
+    const segments = 72;
+    const center = [centerPoint[0], centerPoint[1], 900];
+    const normal = [0, 0, 1];
+
+    if (radius <= 0) {
+        return new Float32Array(data);
+    }
+
+    for (let index = 0; index < segments; index += 1) {
+        const angleA = index / segments * Math.PI * 2;
+        const angleB = (index + 1) / segments * Math.PI * 2;
+
+        data.push(...center, ...normal);
+        data.push(center[0] + Math.cos(angleA) * radius, center[1] + Math.sin(angleA) * radius, 900, ...normal);
+        data.push(center[0] + Math.cos(angleB) * radius, center[1] + Math.sin(angleB) * radius, 900, ...normal);
+    }
+
+    return new Float32Array(data);
+}
+
 function renderMemory(gl, width, height, movement) {
     const renderer = ensureRenderer(gl);
     const state = ensureState();
@@ -713,7 +951,33 @@ function renderMemory(gl, width, height, movement) {
     gl.disable(gl.CULL_FACE);
     gl.useProgram(renderer.program);
 
-    drawMesh(renderer, metrics.projection, identity(), createLetterMesh(metrics, state), THEME.letter);
+    for (let faceIndex = 0; faceIndex < FACE_LETTERS.length; faceIndex += 1) {
+        const face = FACE_LETTERS[faceIndex];
+        const vertices = createLetterMeshForFace(face, faceIndex, metrics, state);
+
+        if (vertices && vertices.length > 0) {
+            drawMesh(renderer, metrics.projection, identity(), vertices, face.color);
+        }
+    }
+
+    if (state.focusFaceIndex !== null) {
+        const revealVertices = createFocusRevealMesh(
+            metrics,
+            smoothstep(state.revealProgress),
+            state.focusRevealCenter
+        );
+
+        if (revealVertices.length > 0) {
+            gl.clear(gl.DEPTH_BUFFER_BIT);
+            drawMesh(
+                renderer,
+                metrics.projection,
+                identity(),
+                revealVertices,
+                FACE_LETTERS[state.focusFaceIndex].color
+            );
+        }
+    }
 }
 
 let memoryRenderer = null;
