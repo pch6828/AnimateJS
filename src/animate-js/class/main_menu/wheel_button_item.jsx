@@ -4,7 +4,7 @@ const items = [
     { key: 'C', title: 'Coffee', hasDetailPage: true, date: '2026-03-26' },
     { key: 'D', title: 'Designer', hasDetailPage: true, date: '2026-03-31' },
     { key: 'E', title: '', hasDetailPage: false },
-    { key: 'F', title: '', hasDetailPage: false },
+    { key: 'F', title: 'Fortune', hasDetailPage: true, date: '2026-05-XX' },
     { key: 'G', title: '', hasDetailPage: false },
     { key: 'H', title: 'Homebody', hasDetailPage: true, date: '2026-04-08' },
     { key: 'I', title: '', hasDetailPage: false },
