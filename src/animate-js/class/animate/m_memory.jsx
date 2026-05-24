@@ -596,7 +596,7 @@ function pushLetterE(data, face) {
 }
 
 function pushLetterO(data, face) {
-    pushOvalRing(data, face, [0, 0], 0.43, 0.42, 0.31, 0, Math.PI * 2, 56);
+    pushOvalRing(data, face, [0, 0], 0.48, 0.48, 0.35, 0, Math.PI * 2, 56);
 }
 
 function pushLetterR(data, face) {
