@@ -2,7 +2,7 @@ import { get_random } from "./util";
 
 const WORD = "FORTUNE";
 const COOKIE_TAPS_TO_BREAK = 3;
-const FONT_FAMILY = "Georgia, 'Times New Roman', serif";
+const FONT_FAMILY = "'Potta One', cursive";
 
 const THEME = {
     ink: "#4c2417",
@@ -11,10 +11,8 @@ const THEME = {
     cookieLight: "#f6bc68",
     cookieEdge: "#7b3d1d",
     paper: "#fff8df",
-    paperShadow: "rgba(64, 35, 19, 0.18)",
     paperRule: "#d85d43",
-    backgroundTop: "rgba(255, 247, 221, 0.6)",
-    backgroundBottom: "rgba(193, 98, 55, 0.12)",
+    background: "#781d22",
 };
 
 const messages = [
@@ -46,6 +44,20 @@ function randomRange(min, max) {
     return min + Math.random() * (max - min);
 }
 
+function createScatterProfile() {
+    return {
+        xJitterRatio: randomRange(-0.5, 0.5),
+        yRatio: Math.random(),
+        rotation: randomRange(-0.22, 0.22),
+    };
+}
+
+function textureRatio(index, salt) {
+    const raw = Math.sin((index + 1) * 37.719 + salt * 91.137) * 43758.5453;
+
+    return raw - Math.floor(raw);
+}
+
 function distance(left, right) {
     return Math.hypot(left.x - right.x, left.y - right.y);
 }
@@ -66,16 +78,16 @@ function setLetterFont(ctx, fontSize) {
 }
 
 function getMetrics(ctx, width, height) {
-    let fontSize = Math.min(width * 0.105, height * 0.13);
-    const maxOrbitDiameter = Math.min(width * 0.74, height * 0.64);
+    let fontSize = Math.min(width * 0.3, height * 0.37);
+    const maxWordWidth = Math.min(width * 1.2, height * 1.1);
     let gap = fontSize * 0.08;
 
     setLetterFont(ctx, fontSize);
     let letterWidths = WORD.split("").map((char) => ctx.measureText(char).width);
     let initialWordWidth = letterWidths.reduce((sum, letterWidth) => sum + letterWidth, 0) + gap * (WORD.length - 1);
 
-    if (initialWordWidth > maxOrbitDiameter) {
-        fontSize *= maxOrbitDiameter / initialWordWidth;
+    if (initialWordWidth > maxWordWidth) {
+        fontSize *= maxWordWidth / initialWordWidth;
         gap = fontSize * 0.08;
         setLetterFont(ctx, fontSize);
         letterWidths = WORD.split("").map((char) => ctx.measureText(char).width);
@@ -84,22 +96,21 @@ function getMetrics(ctx, width, height) {
 
     const cookieWidth = Math.max(...letterWidths);
     const cookieHeight = fontSize;
-    const focusScale = 1.75;
-    const orbitCenterX = width / 2;
-    const orbitCenterY = height * 0.39;
-    const orbitRadius = Math.min(width * 0.31, height * 0.27);
+    const scatterInsetX = Math.max(cookieWidth * 0.72, width * 0.08);
+    const scatterTop = Math.max(cookieHeight * 0.95, height * 0.16);
+    const scatterBottom = Math.max(scatterTop + cookieHeight, height - cookieHeight * 0.95);
+    const scatterStep = (width - scatterInsetX * 2) / (WORD.length - 1);
+    const scatterHeight = Math.max(cookieHeight, scatterBottom - scatterTop);
+    const scatterJitterX = scatterStep * 0.48;
     const paperWidth = Math.min(width * 0.74, Math.max(cookieWidth * 4.8, width * 0.44));
     const paperHeight = Math.max(cookieHeight * 0.8, Math.min(height * 0.1, cookieWidth * 0.86));
     const cookiePositions = WORD.split("").map((char, index) => {
         const letterWidth = letterWidths[index];
-        const angle = -Math.PI / 2 + Math.PI * 2 * index / WORD.length;
 
         return {
             char,
             letterWidth,
-            orbitAngle: angle,
-            x: orbitCenterX + Math.cos(angle) * orbitRadius,
-            y: orbitCenterY + Math.sin(angle) * orbitRadius,
+            slotX: scatterInsetX + scatterStep * index,
         };
     });
 
@@ -111,15 +122,15 @@ function getMetrics(ctx, width, height) {
         cookieHeight,
         gap,
         wordWidth: initialWordWidth,
-        wordY: orbitCenterY,
-        orbitCenterX,
-        orbitCenterY,
-        orbitRadius,
-        focusScale,
+        wordY: height / 2,
         paperWidth,
         paperHeight,
         paperTargetX: width / 2,
-        paperTargetY: Math.min(height * 0.82, orbitCenterY + cookieHeight * 2.45),
+        paperTargetY: height / 2,
+        scatterInsetX,
+        scatterTop,
+        scatterHeight,
+        scatterJitterX,
         cookiePositions,
     };
 }
@@ -252,16 +263,15 @@ function createCookie(index, char) {
     return {
         id: index,
         char,
+        scatter: createScatterProfile(),
         status: "whole",
         tapCount: 0,
         pulse: 0,
-        focusProgress: 0,
         crackProgress: 0,
         message: get_random(messages),
         paper: null,
         pieces: [],
-        returnY: 0,
-        returnVy: 0,
+        returnProgress: 1,
         returnRotation: 0,
     };
 }
@@ -273,7 +283,6 @@ function createState(width, height) {
         frame: 0,
         prevIsDown: false,
         downPoint: null,
-        activeCookieId: null,
         cookies: WORD.split("").map((char, index) => createCookie(index, char)),
     };
 }
@@ -289,20 +298,38 @@ function ensureState(width, height) {
 }
 
 function getCookiePoint(cookie, metrics) {
-    const position = metrics.cookiePositions[cookie.id];
+    const position = getCookieHomePosition(cookie, metrics);
 
-    if (cookie.status === "returning") {
-        return { x: position.x, y: cookie.returnY };
+    return { x: position.x, y: position.y };
+}
+
+function getCookieScale() {
+    return 1;
+}
+
+function getCookieHomePosition(cookie, metrics) {
+    const position = metrics.cookiePositions[cookie.id];
+    if (!cookie.scatter) {
+        cookie.scatter = createScatterProfile();
     }
+    const scatter = cookie.scatter;
 
     return {
-        x: lerp(position.x, metrics.orbitCenterX, easeOutCubic(cookie.focusProgress)),
-        y: lerp(position.y, metrics.orbitCenterY, easeOutCubic(cookie.focusProgress)),
+        ...position,
+        x: clamp(
+            position.slotX + scatter.xJitterRatio * metrics.scatterJitterX,
+            metrics.scatterInsetX,
+            metrics.width - metrics.scatterInsetX
+        ),
+        y: metrics.scatterTop + scatter.yRatio * metrics.scatterHeight,
+        scatterRotation: scatter.rotation,
     };
 }
 
-function getCookieScale(cookie, metrics) {
-    return lerp(1, metrics.focusScale, easeOutCubic(cookie.focusProgress));
+function getCookieRotation(cookie, metrics) {
+    const position = getCookieHomePosition(cookie, metrics);
+
+    return position.scatterRotation;
 }
 
 function getPaperRect(cookie, metrics) {
@@ -324,7 +351,7 @@ function getPaperRect(cookie, metrics) {
 
 function isPointInCookie(point, cookie, metrics) {
     const center = getCookiePoint(cookie, metrics);
-    const position = metrics.cookiePositions[cookie.id];
+    const position = getCookieHomePosition(cookie, metrics);
     const scale = getCookieScale(cookie, metrics);
     const dx = (point.x - center.x) / (position.letterWidth * scale * 0.62);
     const dy = (point.y - center.y) / (metrics.cookieHeight * scale * 0.62);
@@ -333,7 +360,7 @@ function isPointInCookie(point, cookie, metrics) {
 }
 
 function beginBreak(cookie, metrics) {
-    const homePosition = metrics.cookiePositions[cookie.id];
+    const homePosition = getCookieHomePosition(cookie, metrics);
     const center = getCookiePoint(cookie, metrics);
     const scale = getCookieScale(cookie, metrics);
     const position = {
@@ -367,14 +394,13 @@ function beginBreak(cookie, metrics) {
 }
 
 function beginReturn(cookie, metrics) {
+    cookie.scatter = createScatterProfile();
     cookie.status = "returning";
     cookie.tapCount = 0;
     cookie.pulse = 0;
-    cookie.focusProgress = 0;
     cookie.crackProgress = 0;
     cookie.pieces = [];
-    cookie.returnY = -metrics.cookieHeight * 1.4;
-    cookie.returnVy = 0;
+    cookie.returnProgress = 0;
     cookie.returnRotation = randomRange(-0.18, 0.18);
 
     if (cookie.paper) {
@@ -386,10 +412,10 @@ function beginReturn(cookie, metrics) {
     }
 }
 
-function returnOtherOpenCookies(state, metrics, activeCookieId) {
+function returnOtherOpenCookies(state, metrics, currentCookieId) {
     for (const cookie of state.cookies) {
         if (
-            cookie.id !== activeCookieId &&
+            cookie.id !== currentCookieId &&
             cookie.paper &&
             !cookie.paper.fading &&
             cookie.status !== "whole" &&
@@ -404,8 +430,8 @@ function completeReturn(cookie) {
     cookie.status = "whole";
     cookie.tapCount = 0;
     cookie.pulse = 0;
-    cookie.focusProgress = 0;
     cookie.crackProgress = 0;
+    cookie.returnProgress = 1;
     cookie.paper = null;
     cookie.pieces = [];
     cookie.message = get_random(messages);
@@ -423,9 +449,6 @@ function handleTap(state, metrics, point) {
             pointInRect(point, paperRect)
         ) {
             beginReturn(cookie, metrics);
-            if (state.activeCookieId === cookie.id) {
-                state.activeCookieId = null;
-            }
             return;
         }
     }
@@ -434,15 +457,6 @@ function handleTap(state, metrics, point) {
         const cookie = state.cookies[index];
 
         if (cookie.status === "whole" && isPointInCookie(point, cookie, metrics)) {
-            if (state.activeCookieId !== cookie.id) {
-                state.activeCookieId = cookie.id;
-                for (const otherCookie of state.cookies) {
-                    if (otherCookie.id !== cookie.id && otherCookie.status === "whole") {
-                        otherCookie.tapCount = 0;
-                    }
-                }
-            }
-
             cookie.tapCount += 1;
             cookie.pulse = 1;
 
@@ -510,11 +524,7 @@ function updatePaper(cookie, metrics) {
     }
 }
 
-function updateCookie(cookie, metrics, state) {
-    const isFocused = state.activeCookieId === cookie.id && cookie.status === "whole";
-    const focusTarget = isFocused || cookie.status === "breaking" || cookie.status === "open" ? 1 : 0;
-
-    cookie.focusProgress += (focusTarget - cookie.focusProgress) * 0.12;
+function updateCookie(cookie, metrics) {
     cookie.pulse *= 0.82;
 
     if (cookie.status === "breaking" || cookie.status === "open") {
@@ -532,15 +542,11 @@ function updateCookie(cookie, metrics, state) {
     }
 
     if (cookie.status === "returning") {
-        const home = metrics.cookiePositions[cookie.id];
-
-        cookie.returnVy += (home.y - cookie.returnY) * 0.025;
-        cookie.returnVy *= 0.82;
-        cookie.returnY += cookie.returnVy;
+        cookie.returnProgress = Math.min(1, cookie.returnProgress + 0.055);
         cookie.returnRotation *= 0.9;
         updatePaper(cookie, metrics);
 
-        if (Math.abs(home.y - cookie.returnY) < 0.7 && Math.abs(cookie.returnVy) < 0.7 && (!cookie.paper || cookie.paper.opacity <= 0)) {
+        if (cookie.returnProgress >= 1 && (!cookie.paper || cookie.paper.opacity <= 0)) {
             completeReturn(cookie);
         }
     }
@@ -551,27 +557,83 @@ function updateState(state, metrics, movement) {
     updateInteraction(state, metrics, movement);
 
     for (const cookie of state.cookies) {
-        updateCookie(cookie, metrics, state);
+        updateCookie(cookie, metrics);
     }
 }
 
 function drawBackground(ctx, width, height) {
-    const gradient = ctx.createLinearGradient(0, 0, 0, height);
-    gradient.addColorStop(0, THEME.backgroundTop);
-    gradient.addColorStop(1, THEME.backgroundBottom);
-
-    ctx.fillStyle = gradient;
+    ctx.fillStyle = THEME.background;
     ctx.fillRect(0, 0, width, height);
 
-    ctx.strokeStyle = "rgba(121, 65, 34, 0.12)";
-    ctx.lineWidth = Math.max(1, Math.min(width, height) * 0.002);
+    const glow = ctx.createRadialGradient(
+        width * 0.42,
+        height * 0.34,
+        0,
+        width * 0.5,
+        height * 0.5,
+        Math.max(width, height) * 0.78
+    );
 
-    for (let y = height * 0.12; y < height; y += height * 0.13) {
+    glow.addColorStop(0, "rgba(145, 43, 48, 0.42)");
+    glow.addColorStop(0.62, "rgba(101, 22, 27, 0.08)");
+    glow.addColorStop(1, "rgba(45, 8, 13, 0.42)");
+
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, width, height);
+
+    const minSize = Math.min(width, height);
+    const fiberCount = Math.round(clamp(width * height / 5200, 80, 230));
+    const dustCount = Math.round(clamp(width * height / 3800, 120, 420));
+
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.globalCompositeOperation = "screen";
+
+    for (let index = 0; index < fiberCount; index += 1) {
+        const x = textureRatio(index, 1) * width;
+        const y = textureRatio(index, 2) * height;
+        const length = lerp(minSize * 0.012, minSize * 0.052, textureRatio(index, 3));
+        const angle = lerp(-0.62, -0.24, textureRatio(index, 4));
+        const alpha = lerp(0.008, 0.026, textureRatio(index, 5));
+
+        ctx.strokeStyle = `rgba(255, 188, 164, ${alpha})`;
+        ctx.lineWidth = lerp(0.45, 1.15, textureRatio(index, 6));
         ctx.beginPath();
-        ctx.moveTo(width * 0.08, y);
-        ctx.quadraticCurveTo(width * 0.5, y + height * 0.035, width * 0.92, y);
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
         ctx.stroke();
     }
+
+    for (let index = 0; index < dustCount; index += 1) {
+        const x = textureRatio(index, 7) * width;
+        const y = textureRatio(index, 8) * height;
+        const radius = lerp(0.35, 1.2, textureRatio(index, 9));
+        const alpha = lerp(0.008, 0.028, textureRatio(index, 10));
+
+        ctx.fillStyle = `rgba(255, 211, 186, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    ctx.globalCompositeOperation = "multiply";
+
+    for (let index = 0; index < fiberCount; index += 1) {
+        const x = textureRatio(index, 11) * width;
+        const y = textureRatio(index, 12) * height;
+        const length = lerp(minSize * 0.01, minSize * 0.044, textureRatio(index, 13));
+        const angle = lerp(-0.48, -0.18, textureRatio(index, 14));
+        const alpha = lerp(0.01, 0.034, textureRatio(index, 15));
+
+        ctx.strokeStyle = `rgba(43, 5, 9, ${alpha})`;
+        ctx.lineWidth = lerp(0.5, 1.35, textureRatio(index, 16));
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + Math.cos(angle) * length, y + Math.sin(angle) * length);
+        ctx.stroke();
+    }
+
+    ctx.restore();
 }
 
 function createLetterCookieGradient(ctx, metrics) {
@@ -690,11 +752,6 @@ function drawWholeCookie(ctx, metrics, cookie, x, y, options = {}) {
     ctx.scale(renderScale, renderScale);
 
     ctx.globalAlpha = options.alpha ?? 1;
-    ctx.fillStyle = "rgba(82, 44, 22, 0.16)";
-    ctx.beginPath();
-    ctx.ellipse(0, height * 0.55, width * 0.58, height * 0.1, 0, 0, Math.PI * 2);
-    ctx.fill();
-
     drawCookieLetterGlyph(ctx, metrics, cookie, width, height);
 
     ctx.restore();
@@ -714,11 +771,6 @@ function drawCookiePiece(ctx, metrics, piece) {
     ctx.translate(piece.x, piece.y);
     ctx.rotate(piece.rotation);
     ctx.globalAlpha = piece.opacity;
-
-    ctx.fillStyle = "rgba(82, 44, 22, 0.12)";
-    ctx.beginPath();
-    ctx.ellipse(0, height * 0.18, piece.boundsWidth * 0.42, Math.max(2, piece.boundsHeight * 0.08), 0, 0, Math.PI * 2);
-    ctx.fill();
 
     ctx.save();
     ctx.beginPath();
@@ -758,9 +810,6 @@ function drawPaper(ctx, metrics, cookie) {
     ctx.translate(paper.x, paper.y);
     ctx.rotate(paper.rotation);
 
-    ctx.fillStyle = THEME.paperShadow;
-    ctx.fillRect(-width / 2 + fold, -height / 2 + fold, width, height);
-
     ctx.fillStyle = THEME.paper;
     ctx.beginPath();
     ctx.moveTo(-width / 2, -height / 2);
@@ -792,31 +841,32 @@ function drawPaper(ctx, metrics, cookie) {
 
 function drawState(ctx, metrics, state) {
     for (const cookie of state.cookies) {
-        if (cookie.paper && cookie.status !== "whole") {
-            drawPaper(ctx, metrics, cookie);
-        }
-    }
-
-    const orderedCookies = [...state.cookies].sort((left, right) => {
-        const leftFocused = state.activeCookieId === left.id ? 1 : 0;
-        const rightFocused = state.activeCookieId === right.id ? 1 : 0;
-        return leftFocused - rightFocused;
-    });
-
-    for (const cookie of orderedCookies) {
         if (cookie.status === "whole") {
             const position = getCookiePoint(cookie, metrics);
-            drawWholeCookie(ctx, metrics, cookie, position.x, position.y, { frame: state.frame });
-        } else if (cookie.status === "returning") {
-            const position = metrics.cookiePositions[cookie.id];
-            drawWholeCookie(ctx, metrics, cookie, position.x, cookie.returnY, {
+            drawWholeCookie(ctx, metrics, cookie, position.x, position.y, {
                 frame: state.frame,
-                rotation: cookie.returnRotation,
+                rotation: getCookieRotation(cookie, metrics),
+            });
+        } else if (cookie.status === "returning") {
+            const position = getCookieHomePosition(cookie, metrics);
+            const progress = easeOutCubic(cookie.returnProgress);
+
+            drawWholeCookie(ctx, metrics, cookie, position.x, position.y, {
+                frame: state.frame,
+                rotation: position.scatterRotation + cookie.returnRotation * (1 - progress),
+                scale: lerp(0.42, 1, progress),
+                alpha: progress,
             });
         } else {
             for (const piece of cookie.pieces) {
                 drawCookiePiece(ctx, metrics, piece);
             }
+        }
+    }
+
+    for (const cookie of state.cookies) {
+        if (cookie.paper && cookie.status !== "whole") {
+            drawPaper(ctx, metrics, cookie);
         }
     }
 }
@@ -843,12 +893,21 @@ export function CleanF() {
 }
 
 export const descriptionF = [
-    "FORTUNE is a row of fortune cookies. Each letter carries a small message inside it.",
-    "Tap a cookie letter several times to crack it open. The shell falls away and the fortune slips down to the center below the word.",
-    "Tap the fortune paper once to dismiss it, and the missing cookie letter drops back in from above.",
+    `운이 좋게 잘 풀린 일이 꽤 많습니다.`,
+    `대입 때는 수능 성적이 정말 잘 나왔어요. 개인 최고 성적이었습니다.
+    덕분에 수시를 모두 광탈해도 정시로 좋은 대학을 갈 수 있었습니다.
+    심지어 제대로 정시를 준비하던 것도 아니었어요. 
+    그냥 6모 성적이 좀 좋길래 정시도 노려본 것이 잘 풀린 거죠.`,
+    `심지어 전공도 적성에 맞았습니다.
+    무려 고3 중반쯤에 디자인과에서 컴공과로 지망을 바꿨는데도 말이죠.
+    엄청 심사숙고해서 진로를 바꾼 것도 아니었는데 적성에 맞는 전공을 찾은 건 정말 행운이었어요.`,
+    `전공이 적성에 잘 맞다보니 자연스레 학점도 잘 나왔고, 좋은 학점 덕분에 대학원 입시도 쉽게 통과했습니다.
+    진행하던 졸업 프로젝트를 좋게 봐주신 덕분에 연구실 컨택도 잘 되었고, 결과적으로 원하는 연구실에 진학할 수 있었죠.`,
+    `이렇다 보니, 가끔은 지금의 제 모습이 정말 제 노력의 결과물이 맞는지 의심될 때도 있습니다.
+    "운이 따라줄 때 그 기회를 잡는 것도 능력인 거니까..." 라면서 합리화하고 있어요.`
 ];
 
 export const toolTipF = [
-    "Tap each fortune-cookie letter three times.",
-    "Click the fortune paper to bring that cookie letter back.",
+    '"FORTUNE" 모양의 쿠키를 여러 번 터치하면 쿠키가 깨지고, 운세가 나타납니다!',
+    '말 그대로 포춘 쿠키인 거죠.'
 ];
