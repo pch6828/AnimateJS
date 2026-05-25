@@ -857,7 +857,7 @@ function findFaceAtPoint(metrics, state, point) {
         if (!isPointInFace(metrics, displayFace, point)) {
             continue;
         }
-        console.log('Face ' + FACE_LETTERS[faceIndex].letter + ' selected at z = ' + displayFace.center[2].toFixed(2));
+
         if (displayFace.center[2] > selectedZ) {
             selectedZ = displayFace.center[2];
             selectedFaceIndex = faceIndex;
