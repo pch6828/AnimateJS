@@ -1,15 +1,21 @@
 {
   "files": {
     "main.css": "/AnimateJS/static/css/main.e8fb6acb.css",
-    "main.js": "/AnimateJS/static/js/main.06ce756c.js",
+    "main.js": "/AnimateJS/static/js/main.09b9380b.js",
     "static/js/453.9a92a2e9.chunk.js": "/AnimateJS/static/js/453.9a92a2e9.chunk.js",
+    "static/media/coffee.jpg": "/AnimateJS/static/media/coffee.70fbf65beaacdb8f3a8d.jpg",
+    "static/media/vietnam_trip.jpg": "/AnimateJS/static/media/vietnam_trip.1c5d6d60e0b74e771cdc.jpg",
+    "static/media/jeju_trip.jpg": "/AnimateJS/static/media/jeju_trip.f7a34f4af17bb616cec9.jpg",
+    "static/media/lego.jpg": "/AnimateJS/static/media/lego.d6a23fcc0cbe0f8d3b68.jpg",
+    "static/media/high_school_friends.jpg": "/AnimateJS/static/media/high_school_friends.ce5970b248d7900d02a2.jpg",
+    "static/media/family_trip.jpg": "/AnimateJS/static/media/family_trip.487e3d5ba7f1d7774eb2.jpg",
     "index.html": "/AnimateJS/index.html",
     "main.e8fb6acb.css.map": "/AnimateJS/static/css/main.e8fb6acb.css.map",
-    "main.06ce756c.js.map": "/AnimateJS/static/js/main.06ce756c.js.map",
+    "main.09b9380b.js.map": "/AnimateJS/static/js/main.09b9380b.js.map",
     "453.9a92a2e9.chunk.js.map": "/AnimateJS/static/js/453.9a92a2e9.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e8fb6acb.css",
-    "static/js/main.06ce756c.js"
+    "static/js/main.09b9380b.js"
   ]
 }
