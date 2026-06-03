@@ -1,16 +1,26 @@
+import jejuTripImage from '../../asset/content-m/jeju_trip.jpg';
+import vietnamTripImage from '../../asset/content-m/vietnam_trip.jpg';
+import highSchoolFriendsImage from '../../asset/content-m/high_school_friends.jpg';
+import familyTripImage from '../../asset/content-m/family_trip.jpg';
+import legoImage from '../../asset/content-m/lego.jpg';
+import coffeeImage from '../../asset/content-m/coffee.jpg';
+
 const VERTEX_SHADER_SOURCE = `
 attribute vec3 aPosition;
 attribute vec3 aNormal;
+attribute vec2 aTexCoord;
 
 uniform mat4 uMatrix;
 uniform mat4 uModel;
 
 varying float vLight;
+varying vec2 vTexCoord;
 
 void main() {
     vec3 normal = normalize((uModel * vec4(aNormal, 0.0)).xyz);
     vec3 light = normalize(vec3(-0.45, -0.65, 0.62));
     vLight = 0.42 + max(dot(normal, light), 0.0) * 0.58;
+    vTexCoord = aTexCoord;
     gl_Position = uMatrix * vec4(aPosition, 1.0);
 }
 `;
@@ -19,25 +29,38 @@ const FRAGMENT_SHADER_SOURCE = `
 precision mediump float;
 
 uniform vec3 uColor;
+uniform sampler2D uTexture;
+uniform vec2 uTextureSize;
+uniform float uUseTexture;
 
 varying float vLight;
+varying vec2 vTexCoord;
 
 void main() {
-    gl_FragColor = vec4(uColor * vLight, 1.0);
+    vec2 texel = 5.0 / max(uTextureSize, vec2(1.0, 1.0));
+    vec3 textureColor =
+        texture2D(uTexture, vTexCoord).rgb * 0.56 +
+        texture2D(uTexture, vTexCoord + vec2(texel.x, 0.0)).rgb * 0.11 +
+        texture2D(uTexture, vTexCoord - vec2(texel.x, 0.0)).rgb * 0.11 +
+        texture2D(uTexture, vTexCoord + vec2(0.0, texel.y)).rgb * 0.11 +
+        texture2D(uTexture, vTexCoord - vec2(0.0, texel.y)).rgb * 0.11;
+    vec3 color = mix(uColor, textureColor, uUseTexture);
+    gl_FragColor = vec4(color * vLight, 1.0);
 }
 `;
 
 const THEME = {
-    background: [0.94, 0.91, 0.86, 1],
+    background: [130 / 255, 210 / 255, 222 / 255, 1],
+    letterOutline: [0.96, 0.96, 0.93],
 };
 
 const FACE_LETTERS = [
-    { letter: 'M', color: [0.24, 0.45, 0.82], netX: -1, netY: -1, center: [0, 0, 0.506], normal: [0, 0, 1], u: [1, 0, 0], v: [0, -1, 0] },
-    { letter: 'E', color: [0.82, 0.3, 0.36], netX: -1, netY: 0, center: [-0.506, 0, 0], normal: [-1, 0, 0], u: [0, 0, 1], v: [0, -1, 0] },
-    { letter: 'O', color: [0.24, 0.6, 0.44], netX: 1, netY: 0, center: [0.506, 0, 0], normal: [1, 0, 0], u: [0, 0, -1], v: [0, -1, 0] },
-    { letter: 'R', color: [0.76, 0.45, 0.17], netX: 2, netY: 0, center: [0, 0, -0.506], normal: [0, 0, -1], u: [-1, 0, 0], v: [0, -1, 0] },
-    { letter: 'M', color: [0.5, 0.35, 0.72], netX: 0, netY: 0, center: [0, -0.506, 0], normal: [0, -1, 0], u: [1, 0, 0], v: [0, 0, -1] },
-    { letter: 'Y', color: [0.86, 0.67, 0.2], netX: 2, netY: 1, center: [0, 0.506, 0], normal: [0, 1, 0], u: [1, 0, 0], v: [0, 0, 1] },
+    { letter: 'M', image: jejuTripImage, color: [0.24, 0.45, 0.82], netX: -1, netY: -1, center: [0, 0, 0.506], normal: [0, 0, 1], u: [1, 0, 0], v: [0, -1, 0] },
+    { letter: 'E', image: vietnamTripImage, color: [0.82, 0.3, 0.36], netX: -1, netY: 0, center: [-0.506, 0, 0], normal: [-1, 0, 0], u: [0, 0, 1], v: [0, -1, 0] },
+    { letter: 'O', image: highSchoolFriendsImage, color: [0.24, 0.6, 0.44], netX: 1, netY: 0, center: [0.506, 0, 0], normal: [1, 0, 0], u: [0, 0, -1], v: [0, -1, 0] },
+    { letter: 'R', image: familyTripImage, color: [0.76, 0.45, 0.17], netX: 2, netY: 0, center: [0, 0, -0.506], normal: [0, 0, -1], u: [-1, 0, 0], v: [0, -1, 0] },
+    { letter: 'M', image: legoImage, color: [0.5, 0.35, 0.72], netX: 0, netY: 0, center: [0, -0.506, 0], normal: [0, -1, 0], u: [1, 0, 0], v: [0, 0, -1] },
+    { letter: 'Y', image: coffeeImage, color: [0.86, 0.67, 0.2], netX: 2, netY: 1, center: [0, 0.506, 0], normal: [0, 1, 0], u: [1, 0, 0], v: [0, 0, 1] },
 ];
 
 const FACE_FRONT_ORIENTATIONS = [
@@ -180,6 +203,13 @@ function lerp3d(start, end, amount) {
     ];
 }
 
+function lerp2d(start, end, amount) {
+    return [
+        lerp(start[0], end[0], amount),
+        lerp(start[1], end[1], amount),
+    ];
+}
+
 function lerpMatrix(start, end, amount) {
     return start.map((value, index) => lerp(value, end[index], amount));
 }
@@ -201,6 +231,58 @@ function ortho(left, right, bottom, top, near, far) {
     return matrix;
 }
 
+function createTexture(gl, source) {
+    const texture = gl.createTexture();
+    const textureInfo = {
+        texture,
+        width: 1,
+        height: 1,
+        aspect: 1,
+    };
+    const image = new Image();
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        1,
+        1,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        new Uint8Array([255, 255, 255, 255])
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    image.onload = () => {
+        textureInfo.width = image.naturalWidth || image.width || 1;
+        textureInfo.height = image.naturalHeight || image.height || 1;
+        textureInfo.aspect = textureInfo.width / Math.max(textureInfo.height, 1);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    };
+    image.src = source;
+
+    return textureInfo;
+}
+
+function createFaceTextures(gl) {
+    const textureCache = new Map();
+
+    return FACE_LETTERS.map((face) => {
+        if (!textureCache.has(face.image)) {
+            textureCache.set(face.image, createTexture(gl, face.image));
+        }
+
+        return textureCache.get(face.image);
+    });
+}
+
 function createRenderer(gl) {
     const program = createProgram(gl);
 
@@ -209,9 +291,14 @@ function createRenderer(gl) {
         program,
         aPosition: gl.getAttribLocation(program, 'aPosition'),
         aNormal: gl.getAttribLocation(program, 'aNormal'),
+        aTexCoord: gl.getAttribLocation(program, 'aTexCoord'),
         uMatrix: gl.getUniformLocation(program, 'uMatrix'),
         uModel: gl.getUniformLocation(program, 'uModel'),
         uColor: gl.getUniformLocation(program, 'uColor'),
+        uTexture: gl.getUniformLocation(program, 'uTexture'),
+        uTextureSize: gl.getUniformLocation(program, 'uTextureSize'),
+        uUseTexture: gl.getUniformLocation(program, 'uUseTexture'),
+        faceTextures: createFaceTextures(gl),
     };
 }
 
@@ -237,6 +324,7 @@ function createState() {
         focusStartOrientation: identity(),
         focusFromUnfolded: false,
         focusRevealCenter: [0, 0],
+        focusRevealSize: 1,
         focusReturnUnfoldTarget: 0,
         velocityX: 0,
         velocityY: 0,
@@ -453,6 +541,7 @@ function triggerFaceFocus(state, faceIndex, metrics) {
     state.focusRevealCenter = state.focusFromUnfolded
         ? getUnfoldedFace(FACE_LETTERS[faceIndex], metrics).center.slice(0, 2)
         : [0, 0];
+    state.focusRevealSize = state.focusFromUnfolded ? metrics.unfoldSize : metrics.size;
     state.isFocusClosing = false;
 
     if (!state.focusFromUnfolded) {
@@ -620,13 +709,17 @@ function updateInteraction(state, movement, metrics) {
     state.wasDown = movement.isDown;
 }
 
-function pushFace(data, a, b, c, d, normal) {
-    data.push(...a, ...normal);
-    data.push(...b, ...normal);
-    data.push(...d, ...normal);
-    data.push(...a, ...normal);
-    data.push(...d, ...normal);
-    data.push(...c, ...normal);
+function pushVertex(data, point, normal, uv) {
+    data.push(...point, ...normal, ...uv);
+}
+
+function pushFace(data, a, b, c, d, normal, uvA, uvB, uvC, uvD) {
+    pushVertex(data, a, normal, uvA);
+    pushVertex(data, b, normal, uvB);
+    pushVertex(data, d, normal, uvD);
+    pushVertex(data, a, normal, uvA);
+    pushVertex(data, d, normal, uvD);
+    pushVertex(data, c, normal, uvC);
 }
 
 function add3d(a, b) {
@@ -645,11 +738,28 @@ function scale3d(vector, amount) {
     ];
 }
 
+function normalize3d(vector) {
+    const length = Math.hypot(vector[0], vector[1], vector[2]) || 1;
+
+    return [
+        vector[0] / length,
+        vector[1] / length,
+        vector[2] / length,
+    ];
+}
+
 function getFacePoint(face, x, y) {
     return add3d(
         add3d(face.center, scale3d(face.u, x)),
         scale3d(face.v, y)
     );
+}
+
+function getInsetFace(face, amount) {
+    return {
+        ...face,
+        center: add3d(face.center, scale3d(normalize3d(face.normal), -amount)),
+    };
 }
 
 function pushFaceShape(data, face, a, b, c, d) {
@@ -659,7 +769,11 @@ function pushFaceShape(data, face, a, b, c, d) {
         getFacePoint(face, b[0], b[1]),
         getFacePoint(face, c[0], c[1]),
         getFacePoint(face, d[0], d[1]),
-        face.normal
+        face.normal,
+        [a[0] + 0.5, 0.5 - a[1]],
+        [b[0] + 0.5, 0.5 - b[1]],
+        [c[0] + 0.5, 0.5 - c[1]],
+        [d[0] + 0.5, 0.5 - d[1]]
     );
 }
 
@@ -755,8 +869,8 @@ function pushOvalRing(data, face, center, outerRadiusX, outerRadiusY, thickness,
     }
 }
 
-function pushLetterM(data, face) {
-    const t = 0.31;
+function pushLetterM(data, face, outlineAmount = 0) {
+    const t = 0.31 + outlineAmount;
 
     pushCapsuleStroke(data, face, [-0.33, 0.34], [-0.33, -0.34], t);
     pushCapsuleStroke(data, face, [0.33, 0.34], [0.33, -0.34], t);
@@ -764,8 +878,8 @@ function pushLetterM(data, face) {
     pushCapsuleStroke(data, face, [0, -0.03], [0.27, 0.32], t);
 }
 
-function pushLetterE(data, face) {
-    const t = 0.31;
+function pushLetterE(data, face, outlineAmount = 0) {
+    const t = 0.31 + outlineAmount;
 
     pushCapsuleStroke(data, face, [-0.3, 0.34], [-0.3, -0.34], t);
     pushCapsuleStroke(data, face, [-0.3, 0.34], [0.35, 0.34], t);
@@ -773,22 +887,32 @@ function pushLetterE(data, face) {
     pushCapsuleStroke(data, face, [-0.3, -0.34], [0.35, -0.34], t);
 }
 
-function pushLetterO(data, face) {
-    pushOvalRing(data, face, [0, 0], 0.48, 0.48, 0.35, 0, Math.PI * 2, 56);
+function pushLetterO(data, face, outlineAmount = 0) {
+    pushOvalRing(
+        data,
+        face,
+        [0, 0],
+        0.48 + outlineAmount / 2,
+        0.48 + outlineAmount / 2,
+        0.35 + outlineAmount,
+        0,
+        Math.PI * 2,
+        56
+    );
 }
 
-function pushLetterR(data, face) {
-    const t = 0.31;
+function pushLetterR(data, face, outlineAmount = 0) {
+    const t = 0.31 + outlineAmount;
 
     pushCapsuleStroke(data, face, [-0.3, 0.34], [-0.3, -0.34], t);
     pushCapsuleStroke(data, face, [-0.3, 0.34], [-0.08, 0.34], t);
     pushCapsuleStroke(data, face, [-0.3, 0.03], [-0.08, 0.03], t);
-    pushOvalDisk(data, face, [-0.03, 0.2], 0.42, 0.29, 36);
+    pushOvalDisk(data, face, [-0.03, 0.2], 0.42 + outlineAmount / 2, 0.29 + outlineAmount / 2, 36);
     pushCapsuleStroke(data, face, [-0.11, -0.03], [0.35, -0.36], t);
 }
 
-function pushLetterY(data, face) {
-    const t = 0.33;
+function pushLetterY(data, face, outlineAmount = 0) {
+    const t = 0.33 + outlineAmount;
 
     pushCapsuleStroke(data, face, [-0.31, 0.35], [0, 0.03], t);
     pushCapsuleStroke(data, face, [0.31, 0.35], [0, 0.03], t);
@@ -867,7 +991,7 @@ function findFaceAtPoint(metrics, state, point) {
     return selectedFaceIndex;
 }
 
-function createLetterMeshForFace(face, faceIndex, metrics, state) {
+function createLetterMeshForFace(face, faceIndex, metrics, state, outlineAmount = 0, insetAmount = 0) {
     const data = [];
     const drawLetter = {
         M: pushLetterM,
@@ -876,17 +1000,17 @@ function createLetterMeshForFace(face, faceIndex, metrics, state) {
         R: pushLetterR,
         Y: pushLetterY,
     };
-    const displayFace = getDisplayFace(face, metrics, state);
+    const displayFace = getInsetFace(getDisplayFace(face, metrics, state), insetAmount);
 
     if (state.unfoldProgress < 0.02 && displayFace.normal[2] <= 0) {
         return null;
     }
 
-    drawLetter[face.letter](data, displayFace);
+    drawLetter[face.letter](data, displayFace, outlineAmount);
     return new Float32Array(data);
 }
 
-function drawMesh(renderer, projection, model, vertices, color) {
+function drawMesh(renderer, projection, model, vertices, color, useTexture = false, textureInfo = renderer.faceTextures[0]) {
     const { gl } = renderer;
     const matrix = multiply(projection, model);
     const buffer = gl.createBuffer();
@@ -894,17 +1018,40 @@ function drawMesh(renderer, projection, model, vertices, color) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STREAM_DRAW);
     gl.enableVertexAttribArray(renderer.aPosition);
-    gl.vertexAttribPointer(renderer.aPosition, 3, gl.FLOAT, false, 24, 0);
+    gl.vertexAttribPointer(renderer.aPosition, 3, gl.FLOAT, false, 32, 0);
     gl.enableVertexAttribArray(renderer.aNormal);
-    gl.vertexAttribPointer(renderer.aNormal, 3, gl.FLOAT, false, 24, 12);
+    gl.vertexAttribPointer(renderer.aNormal, 3, gl.FLOAT, false, 32, 12);
+    gl.enableVertexAttribArray(renderer.aTexCoord);
+    gl.vertexAttribPointer(renderer.aTexCoord, 2, gl.FLOAT, false, 32, 24);
     gl.uniformMatrix4fv(renderer.uMatrix, false, new Float32Array(matrix));
     gl.uniformMatrix4fv(renderer.uModel, false, new Float32Array(model));
     gl.uniform3fv(renderer.uColor, new Float32Array(color));
-    gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 6);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
+    gl.uniform1i(renderer.uTexture, 0);
+    gl.uniform2f(renderer.uTextureSize, textureInfo.width, textureInfo.height);
+    gl.uniform1f(renderer.uUseTexture, useTexture ? 1 : 0);
+    gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 8);
     gl.deleteBuffer(buffer);
 }
 
-function createFocusRevealMesh(metrics, progress, centerPoint) {
+function getCoverSize(metrics, imageAspect) {
+    const viewportAspect = metrics.width / Math.max(metrics.height, 1);
+
+    if (viewportAspect > imageAspect) {
+        return {
+            width: metrics.width,
+            height: metrics.width / Math.max(imageAspect, 0.001),
+        };
+    }
+
+    return {
+        width: metrics.height * imageAspect,
+        height: metrics.height,
+    };
+}
+
+function createFocusRevealMesh(metrics, progress, centerPoint, textureSize, imageAspect) {
     const data = [];
     const farthestX = Math.max(
         Math.abs(-metrics.width / 2 - centerPoint[0]),
@@ -915,6 +1062,24 @@ function createFocusRevealMesh(metrics, progress, centerPoint) {
         Math.abs(metrics.height / 2 - centerPoint[1])
     );
     const radius = Math.hypot(farthestX, farthestY) * progress;
+    const expandedTextureSize = lerp(
+        textureSize,
+        Math.max(farthestX, farthestY) * 2,
+        smoothstep(progress)
+    );
+    const coverSize = getCoverSize(metrics, imageAspect);
+    const uvProgress = smoothstep(progress);
+    const getStartUv = (x, y) => [
+        0.5 + (x - centerPoint[0]) / expandedTextureSize,
+        0.5 + (y - centerPoint[1]) / expandedTextureSize,
+    ];
+    const getCoverUv = (x, y) => [
+        0.5 + x / coverSize.width,
+        0.5 + y / coverSize.height,
+    ];
+    const getRevealUv = (x, y) => [
+        ...lerp2d(getStartUv(x, y), getCoverUv(x, y), uvProgress),
+    ];
     const segments = 72;
     const center = [centerPoint[0], centerPoint[1], 900];
     const normal = [0, 0, 1];
@@ -926,10 +1091,26 @@ function createFocusRevealMesh(metrics, progress, centerPoint) {
     for (let index = 0; index < segments; index += 1) {
         const angleA = index / segments * Math.PI * 2;
         const angleB = (index + 1) / segments * Math.PI * 2;
+        const ax = center[0] + Math.cos(angleA) * radius;
+        const ay = center[1] + Math.sin(angleA) * radius;
+        const bx = center[0] + Math.cos(angleB) * radius;
+        const by = center[1] + Math.sin(angleB) * radius;
 
-        data.push(...center, ...normal);
-        data.push(center[0] + Math.cos(angleA) * radius, center[1] + Math.sin(angleA) * radius, 900, ...normal);
-        data.push(center[0] + Math.cos(angleB) * radius, center[1] + Math.sin(angleB) * radius, 900, ...normal);
+        data.push(...center, ...normal, ...getRevealUv(center[0], center[1]));
+        data.push(
+            ax,
+            ay,
+            900,
+            ...normal,
+            ...getRevealUv(ax, ay)
+        );
+        data.push(
+            bx,
+            by,
+            900,
+            ...normal,
+            ...getRevealUv(bx, by)
+        );
     }
 
     return new Float32Array(data);
@@ -953,10 +1134,33 @@ function renderMemory(gl, width, height, movement) {
 
     for (let faceIndex = 0; faceIndex < FACE_LETTERS.length; faceIndex += 1) {
         const face = FACE_LETTERS[faceIndex];
+        const outlineVertices = createLetterMeshForFace(face, faceIndex, metrics, state, 0.07, 1.5);
+
+        if (outlineVertices && outlineVertices.length > 0) {
+            drawMesh(
+                renderer,
+                metrics.projection,
+                identity(),
+                outlineVertices,
+                THEME.letterOutline
+            );
+        }
+    }
+
+    for (let faceIndex = 0; faceIndex < FACE_LETTERS.length; faceIndex += 1) {
+        const face = FACE_LETTERS[faceIndex];
         const vertices = createLetterMeshForFace(face, faceIndex, metrics, state);
 
         if (vertices && vertices.length > 0) {
-            drawMesh(renderer, metrics.projection, identity(), vertices, face.color);
+            drawMesh(
+                renderer,
+                metrics.projection,
+                identity(),
+                vertices,
+                face.color,
+                true,
+                renderer.faceTextures[faceIndex]
+            );
         }
     }
 
@@ -964,7 +1168,9 @@ function renderMemory(gl, width, height, movement) {
         const revealVertices = createFocusRevealMesh(
             metrics,
             smoothstep(state.revealProgress),
-            state.focusRevealCenter
+            state.focusRevealCenter,
+            state.focusRevealSize,
+            renderer.faceTextures[state.focusFaceIndex].aspect
         );
 
         if (revealVertices.length > 0) {
@@ -974,7 +1180,9 @@ function renderMemory(gl, width, height, movement) {
                 metrics.projection,
                 identity(),
                 revealVertices,
-                FACE_LETTERS[state.focusFaceIndex].color
+                FACE_LETTERS[state.focusFaceIndex].color,
+                true,
+                renderer.faceTextures[state.focusFaceIndex]
             );
         }
     }
