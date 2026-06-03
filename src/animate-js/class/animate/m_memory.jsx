@@ -1,0 +1,1223 @@
+import jejuTripImage from '../../asset/content-m/jeju_trip.jpg';
+import vietnamTripImage from '../../asset/content-m/vietnam_trip.jpg';
+import highSchoolFriendsImage from '../../asset/content-m/high_school_friends.jpg';
+import familyTripImage from '../../asset/content-m/family_trip.jpg';
+import legoImage from '../../asset/content-m/lego.jpg';
+import coffeeImage from '../../asset/content-m/coffee.jpg';
+
+const VERTEX_SHADER_SOURCE = `
+attribute vec3 aPosition;
+attribute vec3 aNormal;
+attribute vec2 aTexCoord;
+
+uniform mat4 uMatrix;
+uniform mat4 uModel;
+
+varying float vLight;
+varying vec2 vTexCoord;
+
+void main() {
+    vec3 normal = normalize((uModel * vec4(aNormal, 0.0)).xyz);
+    vec3 light = normalize(vec3(-0.45, -0.65, 0.62));
+    vLight = 0.42 + max(dot(normal, light), 0.0) * 0.58;
+    vTexCoord = aTexCoord;
+    gl_Position = uMatrix * vec4(aPosition, 1.0);
+}
+`;
+
+const FRAGMENT_SHADER_SOURCE = `
+precision mediump float;
+
+uniform vec3 uColor;
+uniform sampler2D uTexture;
+uniform vec2 uTextureSize;
+uniform float uUseTexture;
+
+varying float vLight;
+varying vec2 vTexCoord;
+
+void main() {
+    vec2 texel = 5.0 / max(uTextureSize, vec2(1.0, 1.0));
+    vec3 textureColor =
+        texture2D(uTexture, vTexCoord).rgb * 0.56 +
+        texture2D(uTexture, vTexCoord + vec2(texel.x, 0.0)).rgb * 0.11 +
+        texture2D(uTexture, vTexCoord - vec2(texel.x, 0.0)).rgb * 0.11 +
+        texture2D(uTexture, vTexCoord + vec2(0.0, texel.y)).rgb * 0.11 +
+        texture2D(uTexture, vTexCoord - vec2(0.0, texel.y)).rgb * 0.11;
+    vec3 color = mix(uColor, textureColor, uUseTexture);
+    gl_FragColor = vec4(color * vLight, 1.0);
+}
+`;
+
+const THEME = {
+    background: [130 / 255, 210 / 255, 222 / 255, 1],
+    letterOutline: [0.96, 0.96, 0.93],
+};
+
+const FACE_LETTERS = [
+    { letter: 'M', image: jejuTripImage, color: [0.24, 0.45, 0.82], netX: -1, netY: -1, center: [0, 0, 0.506], normal: [0, 0, 1], u: [1, 0, 0], v: [0, -1, 0] },
+    { letter: 'E', image: vietnamTripImage, color: [0.82, 0.3, 0.36], netX: -1, netY: 0, center: [-0.506, 0, 0], normal: [-1, 0, 0], u: [0, 0, 1], v: [0, -1, 0] },
+    { letter: 'O', image: highSchoolFriendsImage, color: [0.24, 0.6, 0.44], netX: 1, netY: 0, center: [0.506, 0, 0], normal: [1, 0, 0], u: [0, 0, -1], v: [0, -1, 0] },
+    { letter: 'R', image: familyTripImage, color: [0.76, 0.45, 0.17], netX: 2, netY: 0, center: [0, 0, -0.506], normal: [0, 0, -1], u: [-1, 0, 0], v: [0, -1, 0] },
+    { letter: 'M', image: legoImage, color: [0.5, 0.35, 0.72], netX: 0, netY: 0, center: [0, -0.506, 0], normal: [0, -1, 0], u: [1, 0, 0], v: [0, 0, -1] },
+    { letter: 'Y', image: coffeeImage, color: [0.86, 0.67, 0.2], netX: 2, netY: 1, center: [0, 0.506, 0], normal: [0, 1, 0], u: [1, 0, 0], v: [0, 0, 1] },
+];
+
+const FACE_FRONT_ORIENTATIONS = [
+    identity(),
+    rotateY(Math.PI / 2),
+    rotateY(-Math.PI / 2),
+    rotateY(Math.PI),
+    rotateX(-Math.PI / 2),
+    rotateX(Math.PI / 2),
+];
+
+const CLICK_DISTANCE = 8;
+const HOLD_MOVE_DISTANCE = 6;
+const LONG_PRESS_FRAMES = 42;
+const TAP_MAX_FRAMES = 24;
+const DOUBLE_TAP_FRAMES = 36;
+const REVEAL_PROGRESS_THRESHOLD = { close: 0.1, open: 0.95 };
+
+
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
+
+function createShader(gl, type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        const message = gl.getShaderInfoLog(shader);
+        gl.deleteShader(shader);
+        throw new Error(message || 'Unable to compile WebGL shader.');
+    }
+
+    return shader;
+}
+
+function createProgram(gl) {
+    const vertexShader = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER_SOURCE);
+    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER_SOURCE);
+    const program = gl.createProgram();
+
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        const message = gl.getProgramInfoLog(program);
+        gl.deleteProgram(program);
+        throw new Error(message || 'Unable to link WebGL program.');
+    }
+
+    return program;
+}
+
+function identity() {
+    return [
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1,
+    ];
+}
+
+function multiply(left, right) {
+    const result = new Array(16).fill(0);
+
+    for (let column = 0; column < 4; column += 1) {
+        for (let row = 0; row < 4; row += 1) {
+            result[column * 4 + row] =
+                left[0 * 4 + row] * right[column * 4 + 0] +
+                left[1 * 4 + row] * right[column * 4 + 1] +
+                left[2 * 4 + row] * right[column * 4 + 2] +
+                left[3 * 4 + row] * right[column * 4 + 3];
+        }
+    }
+
+    return result;
+}
+
+function rotateX(angle) {
+    const matrix = identity();
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    matrix[5] = cos;
+    matrix[6] = sin;
+    matrix[9] = -sin;
+    matrix[10] = cos;
+    return matrix;
+}
+
+function rotateY(angle) {
+    const matrix = identity();
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    matrix[0] = cos;
+    matrix[2] = -sin;
+    matrix[8] = sin;
+    matrix[10] = cos;
+    return matrix;
+}
+
+function scale(x, y, z) {
+    const matrix = identity();
+    matrix[0] = x;
+    matrix[5] = y;
+    matrix[10] = z;
+    return matrix;
+}
+
+function transformPoint(matrix, point) {
+    return [
+        matrix[0] * point[0] + matrix[4] * point[1] + matrix[8] * point[2] + matrix[12],
+        matrix[1] * point[0] + matrix[5] * point[1] + matrix[9] * point[2] + matrix[13],
+        matrix[2] * point[0] + matrix[6] * point[1] + matrix[10] * point[2] + matrix[14],
+    ];
+}
+
+function transformVector(matrix, vector) {
+    return [
+        matrix[0] * vector[0] + matrix[4] * vector[1] + matrix[8] * vector[2],
+        matrix[1] * vector[0] + matrix[5] * vector[1] + matrix[9] * vector[2],
+        matrix[2] * vector[0] + matrix[6] * vector[1] + matrix[10] * vector[2],
+    ];
+}
+
+function lerp(start, end, amount) {
+    return start + (end - start) * amount;
+}
+
+function lerp3d(start, end, amount) {
+    return [
+        lerp(start[0], end[0], amount),
+        lerp(start[1], end[1], amount),
+        lerp(start[2], end[2], amount),
+    ];
+}
+
+function lerp2d(start, end, amount) {
+    return [
+        lerp(start[0], end[0], amount),
+        lerp(start[1], end[1], amount),
+    ];
+}
+
+function lerpMatrix(start, end, amount) {
+    return start.map((value, index) => lerp(value, end[index], amount));
+}
+
+function smoothstep(value) {
+    const t = clamp(value, 0, 1);
+    return t * t * (3 - 2 * t);
+}
+
+function ortho(left, right, bottom, top, near, far) {
+    const matrix = identity();
+
+    matrix[0] = 2 / (right - left);
+    matrix[5] = 2 / (top - bottom);
+    matrix[10] = -2 / (far - near);
+    matrix[12] = -(right + left) / (right - left);
+    matrix[13] = -(top + bottom) / (top - bottom);
+    matrix[14] = -(far + near) / (far - near);
+    return matrix;
+}
+
+function createTexture(gl, source) {
+    const texture = gl.createTexture();
+    const textureInfo = {
+        texture,
+        width: 1,
+        height: 1,
+        aspect: 1,
+    };
+    const image = new Image();
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        1,
+        1,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        new Uint8Array([255, 255, 255, 255])
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    image.onload = () => {
+        textureInfo.width = image.naturalWidth || image.width || 1;
+        textureInfo.height = image.naturalHeight || image.height || 1;
+        textureInfo.aspect = textureInfo.width / Math.max(textureInfo.height, 1);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    };
+    image.src = source;
+
+    return textureInfo;
+}
+
+function createFaceTextures(gl) {
+    const textureCache = new Map();
+
+    return FACE_LETTERS.map((face) => {
+        if (!textureCache.has(face.image)) {
+            textureCache.set(face.image, createTexture(gl, face.image));
+        }
+
+        return textureCache.get(face.image);
+    });
+}
+
+function createRenderer(gl) {
+    const program = createProgram(gl);
+
+    return {
+        gl,
+        program,
+        aPosition: gl.getAttribLocation(program, 'aPosition'),
+        aNormal: gl.getAttribLocation(program, 'aNormal'),
+        aTexCoord: gl.getAttribLocation(program, 'aTexCoord'),
+        uMatrix: gl.getUniformLocation(program, 'uMatrix'),
+        uModel: gl.getUniformLocation(program, 'uModel'),
+        uColor: gl.getUniformLocation(program, 'uColor'),
+        uTexture: gl.getUniformLocation(program, 'uTexture'),
+        uTextureSize: gl.getUniformLocation(program, 'uTextureSize'),
+        uUseTexture: gl.getUniformLocation(program, 'uUseTexture'),
+        faceTextures: createFaceTextures(gl),
+    };
+}
+
+function ensureRenderer(gl) {
+    if (!memoryRenderer || memoryRenderer.gl !== gl) {
+        memoryRenderer = createRenderer(gl);
+    }
+
+    return memoryRenderer;
+}
+
+function createState() {
+    return {
+        orientation: multiply(rotateX(-0.42), rotateY(0.62)),
+        unfoldProgress: 0,
+        targetUnfoldProgress: 0,
+        focusProgress: 0,
+        targetFocusProgress: 0,
+        revealProgress: 0,
+        targetRevealProgress: 0,
+        isFocusClosing: false,
+        focusFaceIndex: null,
+        focusStartOrientation: identity(),
+        focusFromUnfolded: false,
+        focusRevealCenter: [0, 0],
+        focusRevealSize: 1,
+        focusReturnUnfoldTarget: 0,
+        velocityX: 0,
+        velocityY: 0,
+        isDragging: false,
+        isPointerActive: false,
+        pressCandidate: false,
+        pressFrames: 0,
+        pressFaceIndex: null,
+        longPressTriggered: false,
+        tapCount: 0,
+        tapCooldown: 0,
+        pointerStartX: 0,
+        pointerStartY: 0,
+        wasDown: false,
+        lastPointerX: 0,
+        lastPointerY: 0,
+    };
+}
+
+function ensureState() {
+    if (!memoryState) {
+        memoryState = createState();
+    }
+
+    return memoryState;
+}
+
+function getMetrics(width, height) {
+    const size = clamp(Math.min(width, height) * 0.5, 200, 400);
+    const unfoldSize = Math.min(width * 0.18, height * 0.26, size * 0.58);
+
+    return {
+        width,
+        height,
+        size,
+        unfoldSize,
+        unfoldStep: unfoldSize * 1.06,
+        projection: ortho(-width / 2, width / 2, height / 2, -height / 2, -1000, 1000),
+    };
+}
+
+function getFocusRotateProgress(state) {
+    if (state.focusFaceIndex === null || state.focusFromUnfolded) {
+        return 0;
+    }
+
+    return smoothstep(clamp(state.focusProgress / 0.7, 0, 1));
+}
+
+function getFocusProgressRate(state) {
+    return 0.065;
+}
+
+function getRenderOrientation(state) {
+    if (state.focusFaceIndex === null) {
+        return state.orientation;
+    }
+
+    return lerpMatrix(
+        state.focusStartOrientation,
+        FACE_FRONT_ORIENTATIONS[state.focusFaceIndex],
+        getFocusRotateProgress(state)
+    );
+}
+
+function getCubeModel(metrics, state) {
+    return multiply(
+        getRenderOrientation(state),
+        scale(metrics.size, metrics.size, metrics.size)
+    );
+}
+
+function getCubeScreenBounds(metrics, model) {
+    const corners = [];
+
+    for (const x of [-0.5, 0.5]) {
+        for (const y of [-0.5, 0.5]) {
+            for (const z of [-0.5, 0.5]) {
+                const point = transformPoint(model, [x, y, z]);
+                corners.push({
+                    x: point[0] + metrics.width / 2,
+                    y: point[1] + metrics.height / 2,
+                });
+            }
+        }
+    }
+
+    const padding = metrics.size * 0.12;
+
+    return {
+        left: Math.min(...corners.map((corner) => corner.x)) - padding,
+        right: Math.max(...corners.map((corner) => corner.x)) + padding,
+        top: Math.min(...corners.map((corner) => corner.y)) - padding,
+        bottom: Math.max(...corners.map((corner) => corner.y)) + padding,
+    };
+}
+
+function isPointOnCube(metrics, model, point) {
+    const bounds = getCubeScreenBounds(metrics, model);
+
+    return (
+        point.x >= bounds.left &&
+        point.x <= bounds.right &&
+        point.y >= bounds.top &&
+        point.y <= bounds.bottom
+    );
+}
+
+function getUnfoldedNetBounds(metrics) {
+    const half = metrics.unfoldSize * 0.58;
+    const points = FACE_LETTERS.map((face) => ({
+        x: (face.netX - 0.5) * metrics.unfoldStep + metrics.width / 2,
+        y: face.netY * metrics.unfoldStep + metrics.height / 2,
+    }));
+
+    return {
+        left: Math.min(...points.map((point) => point.x)) - half,
+        right: Math.max(...points.map((point) => point.x)) + half,
+        top: Math.min(...points.map((point) => point.y)) - half,
+        bottom: Math.max(...points.map((point) => point.y)) + half,
+    };
+}
+
+function isPointOnUnfoldedNet(metrics, point) {
+    const bounds = getUnfoldedNetBounds(metrics);
+
+    return (
+        point.x >= bounds.left &&
+        point.x <= bounds.right &&
+        point.y >= bounds.top &&
+        point.y <= bounds.bottom
+    );
+}
+
+function getScreenPoint(metrics, point) {
+    return {
+        x: point[0] + metrics.width / 2,
+        y: point[1] + metrics.height / 2,
+    };
+}
+
+function getFaceScreenCorners(metrics, face) {
+    return [
+        getScreenPoint(metrics, add3d(add3d(face.center, scale3d(face.u, -0.5)), scale3d(face.v, -0.5))),
+        getScreenPoint(metrics, add3d(add3d(face.center, scale3d(face.u, 0.5)), scale3d(face.v, -0.5))),
+        getScreenPoint(metrics, add3d(add3d(face.center, scale3d(face.u, 0.5)), scale3d(face.v, 0.5))),
+        getScreenPoint(metrics, add3d(add3d(face.center, scale3d(face.u, -0.5)), scale3d(face.v, 0.5))),
+    ];
+}
+
+function isPointInFace(metrics, face, point) {
+    const corners = getFaceScreenCorners(metrics, face);
+    let hasPositive = false;
+    let hasNegative = false;
+
+    for (let index = 0; index < corners.length; index += 1) {
+        const a = corners[index];
+        const b = corners[(index + 1) % corners.length];
+        const cross = (b.x - a.x) * (point.y - a.y) - (b.y - a.y) * (point.x - a.x);
+
+        hasPositive = hasPositive || cross > 0;
+        hasNegative = hasNegative || cross < 0;
+
+        if (hasPositive && hasNegative) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function rotateByScreenDelta(state, angleX, angleY) {
+    state.orientation = multiply(
+        multiply(rotateX(angleX), rotateY(angleY)),
+        state.orientation
+    );
+}
+
+function updateTapCooldown(state) {
+    if (state.tapCooldown > 0) {
+        state.tapCooldown -= 1;
+        return;
+    }
+
+    state.tapCount = 0;
+}
+
+function registerShortTap(state) {
+    if (state.tapCooldown > 0 && state.tapCount === 1) {
+        if (state.focusFaceIndex !== null || state.targetFocusProgress > 0.5) {
+            state.targetRevealProgress = 0;
+            state.isFocusClosing = true;
+            state.targetUnfoldProgress = state.focusReturnUnfoldTarget;
+        } else {
+            state.targetUnfoldProgress = state.targetUnfoldProgress > 0.5 ? 0 : 1;
+        }
+
+        state.tapCount = 0;
+        state.tapCooldown = 0;
+        state.velocityX = 0;
+        state.velocityY = 0;
+        return;
+    }
+
+    state.tapCount = 1;
+    state.tapCooldown = DOUBLE_TAP_FRAMES;
+}
+
+function triggerFaceFocus(state, faceIndex, metrics) {
+    state.focusFaceIndex = faceIndex;
+    state.focusStartOrientation = state.orientation;
+    state.focusReturnUnfoldTarget = state.targetUnfoldProgress;
+    state.focusFromUnfolded = state.targetUnfoldProgress > 0.5 || state.unfoldProgress > 0.5;
+    state.focusRevealCenter = state.focusFromUnfolded
+        ? getUnfoldedFace(FACE_LETTERS[faceIndex], metrics).center.slice(0, 2)
+        : [0, 0];
+    state.focusRevealSize = state.focusFromUnfolded ? metrics.unfoldSize : metrics.size;
+    state.isFocusClosing = false;
+
+    if (!state.focusFromUnfolded) {
+        state.targetUnfoldProgress = 0;
+    }
+
+    state.targetFocusProgress = 1;
+    state.velocityX = 0;
+    state.velocityY = 0;
+    state.tapCount = 0;
+    state.tapCooldown = 0;
+    state.longPressTriggered = true;
+}
+
+function updateInteraction(state, movement, metrics) {
+    state.unfoldProgress = lerp(state.unfoldProgress, state.targetUnfoldProgress, 0.14);
+    state.focusProgress = lerp(state.focusProgress, state.targetFocusProgress, getFocusProgressRate(state));
+
+    if (state.isFocusClosing && state.revealProgress < REVEAL_PROGRESS_THRESHOLD.close) {
+        state.targetFocusProgress = 0;
+    }
+
+    if (
+        state.focusFaceIndex !== null &&
+        !state.isFocusClosing &&
+        state.targetFocusProgress > 0.5 &&
+        (state.focusFromUnfolded || getFocusRotateProgress(state) >= 0.995)
+    ) {
+        state.targetRevealProgress = 1;
+    } else if (state.isFocusClosing || state.targetFocusProgress < 0.5) {
+        state.targetRevealProgress = 0;
+    }
+
+    if (state.revealProgress > REVEAL_PROGRESS_THRESHOLD.open && state.targetRevealProgress === 1) {
+        state.revealProgress = 1;
+    } else {
+        state.revealProgress = lerp(state.revealProgress, state.targetRevealProgress, 0.03);
+    }
+
+    if (
+        state.targetFocusProgress === 0 &&
+        state.targetRevealProgress === 0 &&
+        state.focusProgress < 0.01 &&
+        state.revealProgress < REVEAL_PROGRESS_THRESHOLD.close
+    ) {
+        state.focusFaceIndex = null;
+        state.focusFromUnfolded = false;
+        state.isFocusClosing = false;
+        state.focusProgress = 0;
+        state.revealProgress = 0;
+    }
+
+    updateTapCooldown(state);
+
+    if (!movement) {
+        if (state.targetUnfoldProgress < 0.5) {
+            rotateByScreenDelta(state, state.velocityX, state.velocityY);
+            state.velocityX *= 0.94;
+            state.velocityY *= 0.94;
+        }
+        return;
+    }
+
+    const pointer = movement.mousePoint;
+    const model = getCubeModel(metrics, state);
+    const isUnfolded = state.targetUnfoldProgress > 0.5;
+    const isFocused = state.focusFaceIndex !== null && state.focusProgress > 0.02;
+
+    if (!state.wasDown && movement.isDown) {
+        state.pressFaceIndex = findFaceAtPoint(metrics, state, pointer);
+        state.pressCandidate = state.pressFaceIndex !== null || (
+            !isFocused &&
+            (isUnfolded ? isPointOnUnfoldedNet(metrics, pointer) : isPointOnCube(metrics, model, pointer))
+        );
+        state.isPointerActive = state.pressCandidate;
+        state.isDragging = false;
+        state.pointerStartX = pointer.x;
+        state.pointerStartY = pointer.y;
+        state.lastPointerX = pointer.x;
+        state.lastPointerY = pointer.y;
+        state.pressFrames = 0;
+        state.longPressTriggered = false;
+        state.velocityX = 0;
+        state.velocityY = 0;
+    }
+
+    if (movement.isDown && state.isPointerActive) {
+        state.pressFrames += 1;
+    }
+
+    const dragDistance = Math.hypot(
+        pointer.x - state.pointerStartX,
+        pointer.y - state.pointerStartY
+    );
+
+    if (
+        movement.isDown &&
+        state.isPointerActive &&
+        state.pressFaceIndex !== null &&
+        !state.longPressTriggered &&
+        !isFocused &&
+        state.pressFrames >= LONG_PRESS_FRAMES &&
+        dragDistance <= HOLD_MOVE_DISTANCE
+    ) {
+        triggerFaceFocus(state, state.pressFaceIndex, metrics);
+        state.isDragging = false;
+    }
+
+    if (movement.isDown && state.isPointerActive && !isUnfolded && !isFocused && !state.longPressTriggered) {
+        if (!state.isDragging && dragDistance > CLICK_DISTANCE) {
+            state.isDragging = true;
+        }
+    }
+
+    if (movement.isDown && state.isDragging && !isUnfolded) {
+        const deltaX = pointer.x - state.lastPointerX;
+        const deltaY = pointer.y - state.lastPointerY;
+
+        state.velocityX = -deltaY * 0.01;
+        state.velocityY = deltaX * 0.01;
+        rotateByScreenDelta(state, state.velocityX, state.velocityY);
+        state.lastPointerX = pointer.x;
+        state.lastPointerY = pointer.y;
+    }
+
+    if (state.wasDown && !movement.isDown) {
+        const releaseDistance = Math.hypot(
+            pointer.x - state.pointerStartX,
+            pointer.y - state.pointerStartY
+        );
+
+        if (
+            state.pressCandidate &&
+            releaseDistance <= CLICK_DISTANCE &&
+            state.pressFrames <= TAP_MAX_FRAMES &&
+            !state.longPressTriggered
+        ) {
+            registerShortTap(state);
+        } else if (
+            releaseDistance > CLICK_DISTANCE ||
+            state.pressFrames > TAP_MAX_FRAMES ||
+            state.longPressTriggered
+        ) {
+            state.tapCount = 0;
+            state.tapCooldown = 0;
+        }
+
+        state.isDragging = false;
+        state.isPointerActive = false;
+        state.pressCandidate = false;
+        state.pressFrames = 0;
+        state.pressFaceIndex = null;
+        state.longPressTriggered = false;
+    }
+
+    if (!state.isDragging && state.targetUnfoldProgress < 0.5 && state.targetFocusProgress < 0.5) {
+        rotateByScreenDelta(state, state.velocityX, state.velocityY);
+        state.velocityX *= 0.94;
+        state.velocityY *= 0.94;
+    } else if (state.targetUnfoldProgress > 0.5 || state.targetFocusProgress > 0.5) {
+        state.velocityX *= 0.82;
+        state.velocityY *= 0.82;
+    }
+
+    state.wasDown = movement.isDown;
+}
+
+function pushVertex(data, point, normal, uv) {
+    data.push(...point, ...normal, ...uv);
+}
+
+function pushFace(data, a, b, c, d, normal, uvA, uvB, uvC, uvD) {
+    pushVertex(data, a, normal, uvA);
+    pushVertex(data, b, normal, uvB);
+    pushVertex(data, d, normal, uvD);
+    pushVertex(data, a, normal, uvA);
+    pushVertex(data, d, normal, uvD);
+    pushVertex(data, c, normal, uvC);
+}
+
+function add3d(a, b) {
+    return [
+        a[0] + b[0],
+        a[1] + b[1],
+        a[2] + b[2],
+    ];
+}
+
+function scale3d(vector, amount) {
+    return [
+        vector[0] * amount,
+        vector[1] * amount,
+        vector[2] * amount,
+    ];
+}
+
+function normalize3d(vector) {
+    const length = Math.hypot(vector[0], vector[1], vector[2]) || 1;
+
+    return [
+        vector[0] / length,
+        vector[1] / length,
+        vector[2] / length,
+    ];
+}
+
+function getFacePoint(face, x, y) {
+    return add3d(
+        add3d(face.center, scale3d(face.u, x)),
+        scale3d(face.v, y)
+    );
+}
+
+function getInsetFace(face, amount) {
+    return {
+        ...face,
+        center: add3d(face.center, scale3d(normalize3d(face.normal), -amount)),
+    };
+}
+
+function pushFaceShape(data, face, a, b, c, d) {
+    pushFace(
+        data,
+        getFacePoint(face, a[0], a[1]),
+        getFacePoint(face, b[0], b[1]),
+        getFacePoint(face, c[0], c[1]),
+        getFacePoint(face, d[0], d[1]),
+        face.normal,
+        [a[0] + 0.5, 0.5 - a[1]],
+        [b[0] + 0.5, 0.5 - b[1]],
+        [c[0] + 0.5, 0.5 - c[1]],
+        [d[0] + 0.5, 0.5 - d[1]]
+    );
+}
+
+function pushDisk(data, face, center, radius, segments = 24) {
+    for (let index = 0; index < segments; index += 1) {
+        const angleA = index / segments * Math.PI * 2;
+        const angleB = (index + 1) / segments * Math.PI * 2;
+
+        pushFaceShape(
+            data,
+            face,
+            center,
+            [
+                center[0] + Math.cos(angleA) * radius,
+                center[1] + Math.sin(angleA) * radius,
+            ],
+            center,
+            [
+                center[0] + Math.cos(angleB) * radius,
+                center[1] + Math.sin(angleB) * radius,
+            ]
+        );
+    }
+}
+
+function pushOvalDisk(data, face, center, radiusX, radiusY, segments = 36) {
+    for (let index = 0; index < segments; index += 1) {
+        const angleA = index / segments * Math.PI * 2;
+        const angleB = (index + 1) / segments * Math.PI * 2;
+
+        pushFaceShape(
+            data,
+            face,
+            center,
+            [
+                center[0] + Math.cos(angleA) * radiusX,
+                center[1] + Math.sin(angleA) * radiusY,
+            ],
+            center,
+            [
+                center[0] + Math.cos(angleB) * radiusX,
+                center[1] + Math.sin(angleB) * radiusY,
+            ]
+        );
+    }
+}
+
+function pushCapsuleStroke(data, face, start, end, thickness) {
+    const dx = end[0] - start[0];
+    const dy = end[1] - start[1];
+    const length = Math.hypot(dx, dy) || 1;
+    const offsetX = -dy / length * thickness / 2;
+    const offsetY = dx / length * thickness / 2;
+
+    pushFaceShape(
+        data,
+        face,
+        [start[0] + offsetX, start[1] + offsetY],
+        [end[0] + offsetX, end[1] + offsetY],
+        [start[0] - offsetX, start[1] - offsetY],
+        [end[0] - offsetX, end[1] - offsetY]
+    );
+    pushDisk(data, face, start, thickness / 2);
+    pushDisk(data, face, end, thickness / 2);
+}
+
+function pushOvalRing(data, face, center, outerRadiusX, outerRadiusY, thickness, startAngle = 0, endAngle = Math.PI * 2, segments = 40) {
+    const innerRadiusX = Math.max(outerRadiusX - thickness, outerRadiusX * 0.1);
+    const innerRadiusY = Math.max(outerRadiusY - thickness, outerRadiusY * 0.1);
+    const angleSpan = endAngle - startAngle;
+
+    for (let index = 0; index < segments; index += 1) {
+        const angleA = startAngle + angleSpan * index / segments;
+        const angleB = startAngle + angleSpan * (index + 1) / segments;
+        const outerA = [
+            center[0] + Math.cos(angleA) * outerRadiusX,
+            center[1] + Math.sin(angleA) * outerRadiusY,
+        ];
+        const outerB = [
+            center[0] + Math.cos(angleB) * outerRadiusX,
+            center[1] + Math.sin(angleB) * outerRadiusY,
+        ];
+        const innerA = [
+            center[0] + Math.cos(angleA) * innerRadiusX,
+            center[1] + Math.sin(angleA) * innerRadiusY,
+        ];
+        const innerB = [
+            center[0] + Math.cos(angleB) * innerRadiusX,
+            center[1] + Math.sin(angleB) * innerRadiusY,
+        ];
+
+        pushFaceShape(data, face, outerA, outerB, innerA, innerB);
+    }
+}
+
+function pushLetterM(data, face, outlineAmount = 0) {
+    const t = 0.31 + outlineAmount;
+
+    pushCapsuleStroke(data, face, [-0.33, 0.34], [-0.33, -0.34], t);
+    pushCapsuleStroke(data, face, [0.33, 0.34], [0.33, -0.34], t);
+    pushCapsuleStroke(data, face, [-0.27, 0.32], [0, -0.03], t);
+    pushCapsuleStroke(data, face, [0, -0.03], [0.27, 0.32], t);
+}
+
+function pushLetterE(data, face, outlineAmount = 0) {
+    const t = 0.31 + outlineAmount;
+
+    pushCapsuleStroke(data, face, [-0.3, 0.34], [-0.3, -0.34], t);
+    pushCapsuleStroke(data, face, [-0.3, 0.34], [0.35, 0.34], t);
+    pushCapsuleStroke(data, face, [-0.3, 0], [0.25, 0], t);
+    pushCapsuleStroke(data, face, [-0.3, -0.34], [0.35, -0.34], t);
+}
+
+function pushLetterO(data, face, outlineAmount = 0) {
+    pushOvalRing(
+        data,
+        face,
+        [0, 0],
+        0.48 + outlineAmount / 2,
+        0.48 + outlineAmount / 2,
+        0.35 + outlineAmount,
+        0,
+        Math.PI * 2,
+        56
+    );
+}
+
+function pushLetterR(data, face, outlineAmount = 0) {
+    const t = 0.31 + outlineAmount;
+
+    pushCapsuleStroke(data, face, [-0.3, 0.34], [-0.3, -0.34], t);
+    pushCapsuleStroke(data, face, [-0.3, 0.34], [-0.08, 0.34], t);
+    pushCapsuleStroke(data, face, [-0.3, 0.03], [-0.08, 0.03], t);
+    pushOvalDisk(data, face, [-0.03, 0.2], 0.42 + outlineAmount / 2, 0.29 + outlineAmount / 2, 36);
+    pushCapsuleStroke(data, face, [-0.11, -0.03], [0.35, -0.36], t);
+}
+
+function pushLetterY(data, face, outlineAmount = 0) {
+    const t = 0.33 + outlineAmount;
+
+    pushCapsuleStroke(data, face, [-0.31, 0.35], [0, 0.03], t);
+    pushCapsuleStroke(data, face, [0.31, 0.35], [0, 0.03], t);
+    pushCapsuleStroke(data, face, [0, 0.03], [0, -0.35], t);
+}
+
+function getUnfoldedFace(face, metrics) {
+    return {
+        letter: face.letter,
+        center: [
+            (face.netX - 0.5) * metrics.unfoldStep,
+            face.netY * metrics.unfoldStep,
+            0,
+        ],
+        normal: [0, 0, 1],
+        u: [metrics.unfoldSize, 0, 0],
+        v: [0, -metrics.unfoldSize, 0],
+    };
+}
+
+function getFoldedFace(face, model) {
+    return {
+        letter: face.letter,
+        center: transformPoint(model, face.center),
+        normal: transformVector(model, face.normal),
+        u: transformVector(model, face.u),
+        v: transformVector(model, face.v),
+    };
+}
+
+function getMorphedFace(face, metrics, model, progress) {
+    const amount = smoothstep(progress);
+    const folded = getFoldedFace(face, model);
+    const unfolded = getUnfoldedFace(face, metrics);
+
+    return {
+        letter: face.letter,
+        center: lerp3d(folded.center, unfolded.center, amount),
+        normal: lerp3d(folded.normal, unfolded.normal, amount),
+        u: lerp3d(folded.u, unfolded.u, amount),
+        v: lerp3d(folded.v, unfolded.v, amount),
+    };
+}
+
+function getDisplayFace(face, metrics, state) {
+    const model = getCubeModel(metrics, state);
+
+    return getMorphedFace(face, metrics, model, state.unfoldProgress);
+}
+
+function findFaceAtPoint(metrics, state, point) {
+    if (state.unfoldProgress < 0.02 && state.focusFaceIndex !== null && state.focusProgress > 0.02) {
+        return state.focusFaceIndex;
+    }
+    let selectedFaceIndex = null;
+    let selectedZ = -Infinity;
+
+    for (let faceIndex = 0; faceIndex < FACE_LETTERS.length; faceIndex += 1) {
+
+        const displayFace = getDisplayFace(FACE_LETTERS[faceIndex], metrics, state);
+
+        if (state.focusFaceIndex === null && state.unfoldProgress < 0.02 && displayFace.normal[2] <= 0) {
+            continue;
+        }
+
+        if (!isPointInFace(metrics, displayFace, point)) {
+            continue;
+        }
+
+        if (displayFace.center[2] > selectedZ) {
+            selectedZ = displayFace.center[2];
+            selectedFaceIndex = faceIndex;
+        }
+    }
+
+    return selectedFaceIndex;
+}
+
+function createLetterMeshForFace(face, faceIndex, metrics, state, outlineAmount = 0, insetAmount = 0) {
+    const data = [];
+    const drawLetter = {
+        M: pushLetterM,
+        E: pushLetterE,
+        O: pushLetterO,
+        R: pushLetterR,
+        Y: pushLetterY,
+    };
+    const displayFace = getInsetFace(getDisplayFace(face, metrics, state), insetAmount);
+
+    if (state.unfoldProgress < 0.02 && displayFace.normal[2] <= 0) {
+        return null;
+    }
+
+    drawLetter[face.letter](data, displayFace, outlineAmount);
+    return new Float32Array(data);
+}
+
+function drawMesh(renderer, projection, model, vertices, color, useTexture = false, textureInfo = renderer.faceTextures[0]) {
+    const { gl } = renderer;
+    const matrix = multiply(projection, model);
+    const buffer = gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STREAM_DRAW);
+    gl.enableVertexAttribArray(renderer.aPosition);
+    gl.vertexAttribPointer(renderer.aPosition, 3, gl.FLOAT, false, 32, 0);
+    gl.enableVertexAttribArray(renderer.aNormal);
+    gl.vertexAttribPointer(renderer.aNormal, 3, gl.FLOAT, false, 32, 12);
+    gl.enableVertexAttribArray(renderer.aTexCoord);
+    gl.vertexAttribPointer(renderer.aTexCoord, 2, gl.FLOAT, false, 32, 24);
+    gl.uniformMatrix4fv(renderer.uMatrix, false, new Float32Array(matrix));
+    gl.uniformMatrix4fv(renderer.uModel, false, new Float32Array(model));
+    gl.uniform3fv(renderer.uColor, new Float32Array(color));
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
+    gl.uniform1i(renderer.uTexture, 0);
+    gl.uniform2f(renderer.uTextureSize, textureInfo.width, textureInfo.height);
+    gl.uniform1f(renderer.uUseTexture, useTexture ? 1 : 0);
+    gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 8);
+    gl.deleteBuffer(buffer);
+}
+
+function getCoverSize(metrics, imageAspect) {
+    const viewportAspect = metrics.width / Math.max(metrics.height, 1);
+
+    if (viewportAspect > imageAspect) {
+        return {
+            width: metrics.width,
+            height: metrics.width / Math.max(imageAspect, 0.001),
+        };
+    }
+
+    return {
+        width: metrics.height * imageAspect,
+        height: metrics.height,
+    };
+}
+
+function createFocusRevealMesh(metrics, progress, centerPoint, textureSize, imageAspect) {
+    const data = [];
+    const farthestX = Math.max(
+        Math.abs(-metrics.width / 2 - centerPoint[0]),
+        Math.abs(metrics.width / 2 - centerPoint[0])
+    );
+    const farthestY = Math.max(
+        Math.abs(-metrics.height / 2 - centerPoint[1]),
+        Math.abs(metrics.height / 2 - centerPoint[1])
+    );
+    const radius = Math.hypot(farthestX, farthestY) * progress;
+    const expandedTextureSize = lerp(
+        textureSize,
+        Math.max(farthestX, farthestY) * 2,
+        smoothstep(progress)
+    );
+    const coverSize = getCoverSize(metrics, imageAspect);
+    const uvProgress = smoothstep(progress);
+    const getStartUv = (x, y) => [
+        0.5 + (x - centerPoint[0]) / expandedTextureSize,
+        0.5 + (y - centerPoint[1]) / expandedTextureSize,
+    ];
+    const getCoverUv = (x, y) => [
+        0.5 + x / coverSize.width,
+        0.5 + y / coverSize.height,
+    ];
+    const getRevealUv = (x, y) => [
+        ...lerp2d(getStartUv(x, y), getCoverUv(x, y), uvProgress),
+    ];
+    const segments = 72;
+    const center = [centerPoint[0], centerPoint[1], 900];
+    const normal = [0, 0, 1];
+
+    if (radius <= 0) {
+        return new Float32Array(data);
+    }
+
+    for (let index = 0; index < segments; index += 1) {
+        const angleA = index / segments * Math.PI * 2;
+        const angleB = (index + 1) / segments * Math.PI * 2;
+        const ax = center[0] + Math.cos(angleA) * radius;
+        const ay = center[1] + Math.sin(angleA) * radius;
+        const bx = center[0] + Math.cos(angleB) * radius;
+        const by = center[1] + Math.sin(angleB) * radius;
+
+        data.push(...center, ...normal, ...getRevealUv(center[0], center[1]));
+        data.push(
+            ax,
+            ay,
+            900,
+            ...normal,
+            ...getRevealUv(ax, ay)
+        );
+        data.push(
+            bx,
+            by,
+            900,
+            ...normal,
+            ...getRevealUv(bx, by)
+        );
+    }
+
+    return new Float32Array(data);
+}
+
+function renderMemory(gl, width, height, movement) {
+    const renderer = ensureRenderer(gl);
+    const state = ensureState();
+    const metrics = getMetrics(width, height);
+
+    updateInteraction(state, movement, metrics);
+
+    gl.viewport(0, 0, width, height);
+    gl.clearColor(...THEME.background);
+    gl.clearDepth(1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.disable(gl.CULL_FACE);
+    gl.useProgram(renderer.program);
+
+    for (let faceIndex = 0; faceIndex < FACE_LETTERS.length; faceIndex += 1) {
+        const face = FACE_LETTERS[faceIndex];
+        const outlineVertices = createLetterMeshForFace(face, faceIndex, metrics, state, 0.07, 1.5);
+
+        if (outlineVertices && outlineVertices.length > 0) {
+            drawMesh(
+                renderer,
+                metrics.projection,
+                identity(),
+                outlineVertices,
+                THEME.letterOutline
+            );
+        }
+    }
+
+    for (let faceIndex = 0; faceIndex < FACE_LETTERS.length; faceIndex += 1) {
+        const face = FACE_LETTERS[faceIndex];
+        const vertices = createLetterMeshForFace(face, faceIndex, metrics, state);
+
+        if (vertices && vertices.length > 0) {
+            drawMesh(
+                renderer,
+                metrics.projection,
+                identity(),
+                vertices,
+                face.color,
+                true,
+                renderer.faceTextures[faceIndex]
+            );
+        }
+    }
+
+    if (state.focusFaceIndex !== null) {
+        const revealVertices = createFocusRevealMesh(
+            metrics,
+            smoothstep(state.revealProgress),
+            state.focusRevealCenter,
+            state.focusRevealSize,
+            renderer.faceTextures[state.focusFaceIndex].aspect
+        );
+
+        if (revealVertices.length > 0) {
+            gl.clear(gl.DEPTH_BUFFER_BIT);
+            drawMesh(
+                renderer,
+                metrics.projection,
+                identity(),
+                revealVertices,
+                FACE_LETTERS[state.focusFaceIndex].color,
+                true,
+                renderer.faceTextures[state.focusFaceIndex]
+            );
+        }
+    }
+}
+
+let memoryRenderer = null;
+let memoryState = null;
+
+export function AnimationM(gl, width, height, movement) {
+    renderMemory(gl, width, height, movement);
+}
+
+export function CleanM() {
+    memoryRenderer = null;
+    memoryState = null;
+}
+
+export const descriptionM = [
+    `기억력이 굉장히 좋은 편입니다. 
+    단순히 어떤 사건을 기억한다기보다는, 그때의 상황이나 맥락까지 통째로 기억하는 편이에요. 
+    뭐랄까... 머릿속에서 동영상이 재생되는 느낌이라고나 할까요?`,
+    `당연한 말이지만... 이런 방식의 기억이 좋을 때도, 나쁠 때도 있습니다.
+    비교적 생생하게 기억하는 만큼, 좋았던 기억을 떠올리면 다시 그때의 감정을 느낄 수 있거든요. 
+    가끔씩 좋았던 기억을 다시 꺼내보다 보면 생각보다 꽤 힘이 됩니다.
+    그렇지만 기억이라는 게 본인이 기억하고 싶은 것만 기억할 수 있는 건 아니잖아요? 
+    당연히 안 좋은 기억도 생생하게 기억이 납니다.
+    물론 굳이 꺼내보지는 않지만, 문득 떠오를 때면 그닥 기분이 좋지는 않아요.`,
+    `단순히 능력으로만 보면 굉장히 편리합니다.
+    어떤 의사 결정의 맥락까지 기억하다 보니, 이후에 "내가 왜 이런 식으로 했더라" 같은 고민을 할 필요가 거의 없어요.
+    협업할 때도 기존의 맥락을 그대로 설명할 수 있기 때문에 오해가 생기는 경우를 줄일 수 있구요.
+    요새는 회사에서 일할 때 제 기억력을 최대한 활용하려 노력하고 있습니다.`
+];
+
+export const toolTipM = [
+    '큐브를 드래그하면 이리저리 회전시킬 수 있습니다.',
+    '큐브를 더블 클릭하면 펼칠 수 있고, 다시 더블 클릭하면 접을 수 있습니다.',
+    '큐브의 면을 길게 누르면 해당 이미지를 확대해볼 수 있어요. 확대된 상태에서 더블 클릭하면 원래대로 돌아옵니다.'
+];
